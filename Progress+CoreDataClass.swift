@@ -1,5 +1,5 @@
 //
-//  Goal+CoreDataClass.swift
+//  Progress+CoreDataClass.swift
 //  Hundred
 //
 //  Created by jc on 2020-08-02.
@@ -10,7 +10,7 @@
 import Foundation
 import CoreData
 
-@objc(Goal)
-public class Goal: NSManagedObject {
+@objc(Progress)
+public class Progress: NSManagedObject {
 
 }

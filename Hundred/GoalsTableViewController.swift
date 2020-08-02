@@ -10,7 +10,6 @@ import UIKit
 import CoreData
 
 class GoalsTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
-    var container: NSPersistentContainer!
     var fetchedResultsController: NSFetchedResultsController<Goal>!
     var goalPredicate: NSPredicate?
     
@@ -20,14 +19,6 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
         title = "Goals"
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addGoals))
         
-        container = NSPersistentContainer(name: "Hundred")
-        container.loadPersistentStores { storeDescription, error in
-            self.container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-
-            if let error = error {
-                print("Unresolved error \(error.localizedDescription)")
-            }
-        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -51,6 +42,7 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         let goal = fetchedResultsController.object(at: indexPath)
         cell.textLabel!.text = goal.title
+        cell.accessoryType = .disclosureIndicator
         return cell
     }
     
@@ -64,8 +56,7 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
     
     @objc func addGoals() {
         if let vc = storyboard?.instantiateViewController(withIdentifier: "AddGoal") as? AddGoalViewController {
-            vc.container = container
-            (vc.isDismissed!) { [weak self] in
+            vc.isDismissed = { [weak self] in
                 self?.loadSavedData()
             }
             present(vc, animated: true)
@@ -76,11 +67,11 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
 
         if fetchedResultsController == nil {
             let request = Goal.createFetchRequest()
-            let sort = NSSortDescriptor(key: "title", ascending: true)
+            let sort = NSSortDescriptor(key: "date", ascending: false)
             request.sortDescriptors = [sort]
             request.fetchBatchSize = 20
             
-            fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: container.viewContext, sectionNameKeyPath: "title", cacheName: nil)
+            fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: self.context, sectionNameKeyPath: "title", cacheName: nil)
             fetchedResultsController.delegate = self
         }
         
@@ -96,3 +87,5 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
     }
     
 }
+
+

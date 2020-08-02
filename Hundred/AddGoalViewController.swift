@@ -10,7 +10,6 @@ import UIKit
 import CoreData
 
 class AddGoalViewController: UIViewController {
-    var container: NSPersistentContainer!
     var metrics: [String]!
     var isDismissed: (() -> Void)?
     
@@ -38,7 +37,7 @@ class AddGoalViewController: UIViewController {
     @IBAction func addGoalPressed(_ sender: Any) {
         metrics = [String]()
         
-        let goal = Goal(context: container.viewContext)
+        let goal = Goal(context: self.context)
         
         if let title = textField.text, let detail = textView.text {
             goal.title = title
@@ -53,6 +52,9 @@ class AddGoalViewController: UIViewController {
             metrics.append(metric2)
         }
         
+        goal.metrics = metrics
+        goal.date = Date()
+        
         saveContext()
         dismiss(animated: true, completion: {
             self.isDismissed?()
@@ -60,9 +62,9 @@ class AddGoalViewController: UIViewController {
     }
     
     func saveContext() {
-        if container.viewContext.hasChanges {
+        if self.context.hasChanges {
             do {
-                try container.viewContext.save()
+                try self.context.save()
             } catch {
                 print("An error occured whlie saving: \(error.localizedDescription)")
             }

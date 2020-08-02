@@ -11,11 +11,27 @@ import CoreData
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
-
+    var window: UIWindow?
+    lazy var persistentContainer: NSPersistentContainer = {
+        let container = NSPersistentContainer(name: "Hundred")
+        container.loadPersistentStores { description, error in
+            container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+            if let error = error {
+                fatalError("Unable to load persistent stores: \(error)")
+            }
+        }
+        return container
+    }()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+//        if let goalsVC = window?.rootViewController as? GoalsTableViewController {
+//            goalsVC.container = persistentContainer
+//        }
+//        
+//        if let existingGoalsVC = window?.rootViewController as? ExistingGoalsMenuTableViewController {
+//            existingGoalsVC.container = persistentContainer
+//        }
+//        
         return true
     }
 
@@ -35,7 +51,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - Core Data stack
 
-    lazy var persistentContainer: NSPersistentCloudKitContainer = {
+    lazy var persistentCloudKitContainer: NSPersistentCloudKitContainer = {
         /*
          The persistent container for the application. This implementation
          creates and returns a container, having loaded the store for the
@@ -65,9 +81,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Core Data Saving support
 
     func saveContext () {
+        let cloudContext = persistentCloudKitContainer.viewContext
         let context = persistentContainer.viewContext
         if context.hasChanges {
             do {
+                try cloudContext.save()
                 try context.save()
             } catch {
                 // Replace this implementation with code to handle the error appropriately.
@@ -77,6 +95,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
     }
-
 }
-
