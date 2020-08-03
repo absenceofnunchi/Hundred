@@ -9,6 +9,8 @@
 import UIKit
 
 class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate  {
+    var existingGoal: Goal?
+    var imagePathString: String?
     
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var descriptionLabel: UILabel!
@@ -17,8 +19,6 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
     @IBOutlet weak var firstMetricTextField: UITextField!
     @IBOutlet weak var secondMetricTextField: UITextField!
     @IBOutlet weak var commentTextView: UITextView!
-    
-    var existingGoal: Goal?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -88,15 +88,33 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
                 progress.date = Date()
                 progress.comment = commentTextView.text
                 
+                let formatter = NumberFormatter()
+                formatter.generatesDecimalNumbers = true
+                
                 if let firstMetric = firstMetricTextField.text {
-                    progress.firstMetric = Double(firstMetric) ?? 0
+                    progress.firstMetric = formatter.number(from: firstMetric) as? NSDecimalNumber ?? 0
                 }
                 
                 if let secondMetric = secondMetricTextField.text {
-                    progress.firstMetric = Double(secondMetric) ?? 0
+                    progress.firstMetric = formatter.number(from: secondMetric) as? NSDecimalNumber ?? 0
                 }
                 
-//                progress.image
+                progress.image = imagePathString
+                
+                var goalForProgress: Goal!
+                
+                let goalRequest = Goal.createFetchRequest()
+                goalRequest.predicate = NSPredicate(format: "title == %@", titleLabel.text!)
+                
+                if let goal = try? self.context.fetch(goalRequest) {
+                    if goal.count > 0 {
+                        goalForProgress = goal[0]
+                    }
+                }
+                
+                goalForProgress.progress.insert(progress)
+                
+                saveContext()
                 
             default:
                 break
@@ -125,12 +143,21 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
         let imagePath = getDocumentsDirectory().appendingPathComponent(imageName)
         if let jpegData = image.jpegData(compressionQuality: 0.8) {
             try? jpegData.write(to: imagePath)
-            print("imagePath: \(imagePath)")
         }
         
-        
+        imagePathString = imageName
         
         dismiss(animated: true)
+    }
+    
+    func saveContext() {
+        if self.context.hasChanges {
+            do {
+                try self.context.save()
+            } catch {
+                print("An error occurred while saving: \(error.localizedDescription)")
+            }
+        }
     }
     
     @objc func dismissMyKeyboard(){
@@ -151,7 +178,7 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
             present(ac, animated: true)
         }
     }
-
+    
     @objc func addFromCamera() {
         let picker = UIImagePickerController()
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
@@ -168,3 +195,4 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
         
     }
 }
+

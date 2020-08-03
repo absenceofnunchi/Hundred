@@ -2,7 +2,7 @@
 //  Goal+CoreDataProperties.swift
 //  Hundred
 //
-//  Created by jc on 2020-08-02.
+//  Created by jc on 2020-08-03.
 //  Copyright © 2020 J. All rights reserved.
 //
 //
@@ -17,11 +17,11 @@ extension Goal {
         return NSFetchRequest<Goal>(entityName: "Goal")
     }
 
+    @NSManaged public var date: Date
     @NSManaged public var detail: String
     @NSManaged public var metrics: [String]?
     @NSManaged public var title: String
-    @NSManaged public var date: Date
-    @NSManaged public var progress: NSSet?
+    @NSManaged public var progress: Set<Progress>
 
 }
 
@@ -35,9 +35,9 @@ extension Goal {
     @NSManaged public func removeFromProgress(_ value: Progress)
 
     @objc(addProgress:)
-    @NSManaged public func addToProgress(_ values: NSSet)
+    @NSManaged public func addToProgress(_ values: Set<Progress>)
 
     @objc(removeProgress:)
-    @NSManaged public func removeFromProgress(_ values: NSSet)
+    @NSManaged public func removeFromProgress(_ values: Set<Progress>)
 
 }

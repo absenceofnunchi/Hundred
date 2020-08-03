@@ -24,7 +24,7 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         loadSavedData()
-
+        
     }
     
     // MARK: - Table view data source
@@ -47,12 +47,40 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let goal = fetchedResultsController.object(at: indexPath)
         if let vc = storyboard?.instantiateViewController(withIdentifier: "Detail") as? DetailViewController {
             vc.goal = fetchedResultsController.object(at: indexPath)
             navigationController?.pushViewController(vc, animated: true)
         }
-        
     }
+    
+    //    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    //        let goal = fetchedResultsController.object(at: indexPath)
+    //        if let vc = storyboard?.instantiateViewController(withIdentifier: "Detail") as? DetailViewController,
+    //            let progress = goal.progress.first(where: {$0.goal.title == goal.title}) {
+    //            vc.goalTitle = goal.title
+    //            vc.date = progress.date
+    //
+    //            if let comment = progress.comment {
+    //                vc.comment = comment
+    //            }
+    //
+    //            if let firstMetric = progress.firstMetric, let secondMetric = progress.secondMetric {
+    //                vc.firstMetric = firstMetric
+    //                vc.secondMetric = secondMetric
+    //            }
+    //
+    //            if let image = progress.image {
+    //                vc.image = image
+    //            }
+    //
+    //            if let location = progress.location {
+    //                vc.location = location
+    //            }
+    //
+    //            navigationController?.pushViewController(vc, animated: true)
+    //        }
+    //    }
     
     @objc func addGoals() {
         if let vc = storyboard?.instantiateViewController(withIdentifier: "AddGoal") as? AddGoalViewController {
@@ -64,7 +92,7 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
     }
     
     func loadSavedData() {
-
+        
         if fetchedResultsController == nil {
             let request = Goal.createFetchRequest()
             let sort = NSSortDescriptor(key: "date", ascending: false)
@@ -87,5 +115,3 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
     }
     
 }
-
-

@@ -2,7 +2,7 @@
 //  Progress+CoreDataProperties.swift
 //  Hundred
 //
-//  Created by jc on 2020-08-02.
+//  Created by jc on 2020-08-03.
 //  Copyright © 2020 J. All rights reserved.
 //
 //
@@ -17,12 +17,12 @@ extension Progress {
         return NSFetchRequest<Progress>(entityName: "Progress")
     }
 
-    @NSManaged public var date: Date
     @NSManaged public var comment: String?
-    @NSManaged public var firstMetric: Double
-    @NSManaged public var secondMetric: Double
+    @NSManaged public var date: Date
+    @NSManaged public var firstMetric: NSDecimalNumber?
+    @NSManaged public var image: String?
     @NSManaged public var location: String?
-    @NSManaged public var image: Data?
+    @NSManaged public var secondMetric: NSDecimalNumber?
     @NSManaged public var goal: Goal
 
 }
