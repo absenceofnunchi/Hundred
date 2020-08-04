@@ -98,7 +98,6 @@ extension ViewController: CalendarHeatmapDelegate {
         guard let year = dateComponents.year,
             let month = dateComponents.month,
             let day = dateComponents.day else { return }
-        // do something here
         print(year, month, day)
     }
     
@@ -107,7 +106,7 @@ extension ViewController: CalendarHeatmapDelegate {
             let month = dateComponents.month,
             let day = dateComponents.day else { return .clear}
         let dateString = "\(year).\(month).\(day)"
-        return data[dateString] ?? UIColor(ciColor: .blue)
+        return data[dateString] ?? UIColor(ciColor: .gray)
     }
     
     func finishLoadCalendar() {
