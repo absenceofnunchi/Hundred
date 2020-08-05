@@ -13,28 +13,29 @@ class ViewController: UIViewController {
     
     lazy var data: [String: UIColor] = {
         guard let data = readHeatmap() else { return [:] }
+        print("data: \(data)")
         return data.mapValues { (colorIndex) -> UIColor in
             switch colorIndex {
             case 0:
-                return UIColor(red: 255, green: 255, blue: 255, alpha: 1)
+                return UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1.0)
             case 1:
-                return UIColor(red: 204, green: 204, blue: 255, alpha: 1)
+                return UIColor(red: 204/255, green: 204/255, blue: 255/255, alpha: 1.0)
             case 2:
-                return UIColor(red: 153, green: 153, blue: 255, alpha: 1)
+                return UIColor(red: 153/255, green: 153/255, blue: 255/255, alpha: 1.0)
             case 3:
-                return UIColor(red: 102, green: 102, blue: 255, alpha: 1)
+                return UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0)
             case 4:
-                return UIColor(red: 51, green: 51, blue: 255, alpha: 1)
-            case 5:
-                return UIColor(red: 0, green: 0, blue: 255, alpha: 1)
-            case 6:
-                return UIColor(red: 0, green: 0, blue: 204, alpha: 1)
-            case 7:
-                return UIColor(red: 0, green: 0, blue: 153, alpha: 1)
-            case 8:
-                return UIColor(red: 0, green: 0, blue: 102, alpha: 1)
-            case 9:
-                return UIColor(red: 0, green: 0, blue: 51, alpha: 1)
+                return UIColor(red: 51/255, green: 51/255, blue: 255/255, alpha: 1.0)
+//            case 5:
+//                return UIColor(red: 0, green: 0, blue: 255, alpha: 1)
+//            case 6:
+//                return UIColor(red: 0, green: 0, blue: 204, alpha: 1)
+//            case 7:
+//                return UIColor(red: 0, green: 0, blue: 153, alpha: 1)
+//            case 8:
+//                return UIColor(red: 0, green: 0, blue: 102, alpha: 1)
+//            case 9:
+//                return UIColor(red: 0, green: 0, blue: 51, alpha: 1)
             default:
                 return UIColor(red: 255, green: 255, blue: 255, alpha: 1)
             }
@@ -87,7 +88,8 @@ class ViewController: UIViewController {
     }
     
     private func readHeatmap() -> [String: Int]? {
-        guard let url = Bundle.main.url(forResource: "heatmap", withExtension: "plist") else { return nil }
+        guard let url = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("Heatmap.plist") else { return nil }
+        //        guard let url = Bundle.main.url(forResource: "heatmap", withExtension: "plist") else { return nil }
         return NSDictionary(contentsOf: url) as? [String: Int]
     }
     

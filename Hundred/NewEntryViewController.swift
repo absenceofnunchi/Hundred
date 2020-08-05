@@ -162,14 +162,26 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
         }
     }
     
+    func pListURL() -> URL? {
+        guard let result = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("Heatmap.plist") else { return nil }
+        return result
+    }
+    
     func savePList() {
         var data: [String: Int] = [:]
-        if let url = Bundle.main.url(forResource: "heatmap", withExtension: "plist") {
-            print("url: \(url)")
-            if let dict = NSDictionary(contentsOf: url) as? [String: Int] {
-                data = dict
+        
+        if let url = pListURL() {
+            do {
+                let dataContent = try Data(contentsOf: url)
+                if let dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: Int] {
+                    print("dict: \(dict)")
+                    data = dict
+                }
+            } catch {
+                print(error)
             }
         }
+        
         let date = Date()
         let calendar = Calendar.current
         let year = calendar.component(.year, from: date)
@@ -183,46 +195,15 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
             data[dateString] = 1
         }
         
-//                let paths = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory, FileManager.SearchPathDomainMask.allDomainsMask, true)
-//                let fileName = "heatmap";
-//
-//                if let documentPath = paths.first {
-//                    let filePath = NSMutableString(string: documentPath).appendingPathComponent(fileName);
-//
-//                    let URL = NSURL.fileURL(withPath: filePath)
-//
-//                    let a = try! JSONSerialization.data(withJSONObject: data, options:[:])
-//                    let success = a.write(to: URL, atomically: true)
-//                    print("write: ", success);
-//                }
-//
-        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("heatmap.plist")
-        print("path: \(path)")
-        do {
-            print("about to write data: \(data)")
-            let plistData = try PropertyListSerialization.data(fromPropertyList: data, format: .xml, options: 0)
-            print("plist data: \(plistData)")
-            try plistData.write(to: path)
-        } catch {
-            print(error)
-        }
-    }
-    
-    private func readHeatmap() -> [String: Int]? {
-        var data: [String: Int] = [String: Int]()
-        if let url = Bundle.main.url(forResource: "heatmap", withExtension: "plist") {
-            if let dict = NSDictionary(contentsOf: url) as? [String: Int] {
-                data = dict
+        if let path = pListURL() {
+            do {
+                let plistData = try PropertyListSerialization.data(fromPropertyList: data, format: .xml, options: 0)
+                try plistData.write(to: path)
+            } catch {
+                print(error)
             }
         }
-        
-        print("retrieved data: \(data)")
-        return data
-        
-      
     }
-    
-    
     
     @objc func dismissMyKeyboard(){
         //endEditing causes the view (or one of its embedded text fields) to resign the first responder status.
@@ -259,8 +240,3 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
         
     }
 }
-
-
-
-
-
