@@ -24,6 +24,13 @@ class ExistingGoalsMenuTableViewController: UITableViewController {
             print("error")
         }
         
+        tabBarController?.tabBar.isHidden = true
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        tabBarController?.tabBar.isHidden = false
     }
     
     // MARK: - Table view data source

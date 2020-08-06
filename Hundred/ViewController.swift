@@ -17,7 +17,7 @@ class ViewController: UIViewController {
         return data.mapValues { (colorIndex) -> UIColor in
             switch colorIndex {
             case 0:
-                return UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1.0)
+                return UIColor(red: 240/255, green: 240/255, blue: 240/255, alpha: 1.0)
             case 1:
                 return UIColor(red: 204/255, green: 204/255, blue: 255/255, alpha: 1.0)
             case 2:
@@ -26,18 +26,18 @@ class ViewController: UIViewController {
                 return UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0)
             case 4:
                 return UIColor(red: 51/255, green: 51/255, blue: 255/255, alpha: 1.0)
-//            case 5:
-//                return UIColor(red: 0, green: 0, blue: 255, alpha: 1)
-//            case 6:
-//                return UIColor(red: 0, green: 0, blue: 204, alpha: 1)
-//            case 7:
-//                return UIColor(red: 0, green: 0, blue: 153, alpha: 1)
-//            case 8:
-//                return UIColor(red: 0, green: 0, blue: 102, alpha: 1)
-//            case 9:
-//                return UIColor(red: 0, green: 0, blue: 51, alpha: 1)
+            case 5:
+                return UIColor(red: 0, green: 0, blue: 255/255, alpha: 1.0)
+            case 6:
+                return UIColor(red: 0, green: 0, blue: 204/255, alpha: 1.0)
+            case 7:
+                return UIColor(red: 0, green: 0, blue: 153/255, alpha: 1.0)
+            case 8:
+                return UIColor(red: 0, green: 0, blue: 102/255, alpha: 1.0)
+            case 9:
+                return UIColor(red: 0, green: 0, blue: 51/255, alpha: 1.0)
             default:
-                return UIColor(red: 255, green: 255, blue: 255, alpha: 1)
+                return UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1.0)
             }
         }
     }()
@@ -75,7 +75,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = UIColor(ciColor: .white)
+        //        view.backgroundColor = UIColor(ciColor: .white)
         
         view.addSubview(calendarHeatMap)
         calendarHeatMap.translatesAutoresizingMaskIntoConstraints = false
@@ -85,6 +85,17 @@ class ViewController: UIViewController {
             calendarHeatMap.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 6),
             calendarHeatMap.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20)
         ])
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(reloadHeatmap))
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        calendarHeatMap.reload()
+    }
+    
+    @objc private func reloadHeatmap() {
+        calendarHeatMap.reload()
     }
     
     private func readHeatmap() -> [String: Int]? {
@@ -108,7 +119,7 @@ extension ViewController: CalendarHeatmapDelegate {
             let month = dateComponents.month,
             let day = dateComponents.day else { return .clear}
         let dateString = "\(year).\(month).\(day)"
-        return data[dateString] ?? UIColor(ciColor: .gray)
+        return data[dateString] ?? UIColor(red: 240/255, green: 240/255, blue: 240/255, alpha: 1.0)
     }
     
     func finishLoadCalendar() {

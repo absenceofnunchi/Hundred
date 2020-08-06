@@ -114,9 +114,8 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
                 
                 goalForProgress.progress.insert(progress)
                 savePList()
+                savePListForEachGoal()
                 saveContext()
-                
-                
                 
             default:
                 break
@@ -174,7 +173,6 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
             do {
                 let dataContent = try Data(contentsOf: url)
                 if let dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: Int] {
-                    print("dict: \(dict)")
                     data = dict
                 }
             } catch {
@@ -203,6 +201,52 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
                 print(error)
             }
         }
+    }
+    
+    func pListURLForEachGoal() -> URL? {
+        guard let goalTitle = existingGoal?.title else { return nil }
+        guard let result = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("\(goalTitle).plist") else { return nil }
+        return result
+    }
+    
+    func savePListForEachGoal() {
+        var data: [String: Int] = [:]
+        
+        if let url = pListURLForEachGoal() {
+            do {
+                let dataContent = try Data(contentsOf: url)
+                if let dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: Int] {
+                    print("dict: \(dict)")
+                    data = dict
+                }
+            } catch {
+                print(error)
+            }
+        }
+        
+        
+        let date = Date()
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: date)
+        let month = calendar.component(.month, from: date)
+        let day = calendar.component(.day, from: date)
+        let dateString = "\(year).\(month).\(day)"
+        if var count = data[dateString] {
+            count += 1
+            data[dateString] = count
+        } else {
+            data[dateString] = 1
+        }
+        
+        if let path = pListURLForEachGoal() {
+            do {
+                let plistData = try PropertyListSerialization.data(fromPropertyList: data, format: .xml, options: 0)
+                try plistData.write(to: path)
+            } catch {
+                print(error)
+            }
+        }
+        
     }
     
     @objc func dismissMyKeyboard(){

@@ -27,33 +27,6 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
         
     }
     
-    // MARK: - Table view data source
-    
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return fetchedResultsController?.sections?.count ?? 0
-    }
-    
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let sectionInfo = fetchedResultsController.sections![section]
-        return sectionInfo.numberOfObjects
-    }
-    
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        let goal = fetchedResultsController.object(at: indexPath)
-        cell.textLabel!.text = goal.title
-        cell.accessoryType = .disclosureIndicator
-        return cell
-    }
-    
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let goal = fetchedResultsController.object(at: indexPath)
-        if let vc = storyboard?.instantiateViewController(withIdentifier: "Detail") as? DetailViewController {
-            vc.goal = fetchedResultsController.object(at: indexPath)
-            navigationController?.pushViewController(vc, animated: true)
-        }
-    }
-    
     //    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     //        let goal = fetchedResultsController.object(at: indexPath)
     //        if let vc = storyboard?.instantiateViewController(withIdentifier: "Detail") as? DetailViewController,
@@ -113,5 +86,33 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
         
         tableView.reloadData()
     }
+}
+
+extension GoalsTableViewController {
+    // MARK: - Table view data source
     
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return fetchedResultsController?.sections?.count ?? 0
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        let sectionInfo = fetchedResultsController.sections![section]
+        return sectionInfo.numberOfObjects
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        let goal = fetchedResultsController.object(at: indexPath)
+        cell.textLabel!.text = goal.title
+        cell.accessoryType = .disclosureIndicator
+        return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let goal = fetchedResultsController.object(at: indexPath)
+        if let vc = storyboard?.instantiateViewController(withIdentifier: "Detail") as? DetailViewController {
+            vc.goal = fetchedResultsController.object(at: indexPath)
+            navigationController?.pushViewController(vc, animated: true)
+        }
+    }
 }
