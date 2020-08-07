@@ -99,10 +99,8 @@ class ViewController: UIViewController {
     
     private func readHeatmap() -> [String: Int]? {
         guard let url = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("Heatmap.plist") else { return nil }
-        //        guard let url = Bundle.main.url(forResource: "heatmap", withExtension: "plist") else { return nil }
         return NSDictionary(contentsOf: url) as? [String: Int]
     }
-    
 }
 
 extension ViewController: CalendarHeatmapDelegate {

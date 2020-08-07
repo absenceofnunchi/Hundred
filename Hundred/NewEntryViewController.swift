@@ -115,7 +115,7 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
                 goalForProgress.progress.insert(progress)
                 savePList()
                 savePListForEachGoal()
-                saveContext()
+                self.saveContext()
                 
             default:
                 break
@@ -148,16 +148,6 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
         
         imagePathString = imageName
         dismiss(animated: true)
-    }
-    
-    func saveContext() {
-        if self.context.hasChanges {
-            do {
-                try self.context.save()
-            } catch {
-                print("An error occurred while saving: \(error.localizedDescription)")
-            }
-        }
     }
     
     func pListURL() -> URL? {
@@ -210,16 +200,17 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
     
     func savePListForEachGoal() {
         var data: [String: Int] = [:]
-        
         if let url = pListURLForEachGoal() {
-            do {
-                let dataContent = try Data(contentsOf: url)
-                if let dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: Int] {
-                    print("dict: \(dict)")
-                    data = dict
+            if FileManager.default.fileExists(atPath: url.path) {
+                do {
+                    let dataContent = try Data(contentsOf: url)
+                    if let dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: Int] {
+                        print("dict: \(dict)")
+                        data = dict
+                    }
+                } catch {
+                    print("------------------ \(error)")
                 }
-            } catch {
-                print(error)
             }
         }
         
@@ -281,3 +272,5 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
         
     }
 }
+
+

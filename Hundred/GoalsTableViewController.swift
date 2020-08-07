@@ -18,7 +18,7 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
         
         title = "Goals"
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addGoals))
-        
+        loadSavedData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -26,10 +26,11 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
         tabBarController?.tabBar.isHidden = false
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        loadSavedData()
-    }
+    //    override func viewDidAppear(_ animated: Bool) {
+    //        super.viewDidAppear(animated)
+    //        
+    //        loadSavedData()
+    //    }
     
     @objc func addGoals() {
         if let vc = storyboard?.instantiateViewController(withIdentifier: "AddGoal") as? AddGoalViewController {
@@ -55,19 +56,19 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
         
         do {
             try fetchedResultsController.performFetch()
+            tableView.reloadData()
         } catch {
             print("Fetch failed")
         }
-        
-        tableView.reloadData()
     }
 }
 
+// MARK: - Table view data source
 extension GoalsTableViewController {
-    // MARK: - Table view data source
     
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return fetchedResultsController?.sections?.count ?? 0
+        print("--------------------------\(fetchedResultsController.sections?.count)")
+        return fetchedResultsController.sections?.count ?? 0
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -83,10 +84,45 @@ extension GoalsTableViewController {
         return cell
     }
     
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if let vc = storyboard?.instantiateViewController(withIdentifier: "Detail") as? DetailViewController {
-            vc.goal = fetchedResultsController.object(at: indexPath)
-            navigationController?.pushViewController(vc, animated: true)
+    //    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    //        if let vc = storyboard?.instantiateViewController(withIdentifier: "Detail") as? DetailViewController {
+    //            vc.goal = fetchedResultsController.object(at: indexPath)
+    //            navigationController?.pushViewController(vc, animated: true)
+    //        }
+    //    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let goal = fetchedResultsController.object(at: indexPath)
+            self.context.delete(goal)
+            self.saveContext()
+        } else if editingStyle == .insert {
+            print("insert")
+        }
+        
+        // delete plist
+    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        
+        switch type {
+        case .delete:
+            tableView.deleteRows(at: [indexPath!], with: .automatic)
+        default:
+            break
+        }
+    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+        
+        let section = IndexSet(integer: sectionIndex)
+        switch type {
+        case .delete:
+            tableView.deleteSections(section, with: .automatic)
+        default:
+            break
         }
     }
 }
+
+

@@ -12,10 +12,13 @@ class EntryViewController: UIViewController {
     var progress: Progress!
     var stackView = UIStackView()
     var imageView = UIImageView()
-    var commentLabel = UILabel()
     var dateLabel = UILabel()
-    var uiImage: UIImage!
     var line = UIView()
+    var commentLabel = UILabel()
+    var metricsStack = UIStackView()
+    var firstMetricLabel = UILabel()
+    var secondMetricLabel = UILabel()
+    var uiImage: UIImage!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,6 +28,7 @@ class EntryViewController: UIViewController {
         configureCommentLabel()
         
         setDateLabelConstraints()
+        setLineConstraints()
         setCommentLabelConstraints()
     }
     
@@ -41,8 +45,10 @@ class EntryViewController: UIViewController {
         stackView.spacing = 5
         configureImageView()
         stackView.addArrangedSubview(dateLabel)
+        line.addBottomBorderWithColor(color: UIColor(red: 211/255, green: 211/255, blue: 211/255, alpha: 1), width: view.frame.width - 20)
         stackView.addArrangedSubview(line)
         stackView.addArrangedSubview(commentLabel)
+        configureMetricsLabel()
         view.addSubview(stackView)
         
         if progress.image != nil {
@@ -67,6 +73,15 @@ class EntryViewController: UIViewController {
         title = progress.goal.title
     }
     
+    func configureDateLabel() {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM/dd/yyyy"
+        let date = dateFormatter.string(from: progress.date)
+        dateLabel.text = date
+        dateLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
+        dateLabel.textColor = .lightGray
+    }
+    
     func configureCommentLabel() {
         commentLabel.text = progress.comment
         commentLabel.numberOfLines = 0
@@ -75,19 +90,29 @@ class EntryViewController: UIViewController {
         commentLabel.font = UIFont.preferredFont(forTextStyle: .body)
     }
     
-    func configureDateLabel() {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM/dd/yyyy"
-        let date = dateFormatter.string(from: progress.date)
-        dateLabel.text = date
-        dateLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
+    func configureMetricsLabel() {
+        if let firstMetric = progress.firstMetric, let secondMetric = progress.secondMetric {
+            metricsStack.axis = .horizontal
+            metricsStack.alignment = .center
+            metricsStack.distribution = .fill
+            metricsStack.addArrangedSubview(firstMetricLabel)
+            print("first: \(firstMetric)")
+            print("second: \(secondMetric)")
+            if secondMetric != 0 {
+                
+            }
+            metricsStack.addArrangedSubview(secondMetricLabel)
+        }
     }
     
-    func configureLine() {
-        line.layer.borderWidth = 5
-        line.layer.borderColor = CGColor(
-        line.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
-        line.heightAnchor.constraint(equalToConstant: 5).isActive = true
+    
+    
+    func setLineConstraints() {
+        line.translatesAutoresizingMaskIntoConstraints = false
+        line.backgroundColor = .black
+        line.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -20).isActive = true
+//        line.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+//        line.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
     }
     
     func setImageViewConstraints() {
@@ -104,13 +129,14 @@ class EntryViewController: UIViewController {
     func setCommentLabelConstraints() {
         commentLabel.translatesAutoresizingMaskIntoConstraints = false
         commentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
-        commentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 10).isActive = true
+        commentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
     }
     
     func setDateLabelConstraints() {
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         dateLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        dateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        dateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
+        dateLabel.textAlignment = .right
     }
     
     func getDocumentsDirectory() -> URL {
@@ -139,6 +165,14 @@ class EntryViewController: UIViewController {
     //    }
 }
 
+extension UIView {
+    func addBottomBorderWithColor(color: UIColor, width: CGFloat) {
+        let border = CALayer()
+        border.backgroundColor = color.cgColor
+        border.frame = CGRect(x: 0, y: self.frame.height, width: width, height: 1)
+        self.layer.addSublayer(border)
+    }
+}
 
 
 

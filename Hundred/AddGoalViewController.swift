@@ -55,21 +55,10 @@ class AddGoalViewController: UIViewController {
         goal.metrics = metrics
         goal.date = Date()
         
-        saveContext()
+        self.saveContext()
         dismiss(animated: true, completion: {
             self.isDismissed?()
         })
     }
-    
-    func saveContext() {
-        if self.context.hasChanges {
-            do {
-                try self.context.save()
-            } catch {
-                print("An error occured whlie saving: \(error.localizedDescription)")
-            }
-        }
-    }
-    
 }
 

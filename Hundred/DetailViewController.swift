@@ -179,5 +179,19 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource {
             navigationController?.pushViewController(vc, animated: true)
         }
     }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let progress = progresses[indexPath.row]
+            self.context.delete(progress)
+            progresses.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
+            
+            self.saveContext()
+        } else if editingStyle == .insert {
+            print("insert")
+        }
+    }
 }
+
 

@@ -5,7 +5,7 @@
         <attribute name="detail" optional="YES" attributeType="String"/>
         <attribute name="metrics" optional="YES" attributeType="Transformable" customClassName="[String]"/>
         <attribute name="title" optional="YES" attributeType="String"/>
-        <relationship name="progress" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Progress" inverseName="goal" inverseEntity="Progress"/>
+        <relationship name="progress" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Progress" inverseName="goal" inverseEntity="Progress"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="title"/>

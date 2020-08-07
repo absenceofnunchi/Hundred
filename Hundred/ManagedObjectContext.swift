@@ -20,4 +20,15 @@ extension UIViewController {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         return appDelegate.persistentContainer
     }
+    
+    func saveContext() {
+        if self.context.hasChanges {
+            do {
+                try self.context.save()
+            } catch {
+                print("An error occurred while saving: \(error.localizedDescription)")
+            }
+        }
+    }
 }
+
