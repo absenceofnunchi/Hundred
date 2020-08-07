@@ -12,7 +12,6 @@ import CalendarHeatmap
 class DetailViewController: UIViewController {
     lazy var data: [String: UIColor] = {
         guard let data = readHeatmap() else { return [:] }
-        print("data: \(data)")
         return data.mapValues { (colorIndex) -> UIColor in
             switch colorIndex {
             case 0:
@@ -90,8 +89,7 @@ class DetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tabBarController?.tabBar.isHidden = true
-        
+        title = goal.title
         configureHeatmap()
         configureTableView()
         
@@ -101,7 +99,7 @@ class DetailViewController: UIViewController {
             calendarHeatMap.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 6.0),
-            tableView.topAnchor.constraint(equalTo: calendarHeatMap.bottomAnchor, constant: 10.0),
+            tableView.topAnchor.constraint(equalTo: calendarHeatMap.bottomAnchor, constant: 15.0),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -6.0),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0.0)
         ])
@@ -115,10 +113,9 @@ class DetailViewController: UIViewController {
         //        }
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        tabBarController?.tabBar.isHidden = false
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tabBarController?.tabBar.isHidden = true
     }
     
     func configureHeatmap () {
@@ -131,7 +128,8 @@ class DetailViewController: UIViewController {
         tableView.dataSource = self
         tableView.register(ProgressCell.self, forCellReuseIdentifier: Cells.progressCell)
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.rowHeight = 70
+        tableView.rowHeight = 65
+        tableView.alwaysBounceVertical = false
         view.addSubview(tableView)
     }
 }
@@ -169,46 +167,17 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let cell = tableView.dequeueReusableCell(withIdentifier: Cells.progressCell, for: indexPath)
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.progressCell, for: indexPath) as! ProgressCell
         let progress = progresses[indexPath.row]
-                cell.set(progress: progress)
-//        let marginguide = cell.contentView.layoutMarginsGuide
-//        if let image = progress.image {
-//            let imagePath = getDocumentsDirectory().appendingPathComponent(image)
-//            if let data = try? Data(contentsOf: imagePath) {
-//                //imageView auto layout constraints
-//                cell.imageView?.translatesAutoresizingMaskIntoConstraints = false
-//                cell.imageView?.centerYAnchor.constraint(equalTo: marginguide.centerYAnchor).isActive = true
-//                cell.imageView?.leadingAnchor.constraint(equalTo: marginguide.leadingAnchor).isActive = true
-//                cell.imageView?.heightAnchor.constraint(equalToConstant: 55).isActive = true
-//                cell.imageView?.widthAnchor.constraint(equalTo: marginguide.heightAnchor, multiplier: 16/9).isActive = true
-//                cell.imageView?.layer.cornerRadius = 5
-//                cell.imageView?.clipsToBounds = true
-//                cell.imageView?.image = UIImage(data: data)
-//            }
-//        }
-//        cell.textLabel?.translatesAutoresizingMaskIntoConstraints = false
-//        cell.textLabel?.centerYAnchor.constraint(equalTo: marginguide.centerYAnchor).isActive = true
-//        cell.textLabel?.leadingAnchor.constraint(equalTo: marginguide.trailingAnchor, constant: 20).isActive = true
-//        cell.textLabel?.heightAnchor.constraint(equalToConstant: 55).isActive = true
-//        cell.textLabel?.trailingAnchor.constraint(equalTo: marginguide.trailingAnchor, constant: -12).isActive = true
-//        cell.textLabel?.numberOfLines = 0
-//        cell.textLabel?.adjustsFontSizeToFitWidth = false
-//        cell.textLabel?.lineBreakMode = .byTruncatingTail
-//        cell.textLabel?.font = UIFont.preferredFont(forTextStyle: .footnote)
-//        cell.textLabel?.text = progress.comment
+        cell.set(progress: progress)
         return cell
     }
     
-    func tableView(_ tableView: UITableView, titleForHeaderInSection
-        section: Int) -> String? {
-        return "Progress Entries"
-    }
-    
-    func getDocumentsDirectory() -> URL {
-        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        return paths[0]
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let vc = storyboard?.instantiateViewController(identifier: "Entry") as? EntryViewController {
+            vc.progress = progresses[indexPath.row]
+            navigationController?.pushViewController(vc, animated: true)
+        }
     }
 }
 

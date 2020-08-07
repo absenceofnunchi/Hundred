@@ -253,6 +253,21 @@
             </objects>
             <point key="canvasLocation" x="2548" y="376"/>
         </scene>
+        <!--Entry View Controller-->
+        <scene sceneID="Ahc-15-WGV">
+            <objects>
+                <viewController storyboardIdentifier="Entry" id="cQW-zc-glA" customClass="EntryViewController" customModule="Hundred" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="6le-T2-q6g">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <viewLayoutGuide key="safeArea" id="aw2-5p-dWw"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="0lC-Cr-SZG" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3304" y="376"/>
+        </scene>
         <!--Add Goal View Controller-->
         <scene sceneID="6uB-1t-FyM">
             <objects>

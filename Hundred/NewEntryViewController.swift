@@ -147,7 +147,6 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
         }
         
         imagePathString = imageName
-        
         dismiss(animated: true)
     }
     
@@ -224,7 +223,6 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
             }
         }
         
-        
         let date = Date()
         let calendar = Calendar.current
         let year = calendar.component(.year, from: date)
@@ -246,7 +244,6 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
                 print(error)
             }
         }
-        
     }
     
     @objc func dismissMyKeyboard(){

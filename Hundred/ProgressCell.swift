@@ -21,7 +21,7 @@ class ProgressCell: UITableViewCell {
         configureImageView()
         configureTitleLabel()
         setImageConstraints()
-        setTitlelabelConstraints()
+        setTitleLabelConstraints()
     }
     
     required init?(coder: NSCoder) {
@@ -60,15 +60,16 @@ class ProgressCell: UITableViewCell {
         progressImageView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
         progressImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12).isActive = true
         progressImageView.heightAnchor.constraint(equalToConstant: 55).isActive = true
-        progressImageView.widthAnchor.constraint(equalTo: progressImageView.heightAnchor, multiplier: 16/9).isActive = true
+        progressImageView.widthAnchor.constraint(lessThanOrEqualTo: progressImageView.heightAnchor, multiplier: 16/9).isActive = true
     }
     
-    func setTitlelabelConstraints() {
+    func setTitleLabelConstraints() {
         progressTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         progressTitleLabel.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
-        progressTitleLabel.leadingAnchor.constraint(equalTo: progressImageView.trailingAnchor, constant: 20).isActive = true
+        progressTitleLabel.leadingAnchor.constraint(equalTo: progressImageView.trailingAnchor, constant: 5).isActive = true
         progressTitleLabel.heightAnchor.constraint(equalToConstant: 55).isActive = true
         progressTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12).isActive = true
+        progressTitleLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 100).isActive = true
     }
 }
 

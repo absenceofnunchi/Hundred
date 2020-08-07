@@ -13,7 +13,6 @@ class ViewController: UIViewController {
     
     lazy var data: [String: UIColor] = {
         guard let data = readHeatmap() else { return [:] }
-        print("data: \(data)")
         return data.mapValues { (colorIndex) -> UIColor in
             switch colorIndex {
             case 0:

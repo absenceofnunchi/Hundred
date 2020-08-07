@@ -11,6 +11,7 @@
 		49026F9B24DB4FBF00724369 /* ProgressCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49026F9A24DB4FBF00724369 /* ProgressCell.swift */; };
 		494F0C2A24D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */; };
 		494F0C2C24D7246A00C5450C /* ManagedObjectContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */; };
+		49795B7624DC864000D27111 /* EntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49795B7524DC864000D27111 /* EntryViewController.swift */; };
 		4996BD4524D485C900E301B4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD4424D485C900E301B4 /* AppDelegate.swift */; };
 		4996BD4724D485C900E301B4 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD4624D485C900E301B4 /* SceneDelegate.swift */; };
 		4996BD4924D485C900E301B4 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD4824D485C900E301B4 /* ViewController.swift */; };
@@ -34,6 +35,7 @@
 		49026F9A24DB4FBF00724369 /* ProgressCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressCell.swift; sourceTree = "<group>"; };
 		494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistingGoalsMenuTableViewController.swift; sourceTree = "<group>"; };
 		494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedObjectContext.swift; sourceTree = "<group>"; };
+		49795B7524DC864000D27111 /* EntryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryViewController.swift; sourceTree = "<group>"; };
 		4996BD4124D485C900E301B4 /* Hundred.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hundred.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4996BD4424D485C900E301B4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4996BD4624D485C900E301B4 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 				49BA0A7A24D6211D00BF2948 /* DetailViewController.swift */,
 				49BA0A7C24D62B6600BF2948 /* NewEntryViewController.swift */,
 				494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */,
+				49795B7524DC864000D27111 /* EntryViewController.swift */,
 				494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */,
 				49026F9A24DB4FBF00724369 /* ProgressCell.swift */,
 				4996BD5524D485CB00E301B4 /* Info.plist */,
@@ -264,6 +267,7 @@
 				49B91C0F24D8932100D11671 /* Progress+CoreDataClass.swift in Sources */,
 				49BA0A7D24D62B6600BF2948 /* NewEntryViewController.swift in Sources */,
 				49026F9B24DB4FBF00724369 /* ProgressCell.swift in Sources */,
+				49795B7624DC864000D27111 /* EntryViewController.swift in Sources */,
 				49B91C1024D8932100D11671 /* Progress+CoreDataProperties.swift in Sources */,
 				49BA0A7B24D6211D00BF2948 /* DetailViewController.swift in Sources */,
 				49B91C0E24D8932100D11671 /* Goal+CoreDataProperties.swift in Sources */,
