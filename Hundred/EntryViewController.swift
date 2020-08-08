@@ -10,15 +10,15 @@ import UIKit
 
 class EntryViewController: UIViewController {
     var progress: Progress!
+    var metrics: [String]?
     var stackView = UIStackView()
     var imageView = UIImageView()
     var dateLabel = UILabel()
     var line = UIView()
     var commentLabel = UILabel()
-    var metricsStack = UIStackView()
-    var firstMetricLabel = UILabel()
-    var secondMetricLabel = UILabel()
     var uiImage: UIImage!
+    let firstMetricsStack = UIStackView()
+    let secondMetricsStack = UIStackView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,6 +30,7 @@ class EntryViewController: UIViewController {
         setDateLabelConstraints()
         setLineConstraints()
         setCommentLabelConstraints()
+        setMetricsStackStraints()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -92,27 +93,40 @@ class EntryViewController: UIViewController {
     
     func configureMetricsLabel() {
         if let firstMetric = progress.firstMetric, let secondMetric = progress.secondMetric {
-            metricsStack.axis = .horizontal
-            metricsStack.alignment = .center
-            metricsStack.distribution = .fill
-            metricsStack.addArrangedSubview(firstMetricLabel)
-            print("first: \(firstMetric)")
-            print("second: \(secondMetric)")
-            if secondMetric != 0 {
-                
+            firstMetricsStack.axis = .horizontal
+            firstMetricsStack.alignment = .center
+            firstMetricsStack.distribution = .fill
+            if let firstMetricUnit = metrics?[0] {
+                let firstMetricUnitLabel = UILabel()
+                firstMetricUnitLabel.text = firstMetricUnit
+                firstMetricsStack.addArrangedSubview(firstMetricUnitLabel)
+                let firstMetricLabel = UILabel()
+                firstMetricLabel.text = String(describing: firstMetric)
+                firstMetricsStack.addArrangedSubview(firstMetricLabel)
+                stackView.addArrangedSubview(firstMetricsStack)
             }
-            metricsStack.addArrangedSubview(secondMetricLabel)
+
+            if secondMetric != 0 {
+                if let secondMetricUnit = metrics?[1] {
+                    secondMetricsStack.axis = .horizontal
+                    secondMetricsStack.alignment = .center
+                    secondMetricsStack.distribution = .fill
+                    let secondMetricUnitLabel = UILabel()
+                    secondMetricUnitLabel.text = secondMetricUnit
+                    secondMetricsStack.addArrangedSubview(secondMetricUnitLabel)
+                    let secondMetricLabel = UILabel()
+                    secondMetricLabel.text = String(describing: secondMetric)
+                    secondMetricsStack.addArrangedSubview(secondMetricLabel)
+                    stackView.addArrangedSubview(secondMetricsStack)
+                }
+            }
         }
     }
-    
-    
     
     func setLineConstraints() {
         line.translatesAutoresizingMaskIntoConstraints = false
         line.backgroundColor = .black
         line.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -20).isActive = true
-//        line.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-//        line.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
     }
     
     func setImageViewConstraints() {
@@ -126,17 +140,31 @@ class EntryViewController: UIViewController {
         }
     }
     
+    func setDateLabelConstraints() {
+        dateLabel.translatesAutoresizingMaskIntoConstraints = false
+        dateLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        dateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
+        dateLabel.textAlignment = .right
+    }
+    
     func setCommentLabelConstraints() {
         commentLabel.translatesAutoresizingMaskIntoConstraints = false
         commentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
         commentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
     }
     
-    func setDateLabelConstraints() {
-        dateLabel.translatesAutoresizingMaskIntoConstraints = false
-        dateLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        dateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
-        dateLabel.textAlignment = .right
+    func setMetricsStackStraints() {
+        firstMetricsStack.translatesAutoresizingMaskIntoConstraints = false
+        firstMetricsStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
+        firstMetricsStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
+        
+         if let secondMetric = progress.secondMetric {
+            if secondMetric != 0 {
+                secondMetricsStack.translatesAutoresizingMaskIntoConstraints = false
+                secondMetricsStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
+                secondMetricsStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
+            }
+        }
     }
     
     func getDocumentsDirectory() -> URL {

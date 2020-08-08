@@ -96,7 +96,7 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
                 }
                 
                 if let secondMetric = secondMetricTextField.text {
-                    progress.firstMetric = formatter.number(from: secondMetric) as? NSDecimalNumber ?? 0
+                    progress.secondMetric = formatter.number(from: secondMetric) as? NSDecimalNumber ?? 0
                 }
                 
                 progress.image = imagePathString
@@ -114,7 +114,7 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
                 
                 goalForProgress.progress.insert(progress)
                 savePList()
-                savePListForEachGoal()
+//                savePListForEachGoal()
                 self.saveContext()
                 
             default:
@@ -156,16 +156,20 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
     }
     
     func savePList() {
-        var data: [String: Int] = [:]
+        var goalData = [String: [String: Int]]()
         
         if let url = pListURL() {
-            do {
-                let dataContent = try Data(contentsOf: url)
-                if let dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: Int] {
-                    data = dict
+            if FileManager.default.fileExists(atPath: url.path) {
+                do {
+//                    print("url: \(url)")
+                    let dataContent = try Data(contentsOf: url)
+                    if let dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
+                        goalData = dict
+//                        print("goalData: \(goalData)")
+                    }
+                } catch {
+                    print(error)
                 }
-            } catch {
-                print(error)
             }
         }
         
@@ -175,16 +179,37 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
         let month = calendar.component(.month, from: date)
         let day = calendar.component(.day, from: date)
         let dateString = "\(year).\(month).\(day)"
-        if var count = data[dateString] {
-            count += 1
-            data[dateString] = count
-        } else {
-            data[dateString] = 1
+        
+        if let existingGoalTitle = existingGoal?.title {
+//            print("existingGoal: \(existingGoalTitle)")
+            // check to see if existingGoalTitle exists as a key and, if so, check if progressData exists as a value
+            if var progressData = goalData[existingGoalTitle] {
+                print("progressData: \(progressData)")
+//                 check if dateString exists as a key and, if so, check if count exists as a value
+                if var count = progressData[dateString] {
+                    print("dateString: \(dateString)")
+                    count += 1
+                    print("count: \(count)")
+                    progressData[dateString] = count
+                    print("progressData after: \(progressData)")
+                    goalData[existingGoalTitle] = progressData
+//                    let newData = goalData[existingGoalTitle]?.merging(progressData) { $1 }
+                } else {
+                    // existingGoalTitle exists, but dateString doesn't exist as a key or the count is nil as a value
+                    progressData = [dateString: 1]
+                    print("[dateString: 1] \([dateString: 1])")
+                }
+            } else {
+                // if existingGoalTitle or progressData doesn't exist
+                goalData = [existingGoalTitle : [dateString: 1]]
+//                print("first time: \(goalData)")
+            }
         }
         
+        print("final: \(goalData)")
         if let path = pListURL() {
             do {
-                let plistData = try PropertyListSerialization.data(fromPropertyList: data, format: .xml, options: 0)
+                let plistData = try PropertyListSerialization.data(fromPropertyList: goalData, format: .xml, options: 0)
                 try plistData.write(to: path)
             } catch {
                 print(error)
@@ -272,5 +297,41 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
         
     }
 }
-
-
+//
+//
+//func savePList() {
+//    var data: [String: Int] = [:]
+//
+//    if let url = pListURL() {
+//        do {
+//            let dataContent = try Data(contentsOf: url)
+//            if let dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: Int] {
+//                data = dict
+//            }
+//        } catch {
+//            print(error)
+//        }
+//    }
+//
+//    let date = Date()
+//    let calendar = Calendar.current
+//    let year = calendar.component(.year, from: date)
+//    let month = calendar.component(.month, from: date)
+//    let day = calendar.component(.day, from: date)
+//    let dateString = "\(year).\(month).\(day)"
+//    if var count = data[dateString] {
+//        count += 1
+//        data[dateString] = count
+//    } else {
+//        data[dateString] = 1
+//    }
+//
+//    if let path = pListURL() {
+//        do {
+//            let plistData = try PropertyListSerialization.data(fromPropertyList: data, format: .xml, options: 0)
+//            try plistData.write(to: path)
+//        } catch {
+//            print(error)
+//        }
+//    }
+//}

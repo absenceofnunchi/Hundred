@@ -48,7 +48,7 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
             request.sortDescriptors = [sort]
             request.fetchBatchSize = 20
             
-            fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: self.context, sectionNameKeyPath: "title", cacheName: nil)
+            fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: self.context, sectionNameKeyPath: nil, cacheName: nil)
             fetchedResultsController.delegate = self
         }
         
@@ -67,7 +67,6 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
 extension GoalsTableViewController {
     
     override func numberOfSections(in tableView: UITableView) -> Int {
-        print("--------------------------\(fetchedResultsController.sections?.count)")
         return fetchedResultsController.sections?.count ?? 0
     }
     
@@ -84,23 +83,22 @@ extension GoalsTableViewController {
         return cell
     }
     
-    //    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    //        if let vc = storyboard?.instantiateViewController(withIdentifier: "Detail") as? DetailViewController {
-    //            vc.goal = fetchedResultsController.object(at: indexPath)
-    //            navigationController?.pushViewController(vc, animated: true)
-    //        }
-    //    }
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let vc = storyboard?.instantiateViewController(withIdentifier: "Detail") as? DetailViewController {
+            vc.goal = fetchedResultsController.object(at: indexPath)
+            navigationController?.pushViewController(vc, animated: true)
+        }
+    }
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let goal = fetchedResultsController.object(at: indexPath)
             self.context.delete(goal)
             self.saveContext()
-        } else if editingStyle == .insert {
-            print("insert")
         }
         
         // delete plist
+        
     }
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
@@ -124,5 +122,6 @@ extension GoalsTableViewController {
         }
     }
 }
+
 
 

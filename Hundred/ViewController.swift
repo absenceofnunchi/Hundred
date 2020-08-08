@@ -12,7 +12,11 @@ import CalendarHeatmap
 class ViewController: UIViewController {
     
     lazy var data: [String: UIColor] = {
-        guard let data = readHeatmap() else { return [:] }
+        guard let data = readHeatmap() else {
+            print("guarded")
+            return [:]
+        }
+        print("reload? \(data)")
         return data.mapValues { (colorIndex) -> UIColor in
             switch colorIndex {
             case 0:
@@ -36,7 +40,7 @@ class ViewController: UIViewController {
             case 9:
                 return UIColor(red: 0, green: 0, blue: 51/255, alpha: 1.0)
             default:
-                return UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1.0)
+                return UIColor(red: 0, green: 0, blue: 15/255, alpha: 1.0)
             }
         }
     }()
@@ -73,9 +77,7 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        //        view.backgroundColor = UIColor(ciColor: .white)
-        
+
         view.addSubview(calendarHeatMap)
         calendarHeatMap.translatesAutoresizingMaskIntoConstraints = false
         
@@ -98,8 +100,22 @@ class ViewController: UIViewController {
     }
     
     private func readHeatmap() -> [String: Int]? {
-        guard let url = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("Heatmap.plist") else { return nil }
-        return NSDictionary(contentsOf: url) as? [String: Int]
+        guard let url = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("Heatmap.plist") else {
+            print("readHeatmap guarded")
+            return nil
+        }
+        print("url: \(url)")
+        if let dict = NSDictionary(contentsOf: url) as? [String: [String: Int]] {
+            print("dict: \(dict)")
+            let a = dict.flatMap { $0.value }.reduce(into: [:]) { $0[$1.key, default: 0] += $1.value }
+            print("a: \(a)")
+            return a
+        } else {
+            print("no")
+            return ["0": 1]
+        }
+        
+//         return NSDictionary(contentsOf: url) as? [String: [String: Int]]
     }
 }
 

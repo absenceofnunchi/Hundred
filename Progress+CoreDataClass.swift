@@ -12,5 +12,4 @@ import CoreData
 
 @objc(Progress)
 public class Progress: NSManagedObject {
-
 }

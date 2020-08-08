@@ -75,7 +75,7 @@ class DetailViewController: UIViewController {
     var progresses: [Progress]!
     var goal: Goal! {
         didSet {
-            progresses = goal.progress.sorted {$0.date < $1.date}
+            progresses = goal.progress.sorted {$0.date > $1.date}
         }
     }
     var tableView = UITableView()
@@ -176,6 +176,7 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let vc = storyboard?.instantiateViewController(identifier: "Entry") as? EntryViewController {
             vc.progress = progresses[indexPath.row]
+            vc.metrics = goal.metrics
             navigationController?.pushViewController(vc, animated: true)
         }
     }
