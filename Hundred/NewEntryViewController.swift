@@ -114,7 +114,7 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
                 
                 goalForProgress.progress.insert(progress)
                 savePList()
-//                savePListForEachGoal()
+                //                savePListForEachGoal()
                 self.saveContext()
                 
             default:
@@ -150,72 +150,83 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
         dismiss(animated: true)
     }
     
-    func pListURL() -> URL? {
-        guard let result = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("Heatmap.plist") else { return nil }
-        return result
+    //    func pListURL() -> URL? {
+    //        guard let result = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("Heatmap.plist") else {
+    //            print("pListURL guard")
+    //            return nil
+    //        }
+    //        return result
+    //    }
+    
+    func pListURL() -> URL {
+        return try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathComponent("Heatmap.plist")
     }
     
-    func savePList() {
-        var goalData = [String: [String: Int]]()
-        
-        if let url = pListURL() {
-            if FileManager.default.fileExists(atPath: url.path) {
-                do {
-//                    print("url: \(url)")
-                    let dataContent = try Data(contentsOf: url)
-                    if let dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
-                        goalData = dict
-//                        print("goalData: \(goalData)")
-                    }
-                } catch {
-                    print(error)
-                }
-            }
-        }
-        
-        let date = Date()
-        let calendar = Calendar.current
-        let year = calendar.component(.year, from: date)
-        let month = calendar.component(.month, from: date)
-        let day = calendar.component(.day, from: date)
-        let dateString = "\(year).\(month).\(day)"
-        
-        if let existingGoalTitle = existingGoal?.title {
-//            print("existingGoal: \(existingGoalTitle)")
-            // check to see if existingGoalTitle exists as a key and, if so, check if progressData exists as a value
-            if var progressData = goalData[existingGoalTitle] {
-                print("progressData: \(progressData)")
-//                 check if dateString exists as a key and, if so, check if count exists as a value
-                if var count = progressData[dateString] {
-                    print("dateString: \(dateString)")
-                    count += 1
-                    print("count: \(count)")
-                    progressData[dateString] = count
-                    print("progressData after: \(progressData)")
-                    goalData[existingGoalTitle] = progressData
-//                    let newData = goalData[existingGoalTitle]?.merging(progressData) { $1 }
-                } else {
-                    // existingGoalTitle exists, but dateString doesn't exist as a key or the count is nil as a value
-                    progressData = [dateString: 1]
-                    print("[dateString: 1] \([dateString: 1])")
-                }
-            } else {
-                // if existingGoalTitle or progressData doesn't exist
-                goalData = [existingGoalTitle : [dateString: 1]]
-//                print("first time: \(goalData)")
-            }
-        }
-        
-        print("final: \(goalData)")
-        if let path = pListURL() {
-            do {
-                let plistData = try PropertyListSerialization.data(fromPropertyList: goalData, format: .xml, options: 0)
-                try plistData.write(to: path)
-            } catch {
-                print(error)
-            }
-        }
-    }
+    //    func savePList() {
+    //        var goalData = [String: [String: Int]]()
+    //        var progressData = [String: Int]()
+    //
+    //        if let url = pListURL() {
+    //            if FileManager.default.fileExists(atPath: url.path) {
+    //                do {
+    ////                    print("url: \(url)")
+    //                    let dataContent = try Data(contentsOf: url)
+    //                    if let dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
+    //                        goalData = dict
+    ////                        print("goalData: \(goalData)")
+    //                    }
+    //                } catch {
+    //                    print(error)
+    //                }
+    //            }
+    //        }
+    //
+    //        let date = Date()
+    //        let calendar = Calendar.current
+    //        let year = calendar.component(.year, from: date)
+    //        let month = calendar.component(.month, from: date)
+    //        let day = calendar.component(.day, from: date) - 8
+    //        let dateString = "\(year).\(month).\(day)"
+    ////        print("firstDateString: \(dateString)")
+    //
+    //        if let existingGoalTitle = existingGoal?.title {
+    ////            print("existingGoal: \(existingGoalTitle)")
+    //            // check to see if existingGoalTitle exists as a key and, if so, check if progressData exists as a value
+    //            if let retrievedProgressData = goalData[existingGoalTitle] {
+    //                progressData = retrievedProgressData
+    ////                print("progressData: \(progressData)")
+    ////                 check if dateString exists as a key and, if so, check if count exists as a value
+    //                if var count = progressData[dateString] {
+    ////                    print("dateString: \(dateString)")
+    //                    count += 1
+    ////                    print("count: \(count)")
+    //                    progressData[dateString] = count
+    ////                    print("progressData after: \(progressData)")
+    //                    goalData[existingGoalTitle] = progressData
+    ////                    let newData = goalData[existingGoalTitle]?.merging(progressData) { $1 }
+    //                } else {
+    //                    // existingGoalTitle exists, but dateString doesn't exist as a key or the count is nil as a value
+    //                    progressData[dateString] = 1
+    //                    goalData[existingGoalTitle] = progressData
+    ////                    print("add to dictionary progressData: \(progressData)")
+    //                }
+    //            } else {
+    //                // if existingGoalTitle or progressData doesn't exist
+    //                goalData = [existingGoalTitle : [dateString: 1]]
+    ////                print("first time: \(goalData)")
+    //            }
+    //        }
+    //
+    ////        print("final: \(goalData)")
+    //        if let path = pListURL() {
+    //            do {
+    //                let plistData = try PropertyListSerialization.data(fromPropertyList: goalData, format: .xml, options: 0)
+    //                try plistData.write(to: path)
+    //            } catch {
+    //                print(error)
+    //            }
+    //        }
+    //    }
     
     func pListURLForEachGoal() -> URL? {
         guard let goalTitle = existingGoal?.title else { return nil }
@@ -297,41 +308,86 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
         
     }
 }
-//
-//
-//func savePList() {
-//    var data: [String: Int] = [:]
-//
-//    if let url = pListURL() {
-//        do {
-//            let dataContent = try Data(contentsOf: url)
-//            if let dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: Int] {
-//                data = dict
-//            }
-//        } catch {
-//            print(error)
-//        }
-//    }
-//
-//    let date = Date()
-//    let calendar = Calendar.current
-//    let year = calendar.component(.year, from: date)
-//    let month = calendar.component(.month, from: date)
-//    let day = calendar.component(.day, from: date)
-//    let dateString = "\(year).\(month).\(day)"
-//    if var count = data[dateString] {
-//        count += 1
-//        data[dateString] = count
-//    } else {
-//        data[dateString] = 1
-//    }
-//
-//    if let path = pListURL() {
-//        do {
-//            let plistData = try PropertyListSerialization.data(fromPropertyList: data, format: .xml, options: 0)
-//            try plistData.write(to: path)
-//        } catch {
-//            print(error)
-//        }
-//    }
-//}
+
+extension NewEntryViewController {
+    
+    func savePList() {
+        var data: [String: Int] = [:]
+        
+        let date = Date()
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: date)
+        let month = calendar.component(.month, from: date) - 1
+        let day = calendar.component(.day, from: date)
+        let dateString = "\(year).\(month).\(day)"
+        if var count = data[dateString] {
+            count += 1
+            data[dateString] = count
+        } else {
+            data[dateString] = 1
+        }
+        
+        let url = pListURL()
+        guard FileManager.default.fileExists(atPath: url.path) else { write(dictionary: data); return }
+        do {
+            let dataContent = try Data(contentsOf: url)
+            if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: Int] {
+                if var count = dict[dateString] {
+                      count += 1
+                      dict[dateString] = count
+                  } else {
+                      dict[dateString] = 1
+                  }
+                write(dictionary: dict)
+            } else {
+                write(dictionary: data)
+            }
+        } catch {
+            print(error)
+        }
+        
+        //        if let url = pListURL() {
+        //            do {
+        //                let dataContent = try Data(contentsOf: url)
+        //                if let dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: Int] {
+        //                    data = dict
+        //                }
+        //            } catch {
+        //                print(error)
+        //            }
+        //        }
+        //
+        //        let date = Date()
+        //        let calendar = Calendar.current
+        //        let year = calendar.component(.year, from: date)
+        //        let month = calendar.component(.month, from: date)
+        //        let day = calendar.component(.day, from: date) - 5
+        //        let dateString = "\(year).\(month).\(day)"
+        //        if var count = data[dateString] {
+        //            count += 1
+        //            data[dateString] = count
+        //        } else {
+        //            data[dateString] = 1
+        //        }
+        //
+        //        if let path = pListURL() {
+        //            do {
+        //                let plistData = try PropertyListSerialization.data(fromPropertyList: data, format: .xml, options: 0)
+        //                try plistData.write(to: path)
+        //            } catch {
+        //                print(error)
+        //            }
+        //        }
+    }
+    
+    
+    func write(dictionary: [String:Int]) {
+        let url = pListURL()
+        do {
+            let plistData = try PropertyListSerialization.data(fromPropertyList: dictionary, format: .xml, options: 0)
+            try plistData.write(to: url)
+        } catch {
+            print(error)
+        }
+    }
+}
