@@ -31,7 +31,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        if let existingGoalsVC = window?.rootViewController as? ExistingGoalsMenuTableViewController {
 //            existingGoalsVC.container = persistentContainer
 //        }
-//        
+//
+//        UITabBar.appearance().barTintColor = .black
+//        UITabBar.appearance().tintColor = red
         return true
     }
 

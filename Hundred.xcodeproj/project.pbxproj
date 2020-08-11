@@ -21,6 +21,7 @@
 		4996BD5424D485CB00E301B4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4996BD5224D485CB00E301B4 /* LaunchScreen.storyboard */; };
 		4996BD5C24D48B0700E301B4 /* GoalsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD5B24D48B0700E301B4 /* GoalsTableViewController.swift */; };
 		4996BD5E24D4910600E301B4 /* AddGoalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD5D24D4910600E301B4 /* AddGoalViewController.swift */; };
+		49B328FE24E3269F00D9E8D4 /* DataImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B328FD24E3269F00D9E8D4 /* DataImporter.swift */; };
 		49B91C0D24D8932100D11671 /* Goal+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B91C0924D8932100D11671 /* Goal+CoreDataClass.swift */; };
 		49B91C0E24D8932100D11671 /* Goal+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B91C0A24D8932100D11671 /* Goal+CoreDataProperties.swift */; };
 		49B91C0F24D8932100D11671 /* Progress+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B91C0B24D8932100D11671 /* Progress+CoreDataClass.swift */; };
@@ -47,6 +48,7 @@
 		4996BD5524D485CB00E301B4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4996BD5B24D48B0700E301B4 /* GoalsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsTableViewController.swift; sourceTree = "<group>"; };
 		4996BD5D24D4910600E301B4 /* AddGoalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGoalViewController.swift; sourceTree = "<group>"; };
+		49B328FD24E3269F00D9E8D4 /* DataImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataImporter.swift; sourceTree = "<group>"; };
 		49B91C0924D8932100D11671 /* Goal+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Goal+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
 		49B91C0A24D8932100D11671 /* Goal+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Goal+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 		49B91C0B24D8932100D11671 /* Progress+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Progress+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
@@ -133,6 +135,7 @@
 				49795B7524DC864000D27111 /* EntryViewController.swift */,
 				494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */,
 				49026F9A24DB4FBF00724369 /* ProgressCell.swift */,
+				49B328FD24E3269F00D9E8D4 /* DataImporter.swift */,
 				4996BD5524D485CB00E301B4 /* Info.plist */,
 				49026F9024DB41EB00724369 /* Extensions-Utilities */,
 				49026F9324DB4E2600724369 /* Supporting */,
@@ -279,6 +282,7 @@
 				4996BD5E24D4910600E301B4 /* AddGoalViewController.swift in Sources */,
 				49B91C0D24D8932100D11671 /* Goal+CoreDataClass.swift in Sources */,
 				4996BD4F24D485C900E301B4 /* Hundred.xcdatamodeld in Sources */,
+				49B328FE24E3269F00D9E8D4 /* DataImporter.swift in Sources */,
 				494F0C2C24D7246A00C5450C /* ManagedObjectContext.swift in Sources */,
 				4996BD4724D485C900E301B4 /* SceneDelegate.swift in Sources */,
 			);

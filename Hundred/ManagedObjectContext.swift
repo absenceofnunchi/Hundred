@@ -16,10 +16,10 @@ extension UIViewController {
         return appDelegate.persistentContainer.viewContext
     }
     
-    var container : NSPersistentContainer {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        return appDelegate.persistentContainer
-    }
+//    var container : NSPersistentContainer {
+//        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+//        return appDelegate.persistentContainer
+//    }
     
     func saveContext() {
         if self.context.hasChanges {
