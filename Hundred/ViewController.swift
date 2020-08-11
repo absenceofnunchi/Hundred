@@ -60,7 +60,7 @@ class ViewController: UIViewController {
         config.weekDayFont = UIFont.systemFont(ofSize: 12)
         config.weekDayWidth = 30
         config.weekDayColor = UIColor(ciColor: .black)
-
+        
         var dateComponent = DateComponents()
         let yearsBefore = -1
         dateComponent.year = yearsBefore
@@ -77,125 +77,94 @@ class ViewController: UIViewController {
             return calendar
         }
     }()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         view.addSubview(calendarHeatMap)
         calendarHeatMap.translatesAutoresizingMaskIntoConstraints = false
-
+        
         NSLayoutConstraint.activate([
             calendarHeatMap.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 6),
             calendarHeatMap.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 6),
             calendarHeatMap.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20)
         ])
-
+        
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(reloadHeatmap))
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         print("viewWillAppear")
         calendarHeatMap.reload()
     }
-
+    
     @objc private func reloadHeatmap() {
         calendarHeatMap.reload()
     }
     
-    func reload(calendarHeatMap: CalendarHeatmap) {
-        var config = CalendarHeatmapConfig()
-        config.backgroundColor = UIColor(ciColor: .white)
-        // config item
-        config.selectedItemBorderColor = .white
-        config.allowItemSelection = true
-        // config month header
-        config.monthHeight = 30
-        config.monthStrings = DateFormatter().shortMonthSymbols
-        config.monthFont = UIFont.systemFont(ofSize: 18)
-        config.monthColor = UIColor(ciColor: .black)
-        // config weekday label on left
-        config.weekDayFont = UIFont.systemFont(ofSize: 12)
-        config.weekDayWidth = 30
-        config.weekDayColor = UIColor(ciColor: .black)
-        var dateComponent = DateComponents()
-        let yearsBefore = -1
-        dateComponent.year = yearsBefore
-        print("calendarHeatMap")
-        if let startDate = Calendar.current.date(byAdding: dateComponent, to: Date()) {
-            print("startDate")
-            let calendar = CalendarHeatmap(config: config, startDate: startDate, endDate: Date())
-            calendar.reload()
-        } else {
-            print("arbitrary date")
-            let calendar = CalendarHeatmap(config: config, startDate: Date(2019, 1, 1), endDate: Date())
-            calendar.reload()
-        }
-    }
-
     private func readHeatmap() -> [String: Int]? {
         guard let url = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathComponent("Heatmap.plist") else {
             print("readHeatmap guarded")
             return nil
         }
         print("url: \(url)")
-
-
-//        if let dict = NSDictionary(contentsOf: url) as? [String: [String: Int]] {
-//            print("dict: \(dict)")
-//            let a = dict.flatMap { $0.value }.reduce(into: [:]) { $0[$1.key, default: 0] += $1.value }
-//            print("a: \(a)")
-//            return a
-//        } else {
-//            print("no")
-//            return ["0": 1]
-//        }
-
-         return NSDictionary(contentsOf: url) as? [String: Int]
+        
+        //        if let dict = NSDictionary(contentsOf: url) as? [String: [String: Int]] {
+        //            print("dict: \(dict)")
+        //            let a = dict.flatMap { $0.value }.reduce(into: [:]) { $0[$1.key, default: 0] += $1.value }
+        //            print("a: \(a)")
+        //            return a
+        //        } else {
+        //            print("no")
+        //            return ["0": 1]
+        //        }
+        
+        return NSDictionary(contentsOf: url) as? [String: Int]
     }
     
-//    lazy var calendarHeatMap: CalendarHeatmap = {
-//        var config = CalendarHeatmapConfig()
-//        config.backgroundColor = UIColor(ciColor: .white)
-//        // config item
-//        config.selectedItemBorderColor = .white
-//        config.allowItemSelection = true
-//        // config month header
-//        config.monthHeight = 30
-//        config.monthStrings = DateFormatter().shortMonthSymbols
-//        config.monthFont = UIFont.systemFont(ofSize: 18)
-//        config.monthColor = UIColor(ciColor: .black)
-//        // config weekday label on left
-//        config.weekDayFont = UIFont.systemFont(ofSize: 12)
-//        config.weekDayWidth = 30
-//        config.weekDayColor = UIColor(ciColor: .black)
-//
-//        let calendar = CalendarHeatmap(config: config, startDate: Date(2019, 8, 9), endDate: Date(2020, 8, 9))
-//        calendar.delegate = self
-//        return calendar
-//    }()
-//
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//
-//        view.addSubview(calendarHeatMap)
-//        calendarHeatMap.translatesAutoresizingMaskIntoConstraints = false
-//
-//        NSLayoutConstraint.activate([
-//            calendarHeatMap.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 6),
-//            calendarHeatMap.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 6),
-//            calendarHeatMap.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20)
-//        ])
-//    }
-//
-//    private func readHeatmap() -> [String: Int]? {
-//        guard let url = Bundle.main.url(forResource: "heatmap", withExtension: "plist") else {
-//            print("readHeamap guarded")
-//            return nil
-//        }
-//        print("url: \(url)")
-//        return NSDictionary(contentsOf: url) as? [String: Int]
-//    }
+    //    lazy var calendarHeatMap: CalendarHeatmap = {
+    //        var config = CalendarHeatmapConfig()
+    //        config.backgroundColor = UIColor(ciColor: .white)
+    //        // config item
+    //        config.selectedItemBorderColor = .white
+    //        config.allowItemSelection = true
+    //        // config month header
+    //        config.monthHeight = 30
+    //        config.monthStrings = DateFormatter().shortMonthSymbols
+    //        config.monthFont = UIFont.systemFont(ofSize: 18)
+    //        config.monthColor = UIColor(ciColor: .black)
+    //        // config weekday label on left
+    //        config.weekDayFont = UIFont.systemFont(ofSize: 12)
+    //        config.weekDayWidth = 30
+    //        config.weekDayColor = UIColor(ciColor: .black)
+    //
+    //        let calendar = CalendarHeatmap(config: config, startDate: Date(2019, 8, 9), endDate: Date(2020, 8, 9))
+    //        calendar.delegate = self
+    //        return calendar
+    //    }()
+    //
+    //    override func viewDidLoad() {
+    //        super.viewDidLoad()
+    //
+    //        view.addSubview(calendarHeatMap)
+    //        calendarHeatMap.translatesAutoresizingMaskIntoConstraints = false
+    //
+    //        NSLayoutConstraint.activate([
+    //            calendarHeatMap.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 6),
+    //            calendarHeatMap.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 6),
+    //            calendarHeatMap.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20)
+    //        ])
+    //    }
+    //
+    //    private func readHeatmap() -> [String: Int]? {
+    //        guard let url = Bundle.main.url(forResource: "heatmap", withExtension: "plist") else {
+    //            print("readHeamap guarded")
+    //            return nil
+    //        }
+    //        print("url: \(url)")
+    //        return NSDictionary(contentsOf: url) as? [String: Int]
+    //    }
 }
 
 extension ViewController: CalendarHeatmapDelegate {
@@ -227,5 +196,17 @@ extension Date {
         dateComponents.month = month
         dateComponents.day = day
         self.init(timeInterval:0, since: Calendar.current.date(from: dateComponents)!)
+    }
+}
+
+
+
+private func readHeatmap() -> [String: Int]? {
+    guard let url = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathComponent("Heatmap.plist") else { return nil }
+    
+    if let dict = NSDictionary(contentsOf: url) as? [String: [String: Int]] {
+        return dict.flatMap { $0.value }.reduce(into: [:]) { $0[$1.key, default: 0] += $1.value }
+    } else {
+        return ["0": 1]
     }
 }

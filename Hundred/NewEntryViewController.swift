@@ -189,33 +189,33 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
     //        let dateString = "\(year).\(month).\(day)"
     ////        print("firstDateString: \(dateString)")
     //
-    //        if let existingGoalTitle = existingGoal?.title {
-    ////            print("existingGoal: \(existingGoalTitle)")
-    //            // check to see if existingGoalTitle exists as a key and, if so, check if progressData exists as a value
-    //            if let retrievedProgressData = goalData[existingGoalTitle] {
-    //                progressData = retrievedProgressData
-    ////                print("progressData: \(progressData)")
-    ////                 check if dateString exists as a key and, if so, check if count exists as a value
-    //                if var count = progressData[dateString] {
-    ////                    print("dateString: \(dateString)")
-    //                    count += 1
-    ////                    print("count: \(count)")
-    //                    progressData[dateString] = count
-    ////                    print("progressData after: \(progressData)")
-    //                    goalData[existingGoalTitle] = progressData
-    ////                    let newData = goalData[existingGoalTitle]?.merging(progressData) { $1 }
+    //            if let existingGoalTitle = existingGoal?.title {
+    //    //            print("existingGoal: \(existingGoalTitle)")
+    //                // check to see if existingGoalTitle exists as a key and, if so, check if progressData exists as a value
+    //                if let retrievedProgressData = goalData[existingGoalTitle] {
+    //                    progressData = retrievedProgressData
+    //    //                print("progressData: \(progressData)")
+    //    //                 check if dateString exists as a key and, if so, check if count exists as a value
+    //                    if var count = progressData[dateString] {
+    //    //                    print("dateString: \(dateString)")
+    //                        count += 1
+    //    //                    print("count: \(count)")
+    //                        progressData[dateString] = count
+    //    //                    print("progressData after: \(progressData)")
+    //                        goalData[existingGoalTitle] = progressData
+    //    //                    let newData = goalData[existingGoalTitle]?.merging(progressData) { $1 }
+    //                    } else {
+    //                        // existingGoalTitle exists, but dateString doesn't exist as a key or the count is nil as a value
+    //                        progressData[dateString] = 1
+    //                        goalData[existingGoalTitle] = progressData
+    //    //                    print("add to dictionary progressData: \(progressData)")
+    //                    }
     //                } else {
-    //                    // existingGoalTitle exists, but dateString doesn't exist as a key or the count is nil as a value
-    //                    progressData[dateString] = 1
-    //                    goalData[existingGoalTitle] = progressData
-    ////                    print("add to dictionary progressData: \(progressData)")
+    //                    // if existingGoalTitle or progressData doesn't exist
+    //                    goalData = [existingGoalTitle : [dateString: 1]]
+    //    //                print("first time: \(goalData)")
     //                }
-    //            } else {
-    //                // if existingGoalTitle or progressData doesn't exist
-    //                goalData = [existingGoalTitle : [dateString: 1]]
-    ////                print("first time: \(goalData)")
     //            }
-    //        }
     //
     ////        print("final: \(goalData)")
     //        if let path = pListURL() {
@@ -320,12 +320,12 @@ extension NewEntryViewController {
         let month = calendar.component(.month, from: date) - 1
         let day = calendar.component(.day, from: date)
         let dateString = "\(year).\(month).\(day)"
-        if var count = data[dateString] {
-            count += 1
-            data[dateString] = count
-        } else {
-            data[dateString] = 1
-        }
+        //        if var count = data[dateString] {
+        //            count += 1
+        //            data[dateString] = count
+        //        } else {
+        //            data[dateString] = 1
+        //        }
         
         let url = pListURL()
         guard FileManager.default.fileExists(atPath: url.path) else { write(dictionary: data); return }
@@ -333,11 +333,11 @@ extension NewEntryViewController {
             let dataContent = try Data(contentsOf: url)
             if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: Int] {
                 if var count = dict[dateString] {
-                      count += 1
-                      dict[dateString] = count
-                  } else {
-                      dict[dateString] = 1
-                  }
+                    count += 1
+                    dict[dateString] = count
+                } else {
+                    dict[dateString] = 1
+                }
                 write(dictionary: dict)
             } else {
                 write(dictionary: data)
@@ -391,3 +391,4 @@ extension NewEntryViewController {
         }
     }
 }
+
