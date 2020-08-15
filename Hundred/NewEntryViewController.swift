@@ -115,7 +115,6 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
                 
                 goalForProgress.progress.insert(progress)
                 savePList()
-                //                savePListForEachGoal()
                 self.saveContext()
                 
             default:
@@ -186,7 +185,7 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
         let calendar = Calendar.current
         let year = calendar.component(.year, from: date)
         let month = calendar.component(.month, from: date)
-        let day = calendar.component(.day, from: date) - 3
+        let day = calendar.component(.day, from: date)
         let dateString = "\(year).\(month).\(day)"
         print("firstDateString: \(dateString)")
         
@@ -226,10 +225,8 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
                 print(error)
             }
         }
-        print("tabBarController?.viewControllers: \(tabBarController?.viewControllers)")
-        print("[0]: \(tabBarController?.moreNavigationController.viewControllers as? ViewController)")
-        print("view controllers : \(tabBarController?.viewControllers?[2] as? ViewController)")
-        if let mainVC = tabBarController?.viewControllers?[0] as ViewController {
+
+        if let mainVC = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
             print("mainVC: \(mainVC)")
             let dataImporter = DataImporter()
             print("loadData: \(dataImporter.loadData())")

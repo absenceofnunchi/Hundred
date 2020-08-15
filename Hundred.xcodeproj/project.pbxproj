@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		49026F9224DB423900724369 /* Constraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49026F9124DB423900724369 /* Constraints.swift */; };
 		49026F9B24DB4FBF00724369 /* ProgressCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49026F9A24DB4FBF00724369 /* ProgressCell.swift */; };
+		491F5A7C24E458FA0075EDCD /* DetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 491F5A7B24E458FA0075EDCD /* DetailTableViewController.swift */; };
 		494F0C2A24D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */; };
 		494F0C2C24D7246A00C5450C /* ManagedObjectContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */; };
 		49795B7624DC864000D27111 /* EntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49795B7524DC864000D27111 /* EntryViewController.swift */; };
@@ -26,7 +27,6 @@
 		49B91C0E24D8932100D11671 /* Goal+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B91C0A24D8932100D11671 /* Goal+CoreDataProperties.swift */; };
 		49B91C0F24D8932100D11671 /* Progress+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B91C0B24D8932100D11671 /* Progress+CoreDataClass.swift */; };
 		49B91C1024D8932100D11671 /* Progress+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B91C0C24D8932100D11671 /* Progress+CoreDataProperties.swift */; };
-		49BA0A7B24D6211D00BF2948 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49BA0A7A24D6211D00BF2948 /* DetailViewController.swift */; };
 		49BA0A7D24D62B6600BF2948 /* NewEntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49BA0A7C24D62B6600BF2948 /* NewEntryViewController.swift */; };
 		959BBA5D7FE2D6CC34668FE7 /* Pods_Hundred.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E151965057E79A8338541A10 /* Pods_Hundred.framework */; };
 /* End PBXBuildFile section */
@@ -34,6 +34,7 @@
 /* Begin PBXFileReference section */
 		49026F9124DB423900724369 /* Constraints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constraints.swift; sourceTree = "<group>"; };
 		49026F9A24DB4FBF00724369 /* ProgressCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressCell.swift; sourceTree = "<group>"; };
+		491F5A7B24E458FA0075EDCD /* DetailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailTableViewController.swift; sourceTree = "<group>"; };
 		494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistingGoalsMenuTableViewController.swift; sourceTree = "<group>"; };
 		494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedObjectContext.swift; sourceTree = "<group>"; };
 		49795B7524DC864000D27111 /* EntryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryViewController.swift; sourceTree = "<group>"; };
@@ -53,7 +54,6 @@
 		49B91C0A24D8932100D11671 /* Goal+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Goal+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 		49B91C0B24D8932100D11671 /* Progress+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Progress+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
 		49B91C0C24D8932100D11671 /* Progress+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Progress+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
-		49BA0A7A24D6211D00BF2948 /* DetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
 		49BA0A7C24D62B6600BF2948 /* NewEntryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewEntryViewController.swift; sourceTree = "<group>"; };
 		A27ACB2AB86EC0276A9D5E1C /* Pods-Hundred.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hundred.debug.xcconfig"; path = "Target Support Files/Pods-Hundred/Pods-Hundred.debug.xcconfig"; sourceTree = "<group>"; };
 		E151965057E79A8338541A10 /* Pods_Hundred.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Hundred.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -129,7 +129,7 @@
 				4996BD4824D485C900E301B4 /* ViewController.swift */,
 				4996BD5D24D4910600E301B4 /* AddGoalViewController.swift */,
 				4996BD5B24D48B0700E301B4 /* GoalsTableViewController.swift */,
-				49BA0A7A24D6211D00BF2948 /* DetailViewController.swift */,
+				491F5A7B24E458FA0075EDCD /* DetailTableViewController.swift */,
 				49BA0A7C24D62B6600BF2948 /* NewEntryViewController.swift */,
 				494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */,
 				49795B7524DC864000D27111 /* EntryViewController.swift */,
@@ -272,7 +272,6 @@
 				49026F9B24DB4FBF00724369 /* ProgressCell.swift in Sources */,
 				49795B7624DC864000D27111 /* EntryViewController.swift in Sources */,
 				49B91C1024D8932100D11671 /* Progress+CoreDataProperties.swift in Sources */,
-				49BA0A7B24D6211D00BF2948 /* DetailViewController.swift in Sources */,
 				49B91C0E24D8932100D11671 /* Goal+CoreDataProperties.swift in Sources */,
 				4996BD5C24D48B0700E301B4 /* GoalsTableViewController.swift in Sources */,
 				4996BD4924D485C900E301B4 /* ViewController.swift in Sources */,
@@ -282,6 +281,7 @@
 				4996BD5E24D4910600E301B4 /* AddGoalViewController.swift in Sources */,
 				49B91C0D24D8932100D11671 /* Goal+CoreDataClass.swift in Sources */,
 				4996BD4F24D485C900E301B4 /* Hundred.xcdatamodeld in Sources */,
+				491F5A7C24E458FA0075EDCD /* DetailTableViewController.swift in Sources */,
 				49B328FE24E3269F00D9E8D4 /* DataImporter.swift in Sources */,
 				494F0C2C24D7246A00C5450C /* ManagedObjectContext.swift in Sources */,
 				4996BD4724D485C900E301B4 /* SceneDelegate.swift in Sources */,

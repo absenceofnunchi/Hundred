@@ -13,7 +13,6 @@ class DataImporter {
     
     func loadData() -> [String: UIColor] {
         guard let contributionData = readHeatmap() else { return [:] }
-        print("loadData function")
         return mapColours(contributionData: contributionData)
     }
     
@@ -48,12 +47,9 @@ class DataImporter {
     
     private func readHeatmap() -> [String: Int]? {
         guard let url = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathComponent("Heatmap.plist") else { return nil  }
-        print("url: \(url)")
         if let dict = NSDictionary(contentsOf: url) as? [String: [String: Int]] {
-            print("dict: \(dict)")
             return dict.flatMap { $0.value }.reduce(into: [:]) { $0[$1.key, default: 0] += $1.value }
         } else {
-            print("none")
             return ["0": 1]
         }
     }

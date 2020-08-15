@@ -41,7 +41,7 @@ class ViewController: UIViewController {
             return calendar
         }
     }()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -62,7 +62,6 @@ class ViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("data in view will appear: \(data)")
         calendarHeatMap.reload()
     }
 
