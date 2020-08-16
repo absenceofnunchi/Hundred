@@ -6,11 +6,13 @@
 //  Copyright © 2020 J. All rights reserved.
 //
 
-import UIKit
 import CalendarHeatmap
+import Charts
+import UIKit
 
 class EntryViewController: UIViewController {
-    @IBOutlet weak var scrollView: UIView!
+
+    @IBOutlet weak var scrollView: UIScrollView!
     var progress: Progress!
     var metrics: [String]?
     
@@ -100,19 +102,53 @@ class EntryViewController: UIViewController {
         }
     }()
     
+    private lazy var lineChartView: LineChartView = {
+        let chartView = LineChartView()
+//                chartView.backgroundColor = .systemBlue
+        chartView.rightAxis.enabled = false
+        chartView.pinchZoomEnabled = true
+        
+        let yAxis = chartView.leftAxis
+        yAxis.labelFont = .boldSystemFont(ofSize: 12)
+        yAxis.setLabelCount(6, force: false)
+        yAxis.labelTextColor = UIColor(red: 0, green: 0, blue: 255/255, alpha: 1.0)
+        yAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
+        yAxis.labelPosition = .outsideChart
+        yAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
+        
+        let xAxis = chartView.xAxis
+        xAxis.labelPosition = .bottom
+        xAxis.labelFont = .boldSystemFont(ofSize: 12)
+        xAxis.setLabelCount(6, force: false)
+        xAxis.labelTextColor = UIColor(red: 0, green: 0, blue: 255/255, alpha: 1.0)
+        xAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
+        xAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
+        
+        chartView.animate(xAxisDuration: 1.5)
+        
+        return chartView
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureStackView()
         configureTitleLabel()
-        
-        if imageView.image != nil {
-            setImageViewConstraints()
-        }
+
         setStackViewConstraints()
+//        if imageView.image != nil {
+//            setImageViewConstraints()
+//        }
+//        lineChartView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -20).isActive = true
+//        lineChartView.heightAnchor.constraint(equalTo: lineChartView.widthAnchor).isActive = true
         //                setMetricsStackStraints()
+//        let dataImporter = DataImporter()
+//        data = dataImporter.data
+//        
+//        setData()
         
-        let dataImporter = DataImporter()
-        data = dataImporter.data
+        
+        
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -120,11 +156,17 @@ class EntryViewController: UIViewController {
         tabBarController?.tabBar.isHidden = true
     }
     
+//    override func viewWillLayoutSubviews(){
+//        super.viewWillLayoutSubviews()
+//        scrollView.contentSize = CGSize(width: view.bounds.width, height: view.bounds.height + 500)
+//    }
+    
     private func addTextToLabel(text: String) {
         let label = UILabel()
         label.text = text
         label.textColor = UIColor(red: 220/255, green: 220/255, blue: 220/255, alpha: 1)
         stackView.addArrangedSubview(label)
+        label.heightAnchor.constraint(equalToConstant: 100).isActive = true
     }
     
     private func addLine() {
@@ -136,15 +178,71 @@ class EntryViewController: UIViewController {
     }
     
     func configureStackView() {
-        stackView.addArrangedSubview(dateLabel)
+//        stackView.addArrangedSubview(dateLabel)
+        
         addTextToLabel(text: "Comment")
         addLine()
-        stackView.addArrangedSubview(commentLabel)
-        stackView.setCustomSpacing(30, after: commentLabel)
-        addTextToLabel(text: "Calendar")
+        addTextToLabel(text: "Comment")
         addLine()
-        stackView.addArrangedSubview(calendarHeatMap)
-        //        configureMetricsLabel()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        addTextToLabel(text: "Comment")
+        addLine()
+        
+        
+//        stackView.addArrangedSubview(commentLabel)
+//        stackView.setCustomSpacing(30, after: commentLabel)
+//        addTextToLabel(text: "Calendar")
+//        addLine()
+//        stackView.addArrangedSubview(calendarHeatMap)
+//        stackView.setCustomSpacing(30, after: calendarHeatMap)
+//        addTextToLabel(text: "Progress Chart")
+//        addLine()
+//        stackView.addArrangedSubview(lineChartView)
+//        stackView.setCustomSpacing(30, after: calendarHeatMap)
+//        //        configureMetricsLabel()
         scrollView.addSubview(stackView)
     }
     
@@ -189,17 +287,17 @@ class EntryViewController: UIViewController {
         stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
         stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
         stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
-        stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
+        stackView.bottomAnchor.constraint(equalTo: scrollView.layoutMarginsGuide.bottomAnchor).isActive = true
         if progress.image != nil {
             stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor).isActive = true
         } else {
-            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
+            stackView.topAnchor.constraint(equalTo: scrollView.layoutMarginsGuide.topAnchor).isActive = true
         }
     }
     
     func setImageViewConstraints() {
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
+        imageView.topAnchor.constraint(equalTo: scrollView.layoutMarginsGuide.topAnchor).isActive = true
         imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
         imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, constant: 9/16).isActive = true
         if uiImage.size.width > uiImage.size.height {
@@ -209,14 +307,14 @@ class EntryViewController: UIViewController {
         }
     }
     
-//    func setHeatMapConstraints(){
-        //        calendarHeatMap.translatesAutoresizingMaskIntoConstraints = false
-        //        calendarHeatMap.widthAnchor.constraint(equalTo: containerView2.widthAnchor).isActive = true
-        //        calendarHeatMap.leadingAnchor.constraint(equalTo: containerView2.leadingAnchor, constant: 20).isActive = true
-        //        calendarHeatMap.trailingAnchor.constraint(equalTo: containerView2.trailingAnchor, constant: 20).isActive = true
-        //        calendarHeatMap.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20).isActive = true
-        //        calendarHeatMap.heightAnchor.constraint(equalToConstant: 190).isActive = true
-//    }
+    //    func setHeatMapConstraints(){
+    //        calendarHeatMap.translatesAutoresizingMaskIntoConstraints = false
+    //        calendarHeatMap.widthAnchor.constraint(equalTo: containerView2.widthAnchor).isActive = true
+    //        calendarHeatMap.leadingAnchor.constraint(equalTo: containerView2.leadingAnchor, constant: 20).isActive = true
+    //        calendarHeatMap.trailingAnchor.constraint(equalTo: containerView2.trailingAnchor, constant: 20).isActive = true
+    //        calendarHeatMap.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20).isActive = true
+    //        calendarHeatMap.heightAnchor.constraint(equalToConstant: 190).isActive = true
+    //    }
     
     func setMetricsStackStraints() {
         firstMetricsStack.translatesAutoresizingMaskIntoConstraints = false
@@ -237,25 +335,31 @@ class EntryViewController: UIViewController {
         return paths[0]
     }
     
-    //    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-    //        var axis: NSLayoutConstraint.Axis
-    //
-    //         if view.traitCollection.verticalSizeClass == .compact {
-    //            axis = NSLayoutConstraint.Axis.horizontal
-    //            if progress.image != nil {
-    //                setImageViewConstraintsCompact()
-    //            }
-    //            setCommentLabelConstraintsCompact()
-    //         } else {
-    //            axis = NSLayoutConstraint.Axis.vertical
-    //            if progress.image != nil {
-    //                setImageViewConstraints()
-    //            }
-    //            setCommentLabelConstraints()
-    //         }
-    //
-    //        stackView.axis = axis
-    //    }
+    func setData() {
+        let set1 = LineChartDataSet(entries: yValues, label: "Subscribers")
+        set1.drawCirclesEnabled = false
+        set1.lineWidth = 3
+        set1.mode = .cubicBezier
+        set1.setColor(.white)
+        set1.fill = Fill(color: .lightGray)
+        set1.fillAlpha = 0.4
+        set1.drawFilledEnabled = true
+        set1.drawHorizontalHighlightIndicatorEnabled = false
+        set1.highlightColor = .systemRed
+        
+        let data = LineChartData(dataSet: set1)
+        data.setDrawValues(false)
+        lineChartView.data = data
+    }
+    
+    let yValues: [ChartDataEntry] = [
+        ChartDataEntry(x: 0.0, y: 10.0),
+        ChartDataEntry(x: 1.0, y: 14.0),
+        ChartDataEntry(x: 2.0, y: 4.0),
+        ChartDataEntry(x: 3.0, y: 19.0),
+        ChartDataEntry(x: 4.0, y: 34.0),
+        ChartDataEntry(x: 5.0, y: 29.0),
+    ]
 }
 
 extension EntryViewController: CalendarHeatmapDelegate {

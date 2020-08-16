@@ -1,2 +1,3 @@
 ${PODS_ROOT}/Target Support Files/Pods-Hundred/Pods-Hundred-frameworks.sh
 ${BUILT_PRODUCTS_DIR}/CalendarHeatmap/CalendarHeatmap.framework
+${BUILT_PRODUCTS_DIR}/Charts/Charts.framework

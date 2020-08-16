@@ -8,5 +8,6 @@ target 'Hundred' do
   # Pods for Hundred
 
   pod 'CalendarHeatmap'
+  pod 'Charts'
   
 end
