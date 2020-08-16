@@ -11,23 +11,25 @@ import Charts
 import UIKit
 
 class EntryViewController: UIViewController {
-
+    
     @IBOutlet weak var scrollView: UIScrollView!
     var progress: Progress!
     var metrics: [String]?
+    var data: [String: UIColor]!
+    var uiImage: UIImage!
     
     private lazy var stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
         stackView.distribution = .fill
         stackView.alignment = .fill
-        stackView.spacing = 10
+        stackView.spacing = 0
         stackView.isLayoutMarginsRelativeArrangement = true
-        stackView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 5, leading: 20, bottom: 0, trailing: 20)
+        stackView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 5, leading: 25, bottom: 0, trailing: 25)
+        scrollView.addSubview(stackView)
         return stackView
     }()
     
-    var uiImage: UIImage!
     private lazy var imageView: UIImageView = {
         let imgView = UIImageView()
         imgView.image = nil
@@ -46,18 +48,6 @@ class EntryViewController: UIViewController {
         }
     }()
     
-    private lazy var dateLabel: UILabel = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM/dd/yyyy"
-        let date = dateFormatter.string(from: progress.date)
-        let tempLabel = UILabel()
-        tempLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
-        tempLabel.textColor = .lightGray
-        tempLabel.text = date
-        tempLabel.textAlignment = .right
-        return tempLabel
-    }()
-    
     private lazy var commentLabel: UILabel = {
         let comment = UILabel()
         comment.text = progress.comment
@@ -65,12 +55,9 @@ class EntryViewController: UIViewController {
         comment.adjustsFontSizeToFitWidth = false
         comment.lineBreakMode = .byTruncatingTail
         comment.font = UIFont.preferredFont(forTextStyle: .body)
+                
         return comment
     }()
-    
-    let firstMetricsStack = UIStackView()
-    let secondMetricsStack = UIStackView()
-    var data: [String: UIColor]!
     
     private lazy var calendarHeatMap: CalendarHeatmap = {
         var config = CalendarHeatmapConfig()
@@ -104,7 +91,6 @@ class EntryViewController: UIViewController {
     
     private lazy var lineChartView: LineChartView = {
         let chartView = LineChartView()
-//                chartView.backgroundColor = .systemBlue
         chartView.rightAxis.enabled = false
         chartView.pinchZoomEnabled = true
         
@@ -131,24 +117,16 @@ class EntryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let dataImporter = DataImporter()
+        data = dataImporter.data
+        
+        setData()
+        
+        title = progress.goal.title
+        
         configureStackView()
-        configureTitleLabel()
-
         setStackViewConstraints()
-//        if imageView.image != nil {
-//            setImageViewConstraints()
-//        }
-//        lineChartView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -20).isActive = true
-//        lineChartView.heightAnchor.constraint(equalTo: lineChartView.widthAnchor).isActive = true
-        //                setMetricsStackStraints()
-//        let dataImporter = DataImporter()
-//        data = dataImporter.data
-//        
-//        setData()
-        
-        
-        
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -156,178 +134,66 @@ class EntryViewController: UIViewController {
         tabBarController?.tabBar.isHidden = true
     }
     
-//    override func viewWillLayoutSubviews(){
-//        super.viewWillLayoutSubviews()
-//        scrollView.contentSize = CGSize(width: view.bounds.width, height: view.bounds.height + 500)
-//    }
+    func configureStackView() {
+        addHeader(text: "Comment")
+        stackView.addArrangedSubview(commentLabel)
+        stackView.setCustomSpacing(50, after: commentLabel)
+        
+        addHeader(text: "Calendar")
+        stackView.addArrangedSubview(calendarHeatMap)
+        stackView.setCustomSpacing(50, after: calendarHeatMap)
+        
+        addHeader(text: "Progress Chart")
+        stackView.addArrangedSubview(lineChartView)
+        stackView.setCustomSpacing(50, after: commentLabel)
+    }
     
-    private func addTextToLabel(text: String) {
+    func setStackViewConstraints() {
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        if progress.image != nil {
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            imageView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
+            imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
+            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, constant: 9/16).isActive = true
+            stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor).isActive = true
+            if uiImage.size.width > uiImage.size.height {
+                imageView.contentMode = .scaleAspectFit
+            } else {
+                imageView.contentMode = .scaleAspectFill
+            }
+        } else {
+            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
+        }
+        
+        stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
+        stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
+        stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
+        stackView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor).isActive = true
+        
+        calendarHeatMap.translatesAutoresizingMaskIntoConstraints = false
+        calendarHeatMap.heightAnchor.constraint(equalToConstant: 200).isActive = true
+        
+        lineChartView.translatesAutoresizingMaskIntoConstraints = false
+        lineChartView.heightAnchor.constraint(equalToConstant: 250).isActive = true
+    }
+    
+    private func addHeader(text: String) {
         let label = UILabel()
         label.text = text
         label.textColor = UIColor(red: 220/255, green: 220/255, blue: 220/255, alpha: 1)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.heightAnchor.constraint(equalToConstant: 20).isActive = true
         stackView.addArrangedSubview(label)
-        label.heightAnchor.constraint(equalToConstant: 100).isActive = true
-    }
-    
-    private func addLine() {
+        stackView.setCustomSpacing(10, after: label)
+        
         let l = UIView()
         l.translatesAutoresizingMaskIntoConstraints = false
         l.backgroundColor = UIColor(red: 220/255, green: 220/255, blue: 220/255, alpha: 0.8)
         l.heightAnchor.constraint(equalToConstant: 1).isActive = true
         stackView.addArrangedSubview(l)
-    }
-    
-    func configureStackView() {
-//        stackView.addArrangedSubview(dateLabel)
         
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        addTextToLabel(text: "Comment")
-        addLine()
-        
-        
-//        stackView.addArrangedSubview(commentLabel)
-//        stackView.setCustomSpacing(30, after: commentLabel)
-//        addTextToLabel(text: "Calendar")
-//        addLine()
-//        stackView.addArrangedSubview(calendarHeatMap)
-//        stackView.setCustomSpacing(30, after: calendarHeatMap)
-//        addTextToLabel(text: "Progress Chart")
-//        addLine()
-//        stackView.addArrangedSubview(lineChartView)
-//        stackView.setCustomSpacing(30, after: calendarHeatMap)
-//        //        configureMetricsLabel()
-        scrollView.addSubview(stackView)
-    }
-    
-    func configureTitleLabel() {
-        title = progress.goal.title
-    }
-    
-    func configureMetricsLabel() {
-        if let firstMetric = progress.firstMetric, let secondMetric = progress.secondMetric {
-            firstMetricsStack.axis = .horizontal
-            firstMetricsStack.alignment = .center
-            firstMetricsStack.distribution = .fill
-            if let firstMetricUnit = metrics?[0] {
-                let firstMetricUnitLabel = UILabel()
-                firstMetricUnitLabel.text = firstMetricUnit
-                firstMetricsStack.addArrangedSubview(firstMetricUnitLabel)
-                let firstMetricLabel = UILabel()
-                firstMetricLabel.text = String(describing: firstMetric)
-                firstMetricsStack.addArrangedSubview(firstMetricLabel)
-                stackView.addArrangedSubview(firstMetricsStack)
-            }
-            
-            if secondMetric != 0 {
-                if let secondMetricUnit = metrics?[1] {
-                    secondMetricsStack.axis = .horizontal
-                    secondMetricsStack.alignment = .center
-                    secondMetricsStack.distribution = .fill
-                    let secondMetricUnitLabel = UILabel()
-                    secondMetricUnitLabel.text = secondMetricUnit
-                    secondMetricsStack.addArrangedSubview(secondMetricUnitLabel)
-                    let secondMetricLabel = UILabel()
-                    secondMetricLabel.text = String(describing: secondMetric)
-                    secondMetricsStack.addArrangedSubview(secondMetricLabel)
-                    stackView.addArrangedSubview(secondMetricsStack)
-                }
-            }
-        }
-    }
-    
-    func setStackViewConstraints() {
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
-        stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
-        stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
-        stackView.bottomAnchor.constraint(equalTo: scrollView.layoutMarginsGuide.bottomAnchor).isActive = true
-        if progress.image != nil {
-            stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor).isActive = true
-        } else {
-            stackView.topAnchor.constraint(equalTo: scrollView.layoutMarginsGuide.topAnchor).isActive = true
-        }
-    }
-    
-    func setImageViewConstraints() {
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.topAnchor.constraint(equalTo: scrollView.layoutMarginsGuide.topAnchor).isActive = true
-        imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
-        imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, constant: 9/16).isActive = true
-        if uiImage.size.width > uiImage.size.height {
-            imageView.contentMode = .scaleAspectFit
-        } else {
-            imageView.contentMode = .scaleAspectFill
-        }
-    }
-    
-    //    func setHeatMapConstraints(){
-    //        calendarHeatMap.translatesAutoresizingMaskIntoConstraints = false
-    //        calendarHeatMap.widthAnchor.constraint(equalTo: containerView2.widthAnchor).isActive = true
-    //        calendarHeatMap.leadingAnchor.constraint(equalTo: containerView2.leadingAnchor, constant: 20).isActive = true
-    //        calendarHeatMap.trailingAnchor.constraint(equalTo: containerView2.trailingAnchor, constant: 20).isActive = true
-    //        calendarHeatMap.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20).isActive = true
-    //        calendarHeatMap.heightAnchor.constraint(equalToConstant: 190).isActive = true
-    //    }
-    
-    func setMetricsStackStraints() {
-        firstMetricsStack.translatesAutoresizingMaskIntoConstraints = false
-        firstMetricsStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
-        firstMetricsStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
-        
-        if let secondMetric = progress.secondMetric {
-            if secondMetric != 0 {
-                secondMetricsStack.translatesAutoresizingMaskIntoConstraints = false
-                secondMetricsStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
-                secondMetricsStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
-            }
-        }
+        stackView.setCustomSpacing(10, after: l)
     }
     
     func getDocumentsDirectory() -> URL {
@@ -360,6 +226,7 @@ class EntryViewController: UIViewController {
         ChartDataEntry(x: 4.0, y: 34.0),
         ChartDataEntry(x: 5.0, y: 29.0),
     ]
+    
 }
 
 extension EntryViewController: CalendarHeatmapDelegate {
@@ -375,6 +242,7 @@ extension EntryViewController: CalendarHeatmapDelegate {
             let month = dateComponents.month,
             let day = dateComponents.day else { return .clear}
         let dateString = "\(year).\(month).\(day)"
+        
         return data[dateString] ?? UIColor(red: 240/255, green: 240/255, blue: 240/255, alpha: 1.0)
     }
     
@@ -382,4 +250,3 @@ extension EntryViewController: CalendarHeatmapDelegate {
         calendarHeatMap.scrollTo(date: Date(), at: .right, animated: false)
     }
 }
-

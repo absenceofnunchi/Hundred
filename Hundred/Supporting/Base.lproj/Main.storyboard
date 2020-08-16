@@ -247,18 +247,16 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="b1g-d8-KDa">
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="b1g-d8-KDa">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
-                                <viewLayoutGuide key="contentLayoutGuide" id="lg4-At-NhE"/>
-                                <viewLayoutGuide key="frameLayoutGuide" id="kX0-36-qbw"/>
                             </scrollView>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
-                            <constraint firstItem="aw2-5p-dWw" firstAttribute="trailing" secondItem="b1g-d8-KDa" secondAttribute="trailing" id="Bhe-1m-CBT"/>
-                            <constraint firstItem="b1g-d8-KDa" firstAttribute="leading" secondItem="aw2-5p-dWw" secondAttribute="leading" id="CM5-be-unU"/>
-                            <constraint firstItem="aw2-5p-dWw" firstAttribute="top" secondItem="b1g-d8-KDa" secondAttribute="top" constant="44" id="ZFh-VX-oKx"/>
-                            <constraint firstItem="b1g-d8-KDa" firstAttribute="bottom" secondItem="aw2-5p-dWw" secondAttribute="bottom" constant="34" id="tkG-E1-V2j"/>
+                            <constraint firstItem="b1g-d8-KDa" firstAttribute="leading" secondItem="aw2-5p-dWw" secondAttribute="leading" id="TmL-Jd-YnP"/>
+                            <constraint firstItem="b1g-d8-KDa" firstAttribute="bottom" secondItem="aw2-5p-dWw" secondAttribute="bottom" constant="34" id="ZwV-V1-dhN"/>
+                            <constraint firstItem="aw2-5p-dWw" firstAttribute="trailing" secondItem="b1g-d8-KDa" secondAttribute="trailing" id="dyk-9t-dOf"/>
+                            <constraint firstItem="aw2-5p-dWw" firstAttribute="top" secondItem="b1g-d8-KDa" secondAttribute="top" constant="44" id="e3G-Pe-YL6"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="aw2-5p-dWw"/>
                     </view>
