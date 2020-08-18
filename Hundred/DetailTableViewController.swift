@@ -9,6 +9,7 @@
 import UIKit
 
 class DetailTableViewController: UITableViewController {
+    
     var fetchedResult: Progress!
     var goalTitle: String!
     var progresses: [Progress]!
@@ -36,16 +37,15 @@ class DetailTableViewController: UITableViewController {
     
     func configureTableView() {
         tableView.register(ProgressCell.self, forCellReuseIdentifier: Cells.progressCell)
-//        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.rowHeight = 65
+        tableView.rowHeight = 85
     }
     
     // MARK: - Table view data source
     
-//    override func numberOfSections(in tableView: UITableView) -> Int {
-//        // #warning Incomplete implementation, return the number of sections
-//        return 0
-//    }
+    //    override func numberOfSections(in tableView: UITableView) -> Int {
+    //        // #warning Incomplete implementation, return the number of sections
+    //        return 0
+    //    }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return progresses.count
@@ -78,5 +78,23 @@ class DetailTableViewController: UITableViewController {
             print("insert")
         }
     }
-    
 }
+
+//extension DetailTableViewController: UIViewControllerPreviewingDelegate {
+//    func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
+//        if let indexPath = tableView.indexPathForRow(at: location) {
+//            previewingContext.sourceRect = tableView.rectForRow(at: indexPath)
+//            if let vc = storyboard?.instantiateViewController(identifier: "Entry") as? EntryViewController {
+//                vc.progress = progresses[indexPath.row]
+//                vc.metrics = goal.metrics
+//                return vc
+//            }
+//        }
+//        
+//        return nil
+//    }
+//    
+//    func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
+//        navigationController?.pushViewController(viewControllerToCommit, animated: true)
+//    }
+//}

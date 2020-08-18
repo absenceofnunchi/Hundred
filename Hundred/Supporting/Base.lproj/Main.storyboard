@@ -50,7 +50,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="Z0d-D1-ISn">
-                                        <rect key="frame" x="0.0" y="130" width="414" height="107.5"/>
+                                        <rect key="frame" x="0.0" y="130" width="414" height="70.5"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Comment" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iDC-fh-oGa" userLabel="Comment">
                                                 <rect key="frame" x="0.0" y="0.0" width="414" height="20.5"/>
@@ -59,7 +59,7 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" keyboardDismissMode="onDrag" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="gOJ-Hq-vOk">
-                                                <rect key="frame" x="0.0" y="20.5" width="414" height="87"/>
+                                                <rect key="frame" x="0.0" y="20.5" width="414" height="50"/>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                                 <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
                                                 <color key="textColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -69,7 +69,7 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="kfl-fv-Wl3">
-                                        <rect key="frame" x="0.0" y="237.5" width="414" height="54.5"/>
+                                        <rect key="frame" x="0.0" y="200.5" width="414" height="99.5"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0vE-kD-YYD" userLabel="First Metric">
                                                 <rect key="frame" x="0.0" y="0.0" width="414" height="20.5"/>
@@ -78,14 +78,14 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="IA0-kb-bGw">
-                                                <rect key="frame" x="0.0" y="20.5" width="414" height="34"/>
+                                                <rect key="frame" x="0.0" y="20.5" width="414" height="79"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="gvr-pG-n5e">
-                                        <rect key="frame" x="0.0" y="292" width="414" height="54.5"/>
+                                        <rect key="frame" x="0.0" y="300" width="414" height="54.5"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ts4-IO-2Qv" userLabel="Second Metric">
                                                 <rect key="frame" x="0.0" y="0.0" width="414" height="20.5"/>
@@ -100,9 +100,9 @@
                                             </textField>
                                         </subviews>
                                     </stackView>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mnY-bY-bsq">
-                                        <rect key="frame" x="0.0" y="346.5" width="414" height="30"/>
-                                        <state key="normal" title="Submit"/>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mnY-bY-bsq">
+                                        <rect key="frame" x="0.0" y="354.5" width="414" height="22"/>
+                                        <state key="normal" title="Submit" image="plus" catalog="system"/>
                                         <connections>
                                             <action selector="buttonPressed:" destination="U45-8L-8Pl" eventType="touchUpInside" id="wIn-gk-MHd"/>
                                         </connections>
@@ -220,7 +220,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="gna-OD-NyI" customClass="ProgressCell" customModule="Hundred" customModuleProvider="target">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="Entry" id="gna-OD-NyI" customClass="ProgressCell" customModule="Hundred" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="gna-OD-NyI" id="KyQ-fh-Ago">
@@ -260,6 +260,7 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="aw2-5p-dWw"/>
                     </view>
+                    <navigationItem key="navigationItem" id="gge-9i-4uL"/>
                     <connections>
                         <outlet property="scrollView" destination="b1g-d8-KDa" id="d3b-Bd-lWo"/>
                     </connections>
@@ -410,6 +411,7 @@
                         <segue destination="76L-0S-dL6" kind="relationship" relationship="viewControllers" id="57L-vj-Pty"/>
                         <segue destination="7j6-mg-BsA" kind="relationship" relationship="viewControllers" id="xC5-Y3-BD4"/>
                         <segue destination="BPa-gZ-cCI" kind="relationship" relationship="viewControllers" id="wxf-zp-DMd"/>
+                        <segue destination="PQF-qJ-QnE" kind="relationship" relationship="viewControllers" id="vcS-6i-1zI"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="nEJ-zs-b19" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -434,6 +436,36 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="7NY-Jo-VU7" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="992.75362318840587" y="375.66964285714283"/>
+        </scene>
+        <!--New View Controller-->
+        <scene sceneID="Ts0-o9-e0i">
+            <objects>
+                <viewController id="IOz-IX-T0E" customClass="NewViewController" customModule="Hundred" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="rUB-Ed-2UL">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lN4-w3-zQ3">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                            </scrollView>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="lN4-w3-zQ3" firstAttribute="leading" secondItem="FUJ-Nc-J4Y" secondAttribute="leading" id="Oej-Vc-1cv"/>
+                            <constraint firstItem="FUJ-Nc-J4Y" firstAttribute="trailing" secondItem="lN4-w3-zQ3" secondAttribute="trailing" id="WRw-O4-puI"/>
+                            <constraint firstItem="FUJ-Nc-J4Y" firstAttribute="top" secondItem="lN4-w3-zQ3" secondAttribute="top" constant="88" id="aMe-WF-l1L"/>
+                            <constraint firstItem="lN4-w3-zQ3" firstAttribute="bottom" secondItem="FUJ-Nc-J4Y" secondAttribute="bottom" constant="83" id="edQ-TL-5ci"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="FUJ-Nc-J4Y"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="yvF-DG-0dm"/>
+                    <connections>
+                        <outlet property="scrollView" destination="lN4-w3-zQ3" id="mMQ-Xg-3kC"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="jWJ-i1-sb5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1800.0000000000002" y="-1667.4107142857142"/>
         </scene>
         <!--Item-->
         <scene sceneID="KCN-Bc-zlB">
@@ -473,5 +505,27 @@
             </objects>
             <point key="canvasLocation" x="992.75362318840587" y="-297.32142857142856"/>
         </scene>
+        <!--Item-->
+        <scene sceneID="7dc-IQ-I39">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="PQF-qJ-QnE" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Item" id="NMq-Vf-yQ0"/>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="DnR-Sl-9WY">
+                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="IOz-IX-T0E" kind="relationship" relationship="rootViewController" id="udl-Vt-Q9B"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="JPG-nf-Pgq" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="993" y="-1667"/>
+        </scene>
     </scenes>
+    <resources>
+        <image name="plus" catalog="system" width="128" height="113"/>
+    </resources>
 </document>

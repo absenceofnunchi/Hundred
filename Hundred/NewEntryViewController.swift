@@ -91,13 +91,13 @@ class NewEntryViewController: UIViewController, UIImagePickerControllerDelegate,
                 let formatter = NumberFormatter()
                 formatter.generatesDecimalNumbers = true
                 
-                if let firstMetric = firstMetricTextField.text {
-                    progress.firstMetric = formatter.number(from: firstMetric) as? NSDecimalNumber ?? 0
-                }
-                
-                if let secondMetric = secondMetricTextField.text {
-                    progress.secondMetric = formatter.number(from: secondMetric) as? NSDecimalNumber ?? 0
-                }
+//                if let firstMetric = firstMetricTextField.text {
+//                    progress.firstMetric = formatter.number(from: firstMetric) as? NSDecimalNumber ?? 0
+//                }
+//                
+//                if let secondMetric = secondMetricTextField.text {
+//                    progress.secondMetric = formatter.number(from: secondMetric) as? NSDecimalNumber ?? 0
+//                }
                 
                 progress.image = imagePathString
                 
