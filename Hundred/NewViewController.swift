@@ -24,6 +24,12 @@ class NewViewController: UIViewController {
     }()
     
     var cameraButton: UIButton!
+    var currentImage: UIImage!
+    private lazy var imageButton: UIButton = {
+        let iButton = UIButton()
+        iButton.setImage(currentImage, for: .normal)
+        return iButton
+    }()
     
     var goalTextField: UITextField = {
         let textField = UITextField()
@@ -97,8 +103,13 @@ class NewViewController: UIViewController {
     }
     
     func configureStackView() {
-        stackView.addArrangedSubview(cameraButton)
-        stackView.setCustomSpacing(40, after: cameraButton)
+        if currentImage == nil {
+            stackView.addArrangedSubview(cameraButton)
+            stackView.setCustomSpacing(40, after: cameraButton)
+        } else {
+            stackView.addArrangedSubview(imageButton)
+            stackView.setCustomSpacing(40, after: cameraButton)
+        }
         
         addHeader(text: "Goal Title", stackView: stackView)
         stackView.addArrangedSubview(goalTextField)
@@ -188,8 +199,10 @@ class NewViewController: UIViewController {
             ac.addAction(UIAlertAction(title: "Photos", style: .default, handler: openPhoto))
             ac.addAction(UIAlertAction(title: "Camera", style: .default, handler: openCamera))
             present(ac, animated: true, completion: {() -> Void in
-                ac.view.superview?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.alertClose)))
+                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
+                ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
             })
+            
         case 2:
             let metricView = UIView()
             
@@ -200,7 +213,7 @@ class NewViewController: UIViewController {
             let borderColor = UIColor.gray
             metricUnitTextField.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
             metricView.addSubview(metricUnitTextField)
-
+            
             let metricTextField = UITextField()
             metricTextField.placeholder = "Metrics"
             metricTextField.textAlignment = .center
@@ -231,6 +244,7 @@ class NewViewController: UIViewController {
                 metricStackView.removeArrangedSubview(metricSubview)
                 metricSubview.removeFromSuperview()
             }
+            
         default:
             print("default")
         }
@@ -251,11 +265,28 @@ class NewViewController: UIViewController {
     }
     
     func openPhoto(action: UIAlertAction) {
-        
+        let picker = UIImagePickerController()
+        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+            picker.allowsEditing = true
+            picker.delegate = self
+            present(picker, animated: true)
+        } else {
+            let ac = UIAlertController(title: "Photo Library Not Available", message: nil, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+            present(ac, animated: true)
+        }
     }
     
     func openCamera(action: UIAlertAction) {
-        
+        let picker = UIImagePickerController()
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            picker.sourceType = .camera
+            present(picker, animated: true)
+        } else {
+            let ac = UIAlertController(title: "Camera Not Available", message: nil, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+            present(ac, animated: true)
+        }
     }
     
     @objc func alertClose(_ alert:UIAlertController) {
@@ -280,3 +311,12 @@ extension NewViewController: UITextViewDelegate {
     }
 }
 
+extension NewViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        guard let image = info[.editedImage] as? UIImage else { return }
+        dismiss(animated: true, completion: nil)
+        
+        currentImage = image
+    }
+}

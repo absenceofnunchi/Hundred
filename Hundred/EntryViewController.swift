@@ -178,11 +178,6 @@ class EntryViewController: UIViewController {
         lineChartView.heightAnchor.constraint(equalToConstant: 250).isActive = true
     }
     
-    func getDocumentsDirectory() -> URL {
-        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        return paths[0]
-    }
-    
     func setData() {
         let set1 = LineChartDataSet(entries: yValues, label: "Subscribers")
         set1.drawCirclesEnabled = false

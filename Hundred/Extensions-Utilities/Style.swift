@@ -26,4 +26,10 @@ extension UIViewController {
         
         stackView.setCustomSpacing(20, after: l)
     }
+    
+    
+    func getDocumentsDirectory() -> URL {
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        return paths[0]
+    }
 }
