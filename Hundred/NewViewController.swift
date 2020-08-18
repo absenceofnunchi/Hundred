@@ -18,19 +18,29 @@ class NewViewController: UIViewController {
         stackView.alignment = .fill
         stackView.spacing = 20
         stackView.isLayoutMarginsRelativeArrangement = true
-        stackView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 5, leading: 25, bottom: 0, trailing: 25)
+        stackView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 15, leading: 30, bottom: 20, trailing: 30)
         scrollView.addSubview(stackView)
         return stackView
     }()
+    
+    var cameraButton: UIButton!
     
     var goalTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Goal Title"
         textField.borderStyle = .roundedRect
+        let borderColor = UIColor.gray
+        textField.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
         return textField
     }()
     
-    var goalButton: UIButton!
+    var goalButton: UIButton = {
+        let gButton = UIButton()
+        gButton.setTitle("Get existing goals", for: .normal)
+        gButton.backgroundColor = UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0)
+        gButton.layer.cornerRadius = 10
+        return gButton
+    }()
     
     var commentTextView: UITextView = {
         let textView = UITextView()
@@ -40,32 +50,33 @@ class NewViewController: UIViewController {
         textView.text = "Comment"
         textView.font = UIFont.preferredFont(forTextStyle: .body)
         textView.textColor = UIColor.lightGray
-        
-        let borderColor = UIColor.gray
-        textView.layer.borderColor = borderColor.withAlphaComponent(0.4).cgColor
         textView.layer.cornerRadius = 4
         textView.layer.borderWidth = 1
-        textView.clipsToBounds = false
+        textView.layer.masksToBounds = true
+        
+        let borderColor = UIColor.gray
+        textView.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
+        
         return textView
     }()
     
-//    var plusButton: UIButton = {
-//        let pButton = UIButton()
-//        //        pButton.setImage(UIImage(systemName: "plus.app.fill"), for: .normal)
-//        pButton.setTitle("Testing", for: .normal)
-//        pButton.tintColor = UIColor(red: 0, green: 0, blue: 255/255, alpha: 1.0)
-//        //        pButton.frame = CGRect(x: pButton.frame.size.width + 60, y: 0, width: 60, height: 60)
-//        pButton.frame.size.height = 60
-//        pButton.frame.size.width = 60
-//        return pButton
-//    }()
     var plusButton: UIButton!
+    var minusButton: UIButton!
     
     lazy var metricPanel: UIView = {
         let metricView = UIView()
         metricView.addSubview(plusButton)
-        metricView.backgroundColor = .cyan
+        metricView.addSubview(minusButton)
         return metricView
+    }()
+    
+    var metricStackView: UIStackView = {
+        let mStackView = UIStackView()
+        mStackView.axis = .vertical
+        mStackView.alignment = .fill
+        mStackView.distribution = .equalSpacing
+        mStackView.spacing = 10
+        return mStackView
     }()
     
     override func viewDidLoad() {
@@ -73,40 +84,35 @@ class NewViewController: UIViewController {
         commentTextView.delegate = self
         initializeHideKeyboard()
         
-//        let someView = UIView()
-//        someView.backgroundColor = .red
-//        someView.translatesAutoresizingMaskIntoConstraints = false
-//        someView.heightAnchor.constraint(equalToConstant: 100).isActive = true
-//
-//        let someLabel = UILabel()
-//        someLabel.text = "hello"
-//        someLabel.frame.size.height = 50
-//        someLabel.frame.size.width = 50
-//        //        someLabel.sizeToFit()
-//        //        someView.addSubview(someLabel)
-//
-//        let someButton = UIButton()
-//        someButton.setTitle("Some Button", for: .normal)
-//        someButton.frame = CGRect(x: 0, y: 0, width: 60, height: 60)
-//        //        someButton.frame.size.height = 60
-//        //        someButton.frame.size.width = 60
-//        someView.addSubview(someButton)
-//        stackView.addArrangedSubview(someView)
-//
-//
-//
-//
-        goalButton = createButton(title: "Existing Goal", image: nil, color: UIColor(red: 0, green: 0, blue: 255/255, alpha: 1.0), height: nil, width: nil)
+        cameraButton = createButton(title: nil, image: "camera.circle", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 60, tag: 1)
+        plusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 2)
+        minusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 3)
         
         configureStackView()
         setConstraints()
+        
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
     
     func configureStackView() {
+        stackView.addArrangedSubview(cameraButton)
+        stackView.setCustomSpacing(40, after: cameraButton)
+        
+        addHeader(text: "Goal Title", stackView: stackView)
         stackView.addArrangedSubview(goalTextField)
         stackView.addArrangedSubview(goalButton)
+        stackView.setCustomSpacing(60, after: goalButton)
+        
+        addHeader(text: "Comment", stackView: stackView)
         stackView.addArrangedSubview(commentTextView)
+        stackView.setCustomSpacing(60, after: commentTextView)
+        
+        addHeader(text: "Metrics", stackView: stackView)
         stackView.addArrangedSubview(metricPanel)
+        stackView.addArrangedSubview(metricStackView)
+        stackView.setCustomSpacing(60, after: metricStackView)
     }
     
     func setConstraints() {
@@ -127,12 +133,16 @@ class NewViewController: UIViewController {
         commentTextView.heightAnchor.constraint(equalToConstant: 200).isActive = true
         
         metricPanel.translatesAutoresizingMaskIntoConstraints = false
-        metricPanel.heightAnchor.constraint(equalToConstant: 100).isActive = true
+        metricPanel.heightAnchor.constraint(equalToConstant: 30).isActive = true
         
         plusButton.translatesAutoresizingMaskIntoConstraints = false
-//        plusButton.leadingAnchor.constraint(equalTo: metricPanel.leadingAnchor).isActive = true
-//        plusButton.trailingAnchor.constraint(equalTo: metricPanel.trailingAnchor).isActive = true
-        plusButton.centerYAnchor.constraint(equalTo: metricPanel.centerYAnchor).isActive = true
+        plusButton.trailingAnchor.constraint(equalTo: minusButton.leadingAnchor, constant: -15).isActive = true
+        
+        minusButton.translatesAutoresizingMaskIntoConstraints = false
+        minusButton.trailingAnchor.constraint(equalTo: metricPanel.trailingAnchor).isActive = true
+        
+        metricStackView.translatesAutoresizingMaskIntoConstraints = false
+        metricStackView.heightAnchor.constraint(greaterThanOrEqualToConstant: 50).isActive = true
     }
     
     func initializeHideKeyboard(){
@@ -146,26 +156,110 @@ class NewViewController: UIViewController {
         view.endEditing(true)
     }
     
-    func createButton(title: String?, image: UIImage?, color: UIColor, height: CGFloat?, width: CGFloat?) -> UIButton {
+    func createButton(title: String?, image: String?, cornerRadius: CGFloat, color: UIColor, size: CGFloat?, tag: Int) -> UIButton {
         let button = UIButton()
         button.clipsToBounds = true
-        button.layer.cornerRadius = 10
+        button.layer.cornerRadius = cornerRadius
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
         if title != nil {
             button.setTitle(title, for: .normal)
         }
         
-        if image != nil {
-            button.setImage(image, for: .normal)
+        if let image = image {
+            if let size = size {
+                let largeConfig = UIImage.SymbolConfiguration(pointSize: size, weight: .medium, scale: .large)
+                let uiImage = UIImage(systemName: image, withConfiguration: largeConfig)
+                button.tintColor = color
+                button.setImage(uiImage, for: .normal)
+            }
         }
         
-        button.backgroundColor = color
-        
-        if let height = height, let width = width {
-            button.frame.size.height = height
-            button.frame.size.width = width
-        }
+        button.addTarget(self, action: #selector(metricPanelPressed), for: .touchUpInside)
+        button.tag = tag
         
         return button
+    }
+    
+    @objc func metricPanelPressed(sender: UIButton!) {
+        switch sender.tag {
+        case 1:
+            let ac = UIAlertController(title: "Pick an image", message: nil, preferredStyle: .actionSheet)
+            ac.addAction(UIAlertAction(title: "Photos", style: .default, handler: openPhoto))
+            ac.addAction(UIAlertAction(title: "Camera", style: .default, handler: openCamera))
+            present(ac, animated: true, completion: {() -> Void in
+                ac.view.superview?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.alertClose)))
+            })
+        case 2:
+            let metricView = UIView()
+            
+            let metricUnitTextField = UITextField()
+            metricUnitTextField.placeholder = "Metrics Unit"
+            metricUnitTextField.textAlignment = .center
+            metricUnitTextField.borderStyle = .roundedRect
+            let borderColor = UIColor.gray
+            metricUnitTextField.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
+            metricView.addSubview(metricUnitTextField)
+
+            let metricTextField = UITextField()
+            metricTextField.placeholder = "Metrics"
+            metricTextField.textAlignment = .center
+            metricTextField.borderStyle = .roundedRect
+            metricTextField.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
+            metricView.addSubview(metricTextField)
+            
+            metricView.translatesAutoresizingMaskIntoConstraints = false
+            metricStackView.addArrangedSubview(metricView)
+            
+            metricUnitTextField.translatesAutoresizingMaskIntoConstraints = false
+            metricUnitTextField.leadingAnchor.constraint(equalTo: metricView.leadingAnchor).isActive = true
+            metricUnitTextField.centerYAnchor.constraint(equalTo: metricView.centerYAnchor).isActive = true
+            metricUnitTextField.widthAnchor.constraint(equalTo: metricView.widthAnchor, multiplier: 0.46).isActive = true
+            metricUnitTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
+            
+            metricTextField.translatesAutoresizingMaskIntoConstraints = false
+            metricTextField.trailingAnchor.constraint(equalTo: metricView.trailingAnchor).isActive = true
+            metricTextField.centerYAnchor.constraint(equalTo: metricView.centerYAnchor).isActive = true
+            metricTextField.widthAnchor.constraint(equalTo: metricView.widthAnchor, multiplier: 0.46).isActive = true
+            metricTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
+            
+            metricView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+            
+        case 3:
+            if metricStackView.arrangedSubviews.count > 0 {
+                let metricSubview = metricStackView.arrangedSubviews[metricStackView.arrangedSubviews.count - 1]
+                metricStackView.removeArrangedSubview(metricSubview)
+                metricSubview.removeFromSuperview()
+            }
+        default:
+            print("default")
+        }
+    }
+    
+    @objc func adjustForKeyboard(notification: Notification) {
+        guard let keyboardValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+        
+        let keyboardScreenEndFrame = keyboardValue.cgRectValue
+        let keyboardViewEndFrame = view.convert(keyboardScreenEndFrame, from: view.window)
+        
+        if notification.name == UIResponder.keyboardWillHideNotification {
+            scrollView.contentInset = .zero
+        } else {
+            scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom, right: 0)
+        }
+        scrollView.scrollIndicatorInsets = scrollView.contentInset
+    }
+    
+    func openPhoto(action: UIAlertAction) {
+        
+    }
+    
+    func openCamera(action: UIAlertAction) {
+        
+    }
+    
+    @objc func alertClose(_ alert:UIAlertController) {
+        self.dismiss(animated: true, completion: nil)
     }
     
 }

@@ -361,12 +361,12 @@
                                             </textField>
                                         </subviews>
                                     </stackView>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HiC-Om-dRf">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HiC-Om-dRf">
                                         <rect key="frame" x="0.0" y="432" width="394" height="50"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="50" id="pd5-WQ-bm6"/>
                                         </constraints>
-                                        <state key="normal" title="Add Goal">
+                                        <state key="normal" title="Add Goal" image="minus">
                                             <color key="titleColor" systemColor="systemGrayColor" red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </state>
                                         <connections>
@@ -526,6 +526,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="minus" width="128" height="128"/>
         <image name="plus" catalog="system" width="128" height="113"/>
     </resources>
 </document>

@@ -31,6 +31,7 @@
 		4996BD5E24D4910600E301B4 /* AddGoalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD5D24D4910600E301B4 /* AddGoalViewController.swift */; };
 		49B328FE24E3269F00D9E8D4 /* DataImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B328FD24E3269F00D9E8D4 /* DataImporter.swift */; };
 		49BA0A7D24D62B6600BF2948 /* NewEntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49BA0A7C24D62B6600BF2948 /* NewEntryViewController.swift */; };
+		49DB512A24EC453B00857634 /* Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DB512924EC453B00857634 /* Style.swift */; };
 		959BBA5D7FE2D6CC34668FE7 /* Pods_Hundred.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E151965057E79A8338541A10 /* Pods_Hundred.framework */; };
 /* End PBXBuildFile section */
 
@@ -61,6 +62,7 @@
 		4996BD5D24D4910600E301B4 /* AddGoalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGoalViewController.swift; sourceTree = "<group>"; };
 		49B328FD24E3269F00D9E8D4 /* DataImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataImporter.swift; sourceTree = "<group>"; };
 		49BA0A7C24D62B6600BF2948 /* NewEntryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewEntryViewController.swift; sourceTree = "<group>"; };
+		49DB512924EC453B00857634 /* Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Style.swift; sourceTree = "<group>"; };
 		A27ACB2AB86EC0276A9D5E1C /* Pods-Hundred.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hundred.debug.xcconfig"; path = "Target Support Files/Pods-Hundred/Pods-Hundred.debug.xcconfig"; sourceTree = "<group>"; };
 		E151965057E79A8338541A10 /* Pods_Hundred.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Hundred.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF20E996A044CC08C66516E8 /* Pods-Hundred.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hundred.release.xcconfig"; path = "Target Support Files/Pods-Hundred/Pods-Hundred.release.xcconfig"; sourceTree = "<group>"; };
@@ -90,6 +92,7 @@
 			isa = PBXGroup;
 			children = (
 				49026F9124DB423900724369 /* Constraints.swift */,
+				49DB512924EC453B00857634 /* Style.swift */,
 			);
 			path = "Extensions-Utilities";
 			sourceTree = "<group>";
@@ -297,6 +300,7 @@
 				49B328FE24E3269F00D9E8D4 /* DataImporter.swift in Sources */,
 				494F0C2C24D7246A00C5450C /* ManagedObjectContext.swift in Sources */,
 				4996BD4724D485C900E301B4 /* SceneDelegate.swift in Sources */,
+				49DB512A24EC453B00857634 /* Style.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

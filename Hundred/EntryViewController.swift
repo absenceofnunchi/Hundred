@@ -23,7 +23,7 @@ class EntryViewController: UIViewController {
         stackView.axis = .vertical
         stackView.distribution = .fill
         stackView.alignment = .fill
-        stackView.spacing = 0
+        stackView.spacing = 10
         stackView.isLayoutMarginsRelativeArrangement = true
         stackView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 5, leading: 25, bottom: 0, trailing: 25)
         scrollView.addSubview(stackView)
@@ -135,15 +135,15 @@ class EntryViewController: UIViewController {
     }
     
     func configureStackView() {
-        addHeader(text: "Comment")
+        addHeader(text: "Comment", stackView: stackView)
         stackView.addArrangedSubview(commentLabel)
         stackView.setCustomSpacing(50, after: commentLabel)
         
-        addHeader(text: "Calendar")
+        addHeader(text: "Calendar", stackView: stackView)
         stackView.addArrangedSubview(calendarHeatMap)
         stackView.setCustomSpacing(50, after: calendarHeatMap)
         
-        addHeader(text: "Progress Chart")
+        addHeader(text: "Progress Chart", stackView: stackView)
         stackView.addArrangedSubview(lineChartView)
         stackView.setCustomSpacing(50, after: commentLabel)
     }
@@ -176,24 +176,6 @@ class EntryViewController: UIViewController {
         
         lineChartView.translatesAutoresizingMaskIntoConstraints = false
         lineChartView.heightAnchor.constraint(equalToConstant: 250).isActive = true
-    }
-    
-    private func addHeader(text: String) {
-        let label = UILabel()
-        label.text = text
-        label.textColor = UIColor(red: 220/255, green: 220/255, blue: 220/255, alpha: 1)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        stackView.addArrangedSubview(label)
-        stackView.setCustomSpacing(10, after: label)
-        
-        let l = UIView()
-        l.translatesAutoresizingMaskIntoConstraints = false
-        l.backgroundColor = UIColor(red: 220/255, green: 220/255, blue: 220/255, alpha: 0.8)
-        l.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        stackView.addArrangedSubview(l)
-        
-        stackView.setCustomSpacing(10, after: l)
     }
     
     func getDocumentsDirectory() -> URL {
