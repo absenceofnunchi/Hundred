@@ -22,7 +22,7 @@ extension Goal {
     @NSManaged public var metrics: [String]?
     @NSManaged public var title: String
     @NSManaged public var progress: Set<Progress>
-    @NSManaged public var goalToMetric: Set<Progress>
+    @NSManaged public var goalToMetric: Set<Metric>
 
 }
 
