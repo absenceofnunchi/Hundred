@@ -10,7 +10,6 @@ import UIKit
 
 class NewViewController: UIViewController {
     var imagePathString: String?
-    
     @IBOutlet weak var scrollView: UIScrollView!
     
     lazy var stackView: UIStackView = {
@@ -58,18 +57,208 @@ class NewViewController: UIViewController {
         gButton.tag = 5
         gButton.backgroundColor = UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0)
         gButton.layer.cornerRadius = 10
-        gButton.addTarget(self, action: #selector(buttonPressed), for: .touchDown)
+        gButton.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
         return gButton
+    }()
+    
+    lazy var backToNewGoalButton: UIButton = {
+        let bButton = UIButton()
+        let largeConfig = UIImage.SymbolConfiguration(pointSize: 40, weight: .medium, scale: .medium)
+        let uiImage = UIImage(systemName: "arrowshape.turn.up.left.circle", withConfiguration: largeConfig)
+        bButton.tintColor = UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0)
+        bButton.imageView?.contentMode = .scaleAspectFit
+        //        bButton.imageEdgeInsets = UIEdgeInsets(top: -50, left: -50, bottom: -50, right: -50)
+        bButton.setImage(uiImage, for: .normal)
+        bButton.tag = 6
+        bButton.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
+        return bButton
+    }()
+    
+    lazy var editGoalButton: UIButton = {
+        let eButton = UIButton()
+        let largeConfig = UIImage.SymbolConfiguration(pointSize: 40, weight: .medium, scale: .medium)
+        let uiImage = UIImage(systemName: "pencil.circle", withConfiguration: largeConfig)
+        eButton.tintColor = UIColor(red: 117/255, green: 212/255, blue: 213/255, alpha: 1.0)
+        eButton.imageView?.contentMode = .scaleAspectFit
+        eButton.setImage(uiImage, for: .normal)
+        return eButton
+    }()
+    
+    lazy var deleteGoalButton: UIButton = {
+        let tButton = UIButton()
+        let largeConfig = UIImage.SymbolConfiguration(pointSize: 40, weight: .medium, scale: .medium)
+        let uiImage = UIImage(systemName: "trash.circle", withConfiguration: largeConfig)
+        tButton.tintColor = UIColor(red: 234/255, green: 84/255, blue: 85/255, alpha: 1.0)
+        tButton.imageView?.contentMode = .scaleAspectFit
+        tButton.setImage(uiImage, for: .normal)
+        tButton.tag = 7
+        tButton.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
+        return tButton
+    }()
+    
+    lazy var editButtonContainer: UIStackView = {
+        let eStackView = UIStackView()
+        eStackView.distribution = .equalSpacing
+        eStackView.alignment = .fill
+        eStackView.axis = .horizontal
+        eStackView.addArrangedSubview(backToNewGoalButton)
+        eStackView.addArrangedSubview(editGoalButton)
+        eStackView.addArrangedSubview(deleteGoalButton)
+        return eStackView
     }()
     
     var existingGoal: Goal? {
         didSet {
             if existingGoal == nil {
-                goalButton.setTitle("Get existing goals", for: .normal)
-                goalButton.tag = 5
+                self.goalLabel.alpha = 0
+                self.goalLabel.text = nil
+                self.stackView.removeArrangedSubview(self.goalLabel)
+                self.goalLabel.removeFromSuperview()
+                
+                if stackView.contains(editButtonContainer) {
+                    stackView.removeArrangedSubview(editButtonContainer)
+                    editButtonContainer.removeFromSuperview()
+                }
+
+                for singleSubview in metricStackView.arrangedSubviews {
+                    UIView.animate(withDuration: 1.5, animations: {
+                        singleSubview.alpha = 0
+                    })
+                    metricStackView.removeArrangedSubview(singleSubview)
+                    singleSubview.removeFromSuperview()
+                }
+                
+                stackView.removeArrangedSubview(metricStackView)
+                metricStackView.removeFromSuperview()
+                
+                self.stackView.insertArrangedSubview(self.goalTextField, at: 3)
+                UIView.animate(withDuration: 0.5, animations: {
+                    self.goalTextField.alpha = 1
+                    self.plusButton.alpha = 1
+                    self.minusButton.alpha = 1
+                })
+                
+                goalButton.alpha = 0
+                stackView.insertArrangedSubview(goalButton, at: 4)
+                stackView.setCustomSpacing(60, after: goalButton)
+                UIView.animate(withDuration: 1, animations: {
+                    self.goalButton.alpha = 1
+                })
+                
+                self.stackView.insertArrangedSubview(self.goalDescContainer, at: 5)
+                self.stackView.setCustomSpacing(60, after: self.goalDescContainer)
+                self.goalDescContainer.alpha = 1
+                
+                metricPanel.addSubview(plusButton)
+                metricPanel.addSubview(minusButton)
+                stackView.addArrangedSubview(metricPanel)
+                stackView.addArrangedSubview(metricStackView)
+                stackView.setCustomSpacing(60, after: metricStackView)
+                setConstraints()
+                
+                
+                
+//
+//                if stackView.contains(editButtonContainer) {
+//                    stackView.removeArrangedSubview(editButtonContainer)
+//                    editButtonContainer.removeFromSuperview()
+//                }
+//                stackView.insertArrangedSubview(goalButton, at: 4)
+//                stackView.setCustomSpacing(60, after: goalButton)
+//                goalButton.alpha = 0
+//                goalButton.setTitle("Get existing goals", for: .normal)
+//                goalButton.tag = 5
+//                UIView.animate(withDuration: 1, animations: {
+//                    self.goalButton.alpha = 1
+//                })
             } else {
-                goalButton.setTitle("Start a new goal", for: .normal)
-                goalButton.tag = 6
+                if stackView.contains(goalButton) {
+                    stackView.removeArrangedSubview(goalButton)
+                    goalButton.removeFromSuperview()
+                }
+                editButtonContainer.alpha = 0
+                stackView.insertArrangedSubview(editButtonContainer, at: 4)
+                stackView.setCustomSpacing(60, after: editButtonContainer)
+                UIView.animate(withDuration: 1, animations: {
+                    self.editButtonContainer.alpha = 1
+                })
+                
+                // remove the existing fields for a new goal
+                UIView.animate(withDuration: 1.5, animations: {
+                    self.goalTextField.alpha = 0
+                    self.goalDescContainer.alpha = 0
+                    self.plusButton.alpha = 0
+                    self.minusButton.alpha = 0
+                })
+                goalTextField.text = nil
+                stackView.removeArrangedSubview(goalTextField)
+                goalTextField.removeFromSuperview()
+                stackView.removeArrangedSubview(goalDescContainer)
+                goalDescContainer.removeFromSuperview()
+                plusButton.removeFromSuperview()
+                minusButton.removeFromSuperview()
+                stackView.removeArrangedSubview(metricPanel)
+                metricPanel.removeFromSuperview()
+                
+                // add the fields relevant to the existing goal
+                stackView.insertArrangedSubview(goalLabel, at: 3)
+                UIView.animate(withDuration: 1.5, animations: {
+                    self.goalLabel.text = self.existingGoal?.title
+                    self.goalLabel.alpha = 1
+                })
+                
+                for singleSubview in metricStackView.arrangedSubviews {
+                    metricStackView.removeArrangedSubview(singleSubview)
+                    singleSubview.removeFromSuperview()
+                }
+                
+                if let existingGoalMetrics = existingGoal?.metrics {
+                    print("existingGoalMetrics: \(existingGoalMetrics)")
+                    for metric in existingGoalMetrics {
+                        
+                        let metricView = UIView()
+                        metricView.alpha = 0
+                        
+                        let metricLabel = UILabel()
+                        metricLabel.text = metric
+                        metricLabel.textAlignment = .center
+                        let borderColor = UIColor.gray
+                        metricLabel.layer.borderColor = borderColor.withAlphaComponent(0.4).cgColor
+                        metricLabel.layer.borderWidth = 1
+                        metricLabel.layer.masksToBounds = true
+                        metricLabel.layer.cornerRadius = 5
+                        metricView.addSubview(metricLabel)
+                        
+                        let metricTextField = UITextField()
+                        metricTextField.keyboardType = UIKeyboardType.decimalPad
+                        metricTextField.placeholder = "Metrics"
+                        metricTextField.textAlignment = .center
+                        metricTextField.borderStyle = .roundedRect
+                        metricTextField.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
+                        metricView.addSubview(metricTextField)
+                        
+                        metricStackView.addArrangedSubview(metricView)
+                        
+                        metricLabel.translatesAutoresizingMaskIntoConstraints = false
+                        metricLabel.leadingAnchor.constraint(equalTo: metricView.leadingAnchor).isActive = true
+                        metricLabel.centerYAnchor.constraint(equalTo: metricView.centerYAnchor).isActive = true
+                        metricLabel.widthAnchor.constraint(equalTo: metricView.widthAnchor, multiplier: 0.46).isActive = true
+                        metricLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+                        
+                        metricTextField.translatesAutoresizingMaskIntoConstraints = false
+                        metricTextField.trailingAnchor.constraint(equalTo: metricView.trailingAnchor).isActive = true
+                        metricTextField.centerYAnchor.constraint(equalTo: metricView.centerYAnchor).isActive = true
+                        metricTextField.widthAnchor.constraint(equalTo: metricView.widthAnchor, multiplier: 0.46).isActive = true
+                        metricTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
+                        
+                        metricView.translatesAutoresizingMaskIntoConstraints = false
+                        metricView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+                        
+                        UIView.animate(withDuration: 1.5, animations: {
+                            metricView.alpha = 1
+                        })
+                    }
+                }
             }
         }
     }
@@ -100,7 +289,6 @@ class NewViewController: UIViewController {
         self.goalDescContainer.addArrangedSubview(textView)
         return textView
     }()
-    
     
     var commentTextView: UITextView = {
         let textView = UITextView()
@@ -142,15 +330,15 @@ class NewViewController: UIViewController {
             dButton.frame = CGRect(x: 0, y: view.frame.size.height - CGFloat(tabBarHeight + 50), width: view.frame.size.width, height: 50)
         }
         dButton.tag = 4
-        dButton.addTarget(self, action: #selector(buttonPressed) , for: .touchDown)
+        dButton.addTarget(self, action: #selector(buttonPressed) , for: .touchUpInside)
         return dButton
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         commentTextView.delegate = self
+        goalDescTextView.delegate = self
         initializeHideKeyboard()
-        
         
         plusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 2)
         minusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 3)
@@ -163,9 +351,7 @@ class NewViewController: UIViewController {
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
-    
-    var metricsForCoreData: [String: NSDecimalNumber] = [:]
-    
+        
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -176,90 +362,6 @@ class NewViewController: UIViewController {
             stackView.addArrangedSubview(metricStackView)
             stackView.setCustomSpacing(60, after: metricStackView)
             setConstraints()
-        } else {
-            // remove the existing fields for a new goal
-            UIView.animate(withDuration: 1.5, animations: {
-                self.goalTextField.alpha = 0
-                self.goalDescContainer.alpha = 0
-                self.plusButton.alpha = 0
-                self.minusButton.alpha = 0
-            })
-            goalTextField.text = nil
-            stackView.removeArrangedSubview(goalTextField)
-            goalTextField.removeFromSuperview()
-            stackView.removeArrangedSubview(goalDescContainer)
-            goalDescContainer.removeFromSuperview()
-            plusButton.removeFromSuperview()
-            minusButton.removeFromSuperview()
-            stackView.removeArrangedSubview(metricPanel)
-            metricPanel.removeFromSuperview()
-            
-            // add the fields relevant to the existing goal
-            stackView.insertArrangedSubview(goalLabel, at: 3)
-            UIView.animate(withDuration: 1.5, animations: {
-                self.goalLabel.text = self.existingGoal?.title
-                self.goalLabel.alpha = 1
-            })
-            
-            for singleSubview in metricStackView.arrangedSubviews {
-                metricStackView.removeArrangedSubview(singleSubview)
-                singleSubview.removeFromSuperview()
-            }
-            
-            if let existingGoalMetrics = existingGoal?.metrics {
-                for metric in existingGoalMetrics {
-                    
-                    let metricView = UIView()
-                    metricView.alpha = 0
-                    
-                    let metricLabel = UILabel()
-                    metricLabel.text = metric
-                    metricLabel.textAlignment = .center
-                    let borderColor = UIColor.gray
-                    metricLabel.layer.borderColor = borderColor.withAlphaComponent(0.4).cgColor
-                    metricLabel.layer.borderWidth = 1
-                    metricLabel.layer.masksToBounds = true
-                    metricLabel.layer.cornerRadius = 5
-                    metricView.addSubview(metricLabel)
-                    
-                    let metricTextField = UITextField()
-                    metricTextField.keyboardType = UIKeyboardType.decimalPad
-                    metricTextField.placeholder = "Metrics"
-                    metricTextField.textAlignment = .center
-                    metricTextField.borderStyle = .roundedRect
-                    metricTextField.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
-                    metricView.addSubview(metricTextField)
-                    
-                    metricStackView.addArrangedSubview(metricView)
-                    
-                    metricLabel.translatesAutoresizingMaskIntoConstraints = false
-                    metricLabel.leadingAnchor.constraint(equalTo: metricView.leadingAnchor).isActive = true
-                    metricLabel.centerYAnchor.constraint(equalTo: metricView.centerYAnchor).isActive = true
-                    metricLabel.widthAnchor.constraint(equalTo: metricView.widthAnchor, multiplier: 0.46).isActive = true
-                    metricLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
-                    
-                    metricTextField.translatesAutoresizingMaskIntoConstraints = false
-                    metricTextField.trailingAnchor.constraint(equalTo: metricView.trailingAnchor).isActive = true
-                    metricTextField.centerYAnchor.constraint(equalTo: metricView.centerYAnchor).isActive = true
-                    metricTextField.widthAnchor.constraint(equalTo: metricView.widthAnchor, multiplier: 0.46).isActive = true
-                    metricTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
-                    
-                    metricView.translatesAutoresizingMaskIntoConstraints = false
-                    metricView.heightAnchor.constraint(equalToConstant: 50).isActive = true
-                    
-                    UIView.animate(withDuration: 1.5, animations: {
-                        metricView.alpha = 1
-                    })
-                    
-                    let formatter = NumberFormatter()
-                    formatter.generatesDecimalNumbers = true
-                    
-                    if let metricUnit = metricTextField.text, let metricText = metricLabel.text {
-                        let formattedMetric = formatter.number(from: metricUnit) as? NSDecimalNumber ?? 0
-                        metricsForCoreData.updateValue(formattedMetric, forKey: metricText)
-                    }
-                }
-            }
         }
     }
     
@@ -306,6 +408,9 @@ class NewViewController: UIViewController {
         
         goalButton.translatesAutoresizingMaskIntoConstraints = false
         goalButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        editButtonContainer.translatesAutoresizingMaskIntoConstraints = false
+        editButtonContainer.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
         goalDescTextView.translatesAutoresizingMaskIntoConstraints = false
         goalDescTextView.heightAnchor.constraint(equalToConstant: 200).isActive = true
@@ -365,7 +470,6 @@ class NewViewController: UIViewController {
     @objc func buttonPressed(sender: UIButton!) {
         switch sender.tag {
         case 1:
-            
             let ac = UIAlertController(title: "Pick an image", message: nil, preferredStyle: .actionSheet)
             ac.addAction(UIAlertAction(title: "Photos", style: .default, handler: openPhoto))
             ac.addAction(UIAlertAction(title: "Camera", style: .default, handler: openCamera))
@@ -426,7 +530,6 @@ class NewViewController: UIViewController {
             }
             
         case 4:
-            
             // extract each metric unit/value to metricDict
             var metricDict: [String: String] = [:]
             for metricPair in metricStackView.arrangedSubviews {
@@ -456,7 +559,7 @@ class NewViewController: UIViewController {
                     let metric = Metric(context: self.context)
                     metric.date = Date()
                     metric.unit = singleMetricPair.key
-
+                    
                     let formatter = NumberFormatter()
                     formatter.generatesDecimalNumbers = true
                     metric.value = formatter.number(from: singleMetricPair.value) as? NSDecimalNumber ?? 0
@@ -472,17 +575,14 @@ class NewViewController: UIViewController {
             let progress = Progress(context: self.context)
             progress.image = imagePathString
             progress.comment = commentTextView.text
+            progress.date = Date()
             
             var goalFromCoreData: Goal!
             let goalRequest = Goal.createFetchRequest()
-            let goal = Goal(context: self.context)
             
-            
-            print("goalTextField.text: \(goalTextField.text)")
-            print("goalLabel.text: \(goalLabel.text)")
             // create a new goal
-            if goalTextField.text != nil {
-                goalRequest.predicate = NSPredicate(format: "title == %@", goalTextField.text!)
+            if let goalText = goalTextField.text, !goalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                goalRequest.predicate = NSPredicate(format: "title == %@", goalText)
                 if let fetchedGoal = try? self.context.fetch(goalRequest) {
                     if fetchedGoal.count > 0 {
                         let ac = UIAlertController(title: "The goal already exists", message: "Please choose from the existing goals", preferredStyle: .alert)
@@ -490,9 +590,16 @@ class NewViewController: UIViewController {
                         present(ac, animated: true)
                         return
                     } else {
-                        goal.title = goalTextField.text!
+                        let goal = Goal(context: self.context)
+                        goal.title = goalText
                         goal.detail = goalDescTextView.text
                         goal.date = Date()
+                        
+                        for item in metricDict {
+                            if case nil = goal.metrics?.append(item.key) {
+                                goal.metrics = [item.key]
+                            }
+                        }
                         
                         for singleEntry in metricArr {
                             progress.metric.insert(singleEntry)
@@ -503,10 +610,11 @@ class NewViewController: UIViewController {
                     }
                 }
             // Add to an existing goal
-            } else if goalLabel.text != nil {
+            } else if let existingGoalText = goalLabel.text, !existingGoalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                goalRequest.predicate = NSPredicate(format: "title == %@", existingGoalText)
                 if let fetchedGoal = try? self.context.fetch(goalRequest) {
                     if fetchedGoal.count > 0 {
-                        goalFromCoreData = fetchedGoal[0]
+                        goalFromCoreData = fetchedGoal.first
                         
                         for singleEntry in metricArr {
                             progress.metric.insert(singleEntry)
@@ -514,13 +622,12 @@ class NewViewController: UIViewController {
                         }
                         
                         goalFromCoreData.progress.insert(progress)
-                        print("goalFromCoreData: \(goalFromCoreData)")
                     } else {
                         print("goal's in the existing list, but doesn't fetch")
                     }
                 }
             }
-   
+            
             savePList()
             self.saveContext()
             
@@ -532,47 +639,60 @@ class NewViewController: UIViewController {
                 navigationController?.pushViewController(vc, animated: true)
             }
         case 6:
-            for singleSubview in metricStackView.arrangedSubviews {
-                UIView.animate(withDuration: 1.5, animations: {
-                    singleSubview.alpha = 0
-                })
-                metricStackView.removeArrangedSubview(singleSubview)
-                singleSubview.removeFromSuperview()
-            }
             
-            stackView.removeArrangedSubview(metricStackView)
-            metricStackView.removeFromSuperview()
-            
-            UIView.animate(withDuration: 1.5, animations: {
-                self.goalLabel.alpha = 0
-                self.goalLabel.text = nil
-                self.stackView.addArrangedSubview(self.goalLabel)
-                self.goalLabel.removeFromSuperview()
-                
-                self.stackView.insertArrangedSubview(self.goalTextField, at: 3)
-                self.goalTextField.alpha = 1
-                
-                self.stackView.insertArrangedSubview(self.goalDescContainer, at: 5)
-                self.stackView.setCustomSpacing(60, after: self.goalDescContainer)
-                self.goalDescContainer.alpha = 1
-                
-                self.plusButton.alpha = 1
-                self.minusButton.alpha = 1
-            })
-            
-            metricPanel.addSubview(plusButton)
-            metricPanel.addSubview(minusButton)
-            stackView.addArrangedSubview(metricPanel)
-            stackView.addArrangedSubview(metricStackView)
-            stackView.setCustomSpacing(60, after: metricStackView)
-            setConstraints()
-            
-            goalButton.setTitle("Get existing goals", for: .normal)
-            goalButton.tag = 5
-            
+//            stackView.removeArrangedSubview(editButtonContainer)
+//            editButtonContainer.removeFromSuperview()
+//
+//            for singleSubview in metricStackView.arrangedSubviews {
+//                UIView.animate(withDuration: 1.5, animations: {
+//                    singleSubview.alpha = 0
+//                })
+//                metricStackView.removeArrangedSubview(singleSubview)
+//                singleSubview.removeFromSuperview()
+//            }
+//
+//            stackView.removeArrangedSubview(metricStackView)
+//            metricStackView.removeFromSuperview()
+//
+//            self.goalLabel.alpha = 0
+//            self.goalLabel.text = nil
+//            self.stackView.removeArrangedSubview(self.goalLabel)
+//            self.goalLabel.removeFromSuperview()
+//
+//            self.stackView.insertArrangedSubview(self.goalTextField, at: 3)
+//            UIView.animate(withDuration: 1.5, animations: {
+//                self.goalTextField.alpha = 1
+//                self.plusButton.alpha = 1
+//                self.minusButton.alpha = 1
+//            })
+//
+//            self.stackView.insertArrangedSubview(self.goalDescContainer, at: 4)
+//            self.stackView.setCustomSpacing(60, after: self.goalDescContainer)
+//            self.goalDescContainer.alpha = 1
+//
+//            metricPanel.addSubview(plusButton)
+//            metricPanel.addSubview(minusButton)
+//            stackView.addArrangedSubview(metricPanel)
+//            stackView.addArrangedSubview(metricStackView)
+//            stackView.setCustomSpacing(60, after: metricStackView)
+//            setConstraints()
+
             existingGoal = nil
+        case 7:
+            let ac = UIAlertController(title: "Delete Goal", message: "Are you sure you want to delete this goal? All the related entries and the metrics will be deleted as well.", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "Delete", style: .default, handler: deleteGoal))
+            ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            present(ac, animated: true)
         default:
             print("default")
+        }
+    }
+    
+    func deleteGoal(arg: UIAlertAction) {
+        if let existingGoal = existingGoal {
+            self.context.delete(existingGoal)
+            self.existingGoal = nil
+            self.saveContext()
         }
     }
     
@@ -626,30 +746,21 @@ class NewViewController: UIViewController {
     }
     
     func pListURL() -> URL? {
-        guard let result = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("Heatmap.plist") else {
-            print("pListURL guard")
-            return nil
-        }
+        guard let result = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("Heatmap.plist") else { return nil  }
         return result
     }
     
     func savePList() {
-        var goalData = [String: [String: Int]]()
-        var progressData = [String: Int]()
-        
-        
         let date = Date()
         let calendar = Calendar.current
         let year = calendar.component(.year, from: date)
         let month = calendar.component(.month, from: date)
         let day = calendar.component(.day, from: date)
         let dateString = "\(year).\(month).\(day)"
-        print("firstDateString: \(dateString)")
         
         if let url = pListURL() {
             if FileManager.default.fileExists(atPath: url.path) {
                 do {
-                    print("url: \(url)")
                     let dataContent = try Data(contentsOf: url)
                     if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
                         if let oldGoalTitle = existingGoal?.title {
@@ -683,47 +794,14 @@ class NewViewController: UIViewController {
                 } catch {
                     print(error)
                 }
+            } else {
+                if let oldGoalTitle = existingGoal?.title {
+                    write(dictionary: [oldGoalTitle: [dateString: 1]])
+                } else if let newGoalTitle = goalTextField.text {
+                    write(dictionary: [newGoalTitle: [dateString: 1]])
+                }
             }
         }
-        
-      
-
-        
-//        if let existingGoalTitle = existingGoal?.title {
-//            print("existingGoal: \(existingGoalTitle)")
-//            // check to see if existingGoalTitle exists as a key and, if so, check if progressData exists as a value
-//            if let retrievedProgressData = goalData[existingGoalTitle] {
-//                progressData = retrievedProgressData
-//                print("progressData: \(progressData)")
-//                //                 check if dateString exists as a key and, if so, check if count exists as a value
-//                if var count = progressData[dateString] {
-//                    print("dateString: \(dateString)")
-//                    count += 1
-//                    print("count: \(count)")
-//                    progressData[dateString] = count
-//                    print("progressData after: \(progressData)")
-//                    goalData[existingGoalTitle] = progressData
-//                } else {
-//                    // existingGoalTitle exists, but dateString doesn't exist as a key or the count is nil as a value
-//                    progressData[dateString] = 1
-//                    goalData[existingGoalTitle] = progressData
-//                    print("add to dictionary progressData: \(progressData)")
-//                }
-//            } else {
-//                // if existingGoalTitle or progressData doesn't exist
-//                goalData = [existingGoalTitle : [dateString: 1]]
-//                print("first time: \(goalData)")
-//            }
-//        }
-//
-//        if let path = pListURL() {
-//            do {
-//                let plistData = try PropertyListSerialization.data(fromPropertyList: goalData, format: .xml, options: 0)
-//                try plistData.write(to: path)
-//            } catch {
-//                print(error)
-//            }
-//        }
         
         if let mainVC = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
             print("mainVC: \(mainVC)")
@@ -802,5 +880,3 @@ extension Sequence where Element: Hashable {
         return true
     }
 }
-
-

@@ -6,6 +6,8 @@
 //  Copyright © 2020 J. All rights reserved.
 //
 
+// Hundred`closure #1 in DetailTableViewController.goal.didset:
+
 import UIKit
 
 class DetailTableViewController: UITableViewController {

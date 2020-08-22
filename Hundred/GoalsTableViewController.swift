@@ -10,15 +10,17 @@ import UIKit
 import CoreData
 
 class GoalsTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
-    var fetchedResultsController: NSFetchedResultsController<Goal>!
-    var goalPredicate: NSPredicate?
+    var fetchedResultsController: NSFetchedResultsController<Goal>?
+//    var goalPredicate: NSPredicate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         title = "Goals"
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addGoals))
+        
         loadSavedData()
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -26,11 +28,10 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
         tabBarController?.tabBar.isHidden = false
     }
     
-    //    override func viewDidAppear(_ animated: Bool) {
-    //        super.viewDidAppear(animated)
-    //        
-    //        loadSavedData()
-    //    }
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        tableView.reloadData()
+    }
     
     @objc func addGoals() {
         if let vc = storyboard?.instantiateViewController(withIdentifier: "AddGoal") as? AddGoalViewController {
@@ -49,17 +50,18 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
             request.fetchBatchSize = 20
             
             fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: self.context, sectionNameKeyPath: nil, cacheName: nil)
-            fetchedResultsController.delegate = self
+            fetchedResultsController?.delegate = self
         }
         
-        fetchedResultsController.fetchRequest.predicate = goalPredicate
+//        fetchedResultsController.fetchRequest.predicate = goalPredicate
         
         do {
-            try fetchedResultsController.performFetch()
-            tableView.reloadData()
+            try fetchedResultsController?.performFetch()
         } catch {
             print("Fetch failed")
         }
+        
+        tableView.reloadData()
     }
 }
 
@@ -67,38 +69,43 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
 extension GoalsTableViewController {
     
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return fetchedResultsController.sections?.count ?? 0
+        return fetchedResultsController?.sections?.count ?? 0
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let sectionInfo = fetchedResultsController.sections![section]
-        return sectionInfo.numberOfObjects
+        if let sectionInfo = fetchedResultsController?.sections![section] {
+            return sectionInfo.numberOfObjects
+        }
+        return 0
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        let goal = fetchedResultsController.object(at: indexPath)
-        cell.textLabel!.text = goal.title
+        if let goal = fetchedResultsController?.object(at: indexPath) {
+            cell.textLabel!.text = goal.title
+        }
+        
         cell.accessoryType = .disclosureIndicator
         return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let vc = storyboard?.instantiateViewController(withIdentifier: "Detail") as? DetailTableViewController {
-            vc.goal = fetchedResultsController.object(at: indexPath)
+            vc.goal = fetchedResultsController?.object(at: indexPath)
             navigationController?.pushViewController(vc, animated: true)
         }
     }
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            let goal = fetchedResultsController.object(at: indexPath)
-            self.context.delete(goal)
+            if let goal = fetchedResultsController?.object(at: indexPath) {
+                self.context.delete(goal)
+            }
+            
             self.saveContext()
         }
         
         // delete plist
-        
     }
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
@@ -122,6 +129,3 @@ extension GoalsTableViewController {
         }
     }
 }
-
-
-
