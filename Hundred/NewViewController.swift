@@ -10,6 +10,8 @@ import UIKit
 
 class NewViewController: UIViewController {
     var imagePathString: String?
+    var test: String!
+
     @IBOutlet weak var scrollView: UIScrollView!
     
     lazy var stackView: UIStackView = {
@@ -33,6 +35,7 @@ class NewViewController: UIViewController {
     var goalTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Goal Title"
+        textField.font = UIFont.preferredFont(forTextStyle: .body)
         textField.borderStyle = .roundedRect
         let borderColor = UIColor.gray
         textField.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
@@ -42,6 +45,7 @@ class NewViewController: UIViewController {
     var goalLabel: UILabel = {
         let gLabel = UILabel()
         gLabel.textAlignment = .center
+        gLabel.font = UIFont.preferredFont(forTextStyle: .body)
         let borderColor = UIColor.gray
         gLabel.layer.borderColor = borderColor.withAlphaComponent(0.4).cgColor
         gLabel.layer.borderWidth = 1
@@ -81,6 +85,8 @@ class NewViewController: UIViewController {
         eButton.tintColor = UIColor(red: 117/255, green: 212/255, blue: 213/255, alpha: 1.0)
         eButton.imageView?.contentMode = .scaleAspectFit
         eButton.setImage(uiImage, for: .normal)
+        eButton.tag = 8
+        eButton.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
         return eButton
     }()
     
@@ -110,6 +116,11 @@ class NewViewController: UIViewController {
     var existingGoal: Goal? {
         didSet {
             if existingGoal == nil {
+                let largeConfig = UIImage.SymbolConfiguration(pointSize: 60, weight: .medium, scale: .large)
+                let uiImage = UIImage(systemName: "camera.circle", withConfiguration: largeConfig)
+                self.cameraButton.setImage(uiImage, for: .normal)
+                self.cameraButton.tintColor = UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0)
+                
                 self.goalLabel.alpha = 0
                 self.goalLabel.text = nil
                 self.stackView.removeArrangedSubview(self.goalLabel)
@@ -149,6 +160,9 @@ class NewViewController: UIViewController {
                 self.stackView.setCustomSpacing(60, after: self.goalDescContainer)
                 self.goalDescContainer.alpha = 1
                 
+                self.commentTextView.text = "Provide a comment about your first progress"
+                self.commentTextView.textColor = UIColor.lightGray
+                
                 metricPanel.addSubview(plusButton)
                 metricPanel.addSubview(minusButton)
                 stackView.addArrangedSubview(metricPanel)
@@ -156,9 +170,7 @@ class NewViewController: UIViewController {
                 stackView.setCustomSpacing(60, after: metricStackView)
                 setConstraints()
                 
-                
-                
-//
+
 //                if stackView.contains(editButtonContainer) {
 //                    stackView.removeArrangedSubview(editButtonContainer)
 //                    editButtonContainer.removeFromSuperview()
@@ -172,6 +184,11 @@ class NewViewController: UIViewController {
 //                    self.goalButton.alpha = 1
 //                })
             } else {
+                let largeConfig = UIImage.SymbolConfiguration(pointSize: 60, weight: .medium, scale: .large)
+                let uiImage = UIImage(systemName: "camera.circle", withConfiguration: largeConfig)
+                self.cameraButton.setImage(uiImage, for: .normal)
+                self.cameraButton.tintColor = UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0)
+                
                 if stackView.contains(goalButton) {
                     stackView.removeArrangedSubview(goalButton)
                     goalButton.removeFromSuperview()
@@ -213,7 +230,9 @@ class NewViewController: UIViewController {
                 }
                 
                 if let existingGoalMetrics = existingGoal?.metrics {
-                    print("existingGoalMetrics: \(existingGoalMetrics)")
+                    commentTextView.text = "Provide a comment about today's progress"
+                    commentTextView.textColor = UIColor.lightGray
+                    
                     for metric in existingGoalMetrics {
                         
                         let metricView = UIView()
@@ -295,13 +314,13 @@ class NewViewController: UIViewController {
         textView.isEditable = true
         textView.isSelectable = true
         textView.isScrollEnabled = true
-        textView.text = "Provide a comment about today's progress"
+        textView.text = "Provide a comment about your first progress"
         textView.font = UIFont.preferredFont(forTextStyle: .body)
         textView.textColor = UIColor.lightGray
         textView.layer.cornerRadius = 4
         textView.layer.borderWidth = 1
         textView.layer.masksToBounds = true
-        
+
         let borderColor = UIColor.gray
         textView.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
         
@@ -324,6 +343,7 @@ class NewViewController: UIViewController {
     lazy var doneButton: UIButton = {
         let dButton = UIButton()
         dButton.setTitle("Done", for: .normal)
+        dButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .body)
         dButton.layer.cornerRadius = 0
         dButton.backgroundColor = .systemYellow
         if let tabBarHeight = tabBarController?.tabBar.frame.size.height {
@@ -344,25 +364,12 @@ class NewViewController: UIViewController {
         minusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 3)
         
         configureStackView()
-        
+        setConstraints()
         view.addSubview(doneButton)
         
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
-    }
-        
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        if existingGoal == nil {
-            metricPanel.addSubview(plusButton)
-            metricPanel.addSubview(minusButton)
-            stackView.addArrangedSubview(metricPanel)
-            stackView.addArrangedSubview(metricStackView)
-            stackView.setCustomSpacing(60, after: metricStackView)
-            setConstraints()
-        }
     }
     
     func configureStackView() {
@@ -382,11 +389,11 @@ class NewViewController: UIViewController {
         stackView.setCustomSpacing(60, after: commentTextView)
         
         addHeader(text: "Metrics", stackView: stackView)
-        //        metricPanel.addSubview(plusButton)
-        //        metricPanel.addSubview(minusButton)
-        //        stackView.addArrangedSubview(metricPanel)
-        //        stackView.addArrangedSubview(metricStackView)
-        //        stackView.setCustomSpacing(60, after: metricStackView)
+        metricPanel.addSubview(plusButton)
+        metricPanel.addSubview(minusButton)
+        stackView.addArrangedSubview(metricPanel)
+        stackView.addArrangedSubview(metricStackView)
+        stackView.setCustomSpacing(60, after: metricStackView)
     }
     
     func setConstraints() {
@@ -486,6 +493,8 @@ class NewViewController: UIViewController {
             metricUnitTextField.placeholder = "Metrics Unit"
             metricUnitTextField.textAlignment = .center
             metricUnitTextField.borderStyle = .roundedRect
+            metricUnitTextField.autocapitalizationType = .none
+            metricUnitTextField.autocorrectionType = .no
             let borderColor = UIColor.gray
             metricUnitTextField.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
             metricView.addSubview(metricUnitTextField)
@@ -517,7 +526,6 @@ class NewViewController: UIViewController {
             metricTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
             
             metricView.heightAnchor.constraint(equalToConstant: 50).isActive = true
-            
         case 3:
             if metricStackView.arrangedSubviews.count > 0 {
                 let metricSubview = metricStackView.arrangedSubviews[metricStackView.arrangedSubviews.count - 1]
@@ -569,6 +577,7 @@ class NewViewController: UIViewController {
                 let ac = UIAlertController(title: "Duplicate Metrics", message: "Each metric unit has to be unique", preferredStyle: .alert)
                 ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
                 present(ac, animated: true)
+                return
             }
             
             // create a progress instance
@@ -624,12 +633,28 @@ class NewViewController: UIViewController {
                         goalFromCoreData.progress.insert(progress)
                     } else {
                         print("goal's in the existing list, but doesn't fetch")
+                        return
                     }
                 }
             }
             
             savePList()
             self.saveContext()
+            
+            goalFromCoreData = nil
+            existingGoal = nil
+            goalTextField.text = nil
+            goalDescTextView.text = "Provide a description about your goal"
+            goalDescTextView.textColor = UIColor.lightGray
+            commentTextView.text = "Provide a comment about your first progress"
+            commentTextView.textColor = UIColor.lightGray
+
+            if metricStackView.arrangedSubviews.count > 0 {
+                for subView in metricStackView.arrangedSubviews {
+                    metricStackView.removeArrangedSubview(subView)
+                    subView.removeFromSuperview()
+                }
+            }
             
         case 5:
             if let vc = storyboard?.instantiateViewController(withIdentifier: "ExistingGoalsMenu") as? ExistingGoalsMenuTableViewController {
@@ -683,6 +708,13 @@ class NewViewController: UIViewController {
             ac.addAction(UIAlertAction(title: "Delete", style: .default, handler: deleteGoal))
             ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
             present(ac, animated: true)
+        case 8:
+            if let vc = storyboard?.instantiateViewController(withIdentifier: "EditGoal") as? EditViewController {
+                if let existingGoal = existingGoal {
+                    vc.goalDetail = existingGoal
+                    navigationController?.pushViewController(vc, animated: true)
+                }
+            }
         default:
             print("default")
         }
@@ -870,7 +902,6 @@ extension NewViewController: UIImagePickerControllerDelegate, UINavigationContro
 }
 
 extension Sequence where Element: Hashable {
-    
     /// Returns true if no element is equal to any other element.
     func isDistinct() -> Bool {
         var set = Set<Element>()
