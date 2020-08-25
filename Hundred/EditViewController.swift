@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class EditViewController: UIViewController {
     @IBOutlet weak var scrollView: UIScrollView!
@@ -130,7 +131,7 @@ class EditViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        title = "Edit Goal Detail"
+        title = "Edit Your Goal"
         
         initializeHideKeyboard()
         configureStackView()
@@ -315,15 +316,15 @@ class EditViewController: UIViewController {
                                     subPredicateArr.append(NSPredicate(format: "unit = %@", singleMetric))
                                 }
                                 let orPredicate = NSCompoundPredicate(type: .or, subpredicates: subPredicateArr)
-                                let metricRequest = Metric.createFetchRequest()
+                                let metricRequest = Metric.fetchRequest()
                                 metricRequest.predicate = orPredicate
-                                //                                    let deleteRequest = NSBatchDeleteRequest(fetchRequest: metricRequest)
-                                //
-                                //                                    do {
-                                //                                        _ = try self.context.execute(deleteRequest)
-                                //                                    } catch {
-                                //                                        fatalError("Delete failed: \(error.localizedDescription)")
-                                //                                    }
+                                let deleteRequest = NSBatchDeleteRequest(fetchRequest: metricRequest)
+
+                                do {
+                                    _ = try self.context.execute(deleteRequest)
+                                } catch {
+                                    fatalError("Delete failed: \(error.localizedDescription)")
+                                }
                             }
                         }
                         
@@ -332,7 +333,6 @@ class EditViewController: UIViewController {
                     }
                     
                     self.saveContext()
-                    
 
                     _ = navigationController?.popViewController(animated: true)
                 } else {
@@ -361,6 +361,6 @@ extension Array where Element: Hashable {
 extension EditViewController: UINavigationControllerDelegate {
 
     func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
-        (viewController as? NewViewController)?.existingGoal = goalFromCoreData
+        (viewController as? NewViewController)?.existingGoal = goalFromCoreData ?? goalDetail
     }
 }

@@ -9,12 +9,12 @@
 import UIKit
 
 class ProgressCell: UITableViewCell {
-    
     var progressImageView = UIImageView()
     var progressTitleLabel = UILabel()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        progressImageView = UIImageView()
         addSubview(progressImageView)
         addSubview(progressTitleLabel)
         
@@ -38,7 +38,10 @@ class ProgressCell: UITableViewCell {
             let imagePath = getDocumentsDirectory().appendingPathComponent(image)
             if let data = try? Data(contentsOf: imagePath) {
                 progressImageView.image = UIImage(data: data)
+                progressImageView.widthAnchor.constraint(lessThanOrEqualTo: progressImageView.heightAnchor, multiplier: 16/9).isActive = true
             }
+        } else {
+            progressImageView.widthAnchor.constraint(equalToConstant: 0).isActive = true
         }
         progressTitleLabel.text = progress.comment
     }
@@ -53,6 +56,7 @@ class ProgressCell: UITableViewCell {
         progressTitleLabel.adjustsFontSizeToFitWidth = false
         progressTitleLabel.lineBreakMode = .byTruncatingTail
         progressTitleLabel.font = UIFont.preferredFont(forTextStyle: .footnote)
+        progressTitleLabel.textAlignment = .left
     }
     
     func setImageConstraints() {
@@ -60,7 +64,6 @@ class ProgressCell: UITableViewCell {
         progressImageView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
         progressImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12).isActive = true
         progressImageView.heightAnchor.constraint(equalToConstant: 55).isActive = true
-        progressImageView.widthAnchor.constraint(lessThanOrEqualTo: progressImageView.heightAnchor, multiplier: 16/9).isActive = true
     }
     
     func setTitleLabelConstraints() {

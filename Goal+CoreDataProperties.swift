@@ -2,7 +2,7 @@
 //  Goal+CoreDataProperties.swift
 //  Hundred
 //
-//  Created by jc on 2020-08-17.
+//  Created by jc on 2020-08-23.
 //  Copyright © 2020 J. All rights reserved.
 //
 //
@@ -23,6 +23,22 @@ extension Goal {
     @NSManaged public var title: String
     @NSManaged public var progress: Set<Progress>
     @NSManaged public var goalToMetric: Set<Metric>
+}
+
+// MARK: Generated accessors for goalToMetric
+extension Goal {
+
+    @objc(addGoalToMetricObject:)
+    @NSManaged public func addToGoalToMetric(_ value: Metric)
+
+    @objc(removeGoalToMetricObject:)
+    @NSManaged public func removeFromGoalToMetric(_ value: Metric)
+
+    @objc(addGoalToMetric:)
+    @NSManaged public func addToGoalToMetric(_ values: NSSet)
+
+    @objc(removeGoalToMetric:)
+    @NSManaged public func removeFromGoalToMetric(_ values: NSSet)
 
 }
 
@@ -40,22 +56,5 @@ extension Goal {
 
     @objc(removeProgress:)
     @NSManaged public func removeFromProgress(_ values: NSSet)
-
-}
-
-// MARK: Generated accessors for goalToMetric
-extension Goal {
-
-    @objc(addGoalToMetricObject:)
-    @NSManaged public func addToGoalToMetric(_ value: Metric)
-
-    @objc(removeGoalToMetricObject:)
-    @NSManaged public func removeFromGoalToMetric(_ value: Metric)
-
-    @objc(addGoalToMetric:)
-    @NSManaged public func addToGoalToMetric(_ values: NSSet)
-
-    @objc(removeGoalToMetric:)
-    @NSManaged public func removeFromGoalToMetric(_ values: NSSet)
 
 }

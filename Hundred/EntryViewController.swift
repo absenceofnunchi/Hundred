@@ -10,13 +10,34 @@ import CalendarHeatmap
 import Charts
 import UIKit
 
-class EntryViewController: UIViewController {
+protocol CallBackDelegate {
+    func callBack(value: Progress)
+}
+
+
+class EntryViewController: UIViewController, CallBackDelegate {
     
     @IBOutlet weak var scrollView: UIScrollView!
-    var progress: Progress!
+    var uiImage: UIImage!
+    var progress: Progress! {
+        didSet {
+            commentLabel.text = progress.comment
+            if let image = progress.image {
+                let imagePath = getDocumentsDirectory().appendingPathComponent(image)
+                if let data = try? Data(contentsOf: imagePath) {
+                    uiImage = UIImage(data: data)
+                    imageView.image = uiImage
+                }
+            }
+        }
+    }
     var metrics: [String]?
     var data: [String: UIColor]!
-    var uiImage: UIImage!
+
+    func callBack(value: Progress) {
+        print(value)
+        progress = value
+    }
     
     private lazy var stackView: UIStackView = {
         let stackView = UIStackView()
@@ -30,32 +51,14 @@ class EntryViewController: UIViewController {
         return stackView
     }()
     
-    private lazy var imageView: UIImageView = {
-        let imgView = UIImageView()
-        imgView.image = nil
-        if let image = progress.image {
-            let imagePath = getDocumentsDirectory().appendingPathComponent(image)
-            if let data = try? Data(contentsOf: imagePath) {
-                uiImage = UIImage(data: data)
-                imgView.image = uiImage
-                scrollView.addSubview(imgView)
-                return imgView
-            } else {
-                return imgView
-            }
-        } else {
-            return imgView
-        }
-    }()
+    var imageView = UIImageView()
     
-    private lazy var commentLabel: UILabel = {
+    private var commentLabel: UILabel = {
         let comment = UILabel()
-        comment.text = progress.comment
         comment.numberOfLines = 0
         comment.adjustsFontSizeToFitWidth = false
         comment.lineBreakMode = .byTruncatingTail
         comment.font = UIFont.preferredFont(forTextStyle: .body)
-                
         return comment
     }()
     
@@ -115,26 +118,49 @@ class EntryViewController: UIViewController {
         return chartView
     }()
     
+    lazy var buttonPanel: UIView = {
+        let bView = UIView()
+        return bView
+    }()
+    
+    lazy var editButton: UIButton = {
+        let gButton = UIButton()
+        let largeConfig = UIImage.SymbolConfiguration(pointSize: 40, weight: .medium, scale: .medium)
+        let uiImage = UIImage(systemName: "pencil.circle", withConfiguration: largeConfig)
+        gButton.tintColor = UIColor(red: 75/255, green: 123/255, blue: 236/255, alpha: 0.9)
+        gButton.setImage(uiImage, for: .normal)
+        gButton.tag = 1
+        gButton.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
+        self.buttonPanel.addSubview(gButton)
+        return gButton
+    }()
+    
+    lazy var deleteButton: UIButton = {
+        let gButton = UIButton()
+        let largeConfig = UIImage.SymbolConfiguration(pointSize: 40, weight: .medium, scale: .medium)
+        let uiImage = UIImage(systemName: "trash.circle", withConfiguration: largeConfig)
+        gButton.tintColor = UIColor(red: 252/255, green: 92/255, blue: 101/255, alpha: 0.9)
+        gButton.setImage(uiImage, for: .normal)
+        gButton.tag = 2
+        gButton.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
+        self.buttonPanel.addSubview(gButton)
+        return gButton
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         let dataImporter = DataImporter()
         data = dataImporter.data
-        
-        setData()
-        
-        title = progress.goal.title
-        
+                
         configureStackView()
         setStackViewConstraints()
+        setData()
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        tabBarController?.tabBar.isHidden = true
-    }
-    
+
     func configureStackView() {
+        scrollView.addSubview(imageView)
+        
         addHeader(text: "Comment", stackView: stackView)
         stackView.addArrangedSubview(commentLabel)
         stackView.setCustomSpacing(50, after: commentLabel)
@@ -145,18 +171,20 @@ class EntryViewController: UIViewController {
         
         addHeader(text: "Progress Chart", stackView: stackView)
         stackView.addArrangedSubview(lineChartView)
-        stackView.setCustomSpacing(50, after: commentLabel)
+        stackView.setCustomSpacing(100, after: lineChartView)
+        
+        stackView.addArrangedSubview(buttonPanel)
+        stackView.setCustomSpacing(80, after: buttonPanel)
     }
     
     func setStackViewConstraints() {
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        
         if progress.image != nil {
             imageView.translatesAutoresizingMaskIntoConstraints = false
             imageView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
             imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
             imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, constant: 9/16).isActive = true
-            stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor).isActive = true
+            stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20).isActive = true
             if uiImage.size.width > uiImage.size.height {
                 imageView.contentMode = .scaleAspectFit
             } else {
@@ -176,6 +204,17 @@ class EntryViewController: UIViewController {
         
         lineChartView.translatesAutoresizingMaskIntoConstraints = false
         lineChartView.heightAnchor.constraint(equalToConstant: 250).isActive = true
+        
+        buttonPanel.translatesAutoresizingMaskIntoConstraints = false
+        buttonPanel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        editButton.translatesAutoresizingMaskIntoConstraints = false
+        editButton.centerXAnchor.constraint(equalTo: buttonPanel.centerXAnchor, constant: -50).isActive = true
+        editButton.centerYAnchor.constraint(equalTo: buttonPanel.centerYAnchor).isActive = true
+        
+        deleteButton.translatesAutoresizingMaskIntoConstraints = false
+        deleteButton.centerXAnchor.constraint(equalTo: buttonPanel.centerXAnchor, constant: 50).isActive = true
+        deleteButton.centerYAnchor.constraint(equalTo: buttonPanel.centerYAnchor).isActive = true
     }
     
     func setData() {
@@ -204,6 +243,28 @@ class EntryViewController: UIViewController {
         ChartDataEntry(x: 5.0, y: 29.0),
     ]
     
+    @objc func buttonPressed(sender: UIButton!) {
+        switch sender.tag {
+        case 1:
+            if let vc = self.storyboard?.instantiateViewController(withIdentifier: "EditEntry") as? EditEntryViewController {
+                vc.progress = progress
+                vc.delegate = self
+                self.navigationController?.pushViewController(vc, animated: true)
+            }
+        case 2:
+            let ac = UIAlertController(title: "Delete", message: "Are you sure you want to delete your entry?", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "Delete", style: .default, handler: { action in
+                self.context.delete(self.progress)
+                self.saveContext()
+                _ = self.navigationController?.popViewController(animated: true)
+            }))
+            ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            present(ac, animated: true)
+        default:
+            print("default")
+        }
+    }
+    
 }
 
 extension EntryViewController: CalendarHeatmapDelegate {
@@ -227,3 +288,12 @@ extension EntryViewController: CalendarHeatmapDelegate {
         calendarHeatMap.scrollTo(date: Date(), at: .right, animated: false)
     }
 }
+
+//extension EntryViewController: UINavigationControllerDelegate {
+//
+//    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
+//        (viewController as? DetailTableViewController)?.tableView.reloadData()
+//    }
+//}
+
+

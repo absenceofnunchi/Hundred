@@ -48,3 +48,17 @@ struct ButtonCreator {
         return button
     }
 }
+
+
+// 1. delete button - done
+// 2. image delete - done
+// 3. custom cell for goals - done
+// 4. icloud kit
+// 5. keychain
+// 6. spotlight
+// 7. face id
+// 8. substract from plist when deleted
+// 9. 100 days count
+// 10. share
+// 11. chart
+// 12. show dates everywhere

@@ -370,6 +370,8 @@ class NewViewController: UIViewController {
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        
+       self.navigationController?.navigationBar.setValue(true, forKey: "hidesShadow")
     }
     
     func configureStackView() {
@@ -567,6 +569,7 @@ class NewViewController: UIViewController {
                     let metric = Metric(context: self.context)
                     metric.date = Date()
                     metric.unit = singleMetricPair.key
+                    metric.id = NSUUID() as UUID
                     
                     let formatter = NumberFormatter()
                     formatter.generatesDecimalNumbers = true

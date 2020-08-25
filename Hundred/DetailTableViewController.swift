@@ -30,24 +30,22 @@ class DetailTableViewController: UITableViewController {
         
         title = goal.title
         configureTableView()
+        
+        tabBarController?.tabBar.isHidden = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        tabBarController?.tabBar.isHidden = true
+        
+        tableView.reloadData()
     }
-    
+
     func configureTableView() {
         tableView.register(ProgressCell.self, forCellReuseIdentifier: Cells.progressCell)
         tableView.rowHeight = 85
     }
     
     // MARK: - Table view data source
-    
-    //    override func numberOfSections(in tableView: UITableView) -> Int {
-    //        // #warning Incomplete implementation, return the number of sections
-    //        return 0
-    //    }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return progresses.count
@@ -68,19 +66,43 @@ class DetailTableViewController: UITableViewController {
         }
     }
     
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            let progress = progresses[indexPath.row]
+//    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+//        if editingStyle == .delete {
+//            let progress = progresses[indexPath.row]
+//            self.context.delete(progress)
+//            progresses.remove(at: indexPath.row)
+//            tableView.deleteRows(at: [indexPath], with: .fade)
+//
+//            self.saveContext()
+//        } else if editingStyle == .none {
+//            print("insert")
+//        }
+//    }
+    
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { (contextualAction, view, boolValue) in
+            let progress = self.progresses[indexPath.row]
             self.context.delete(progress)
-            progresses.remove(at: indexPath.row)
+            self.progresses.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
-            
             self.saveContext()
-        } else if editingStyle == .insert {
-            print("insert")
         }
+        deleteAction.backgroundColor = .red
+        
+        let editAction = UIContextualAction(style: .destructive, title: "Edit") { (contextualAction, view, boolValue) in
+            if let vc = self.storyboard?.instantiateViewController(withIdentifier: "EditEntry") as? EditEntryViewController {
+                vc.progress = self.progresses[indexPath.row]
+                self.navigationController?.pushViewController(vc, animated: true)
+            }
+        }
+        editAction.backgroundColor = .systemBlue
+        
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction, editAction])
+        return configuration
     }
 }
+
+
 
 //extension DetailTableViewController: UIViewControllerPreviewingDelegate {
 //    func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {

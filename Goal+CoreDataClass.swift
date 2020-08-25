@@ -2,7 +2,7 @@
 //  Goal+CoreDataClass.swift
 //  Hundred
 //
-//  Created by jc on 2020-08-17.
+//  Created by jc on 2020-08-23.
 //  Copyright © 2020 J. All rights reserved.
 //
 //

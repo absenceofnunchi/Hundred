@@ -10,8 +10,12 @@ import UIKit
 import CoreData
 
 class GoalsTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
+    struct Cells {
+        static let goalCell = "GoalCell"
+    }
+    
     var fetchedResultsController: NSFetchedResultsController<Goal>?
-//    var goalPredicate: NSPredicate?
+    //    var goalPredicate: NSPredicate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,12 +24,19 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addGoals))
         
         loadSavedData()
-
+        configureTableView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tabBarController?.tabBar.isHidden = false
+        
+    }
+    
+    func configureTableView() {
+        tableView.register(GoalCell.self, forCellReuseIdentifier: Cells.goalCell)
+        tableView.rowHeight = 150
+        tableView.separatorStyle = .none
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -53,7 +64,7 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
             fetchedResultsController?.delegate = self
         }
         
-//        fetchedResultsController.fetchRequest.predicate = goalPredicate
+        //        fetchedResultsController.fetchRequest.predicate = goalPredicate
         
         do {
             try fetchedResultsController?.performFetch()
@@ -80,12 +91,12 @@ extension GoalsTableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: Cells.goalCell, for: indexPath) as! GoalCell
         if let goal = fetchedResultsController?.object(at: indexPath) {
-            cell.textLabel!.text = goal.title
+            cell.set(goal: goal)
         }
         
-        cell.accessoryType = .disclosureIndicator
+        //        cell.accessoryType = .disclosureIndicator
         return cell
     }
     
@@ -103,9 +114,33 @@ extension GoalsTableViewController {
             }
             
             self.saveContext()
-        }
+        } 
         
         // delete plist
+    }
+    
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { (contextualAction, view, boolValue) in
+            if let goal = self.fetchedResultsController?.object(at: indexPath) {
+                self.context.delete(goal)
+            }
+            
+            self.saveContext()
+        }
+        deleteAction.backgroundColor = .red
+        
+        let editAction = UIContextualAction(style: .destructive, title: "Edit") { (contextualAction, view, boolValue) in
+            if let vc = self.storyboard?.instantiateViewController(withIdentifier: "EditGoal") as? EditViewController {
+                
+                vc.goalDetail = self.fetchedResultsController?.object(at: indexPath)
+                self.navigationController?.pushViewController(vc, animated: true)
+                
+            }
+        }
+        editAction.backgroundColor = .systemBlue
+        
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction, editAction])
+        return configuration
     }
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
@@ -129,3 +164,31 @@ extension GoalsTableViewController {
         }
     }
 }
+
+
+extension UIViewController {
+    func configureNavigationBar(largeTitleColor: UIColor, backgoundColor: UIColor, tintColor: UIColor, title: String, preferredLargeTitle: Bool) {
+        if #available(iOS 13.0, *) {
+            let navBarAppearance = UINavigationBarAppearance()
+            navBarAppearance.configureWithOpaqueBackground()
+            navBarAppearance.largeTitleTextAttributes = [.foregroundColor: largeTitleColor]
+            navBarAppearance.titleTextAttributes = [.foregroundColor: largeTitleColor]
+            navBarAppearance.backgroundColor = backgoundColor
+            
+            navigationController?.navigationBar.standardAppearance = navBarAppearance
+            navigationController?.navigationBar.compactAppearance = navBarAppearance
+            navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
+            
+            navigationController?.navigationBar.prefersLargeTitles = preferredLargeTitle
+            navigationController?.navigationBar.isTranslucent = false
+            navigationController?.navigationBar.tintColor = tintColor
+            navigationItem.title = title
+            
+        } else {
+            // Fallback on earlier versions
+            navigationController?.navigationBar.barTintColor = backgoundColor
+            navigationController?.navigationBar.tintColor = tintColor
+            navigationController?.navigationBar.isTranslucent = false
+            navigationItem.title = title
+        }
+    }}

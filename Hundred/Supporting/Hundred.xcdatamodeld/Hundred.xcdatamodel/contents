@@ -15,6 +15,7 @@
     </entity>
     <entity name="Metric" representedClassName="Metric" syncable="YES">
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="unit" optional="YES" attributeType="String"/>
         <attribute name="value" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
         <relationship name="metricToGoal" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Goal" inverseName="goalToMetric" inverseEntity="Goal"/>
@@ -33,7 +34,7 @@
     </entity>
     <elements>
         <element name="Goal" positionX="-63" positionY="-18" width="128" height="133"/>
-        <element name="Metric" positionX="-45" positionY="99" width="128" height="118"/>
+        <element name="Metric" positionX="-45" positionY="99" width="128" height="133"/>
         <element name="Progress" positionX="-36" positionY="90" width="128" height="133"/>
     </elements>
 </model>
