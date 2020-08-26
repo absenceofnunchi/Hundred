@@ -132,6 +132,7 @@
                             <outlet property="delegate" destination="uHu-mD-OVP" id="3oD-hi-PXY"/>
                         </connections>
                     </tableView>
+                    <navigationItem key="navigationItem" id="4qN-AU-BhA"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wmq-g8-ZE0" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -347,7 +348,7 @@
         <!--Item-->
         <scene sceneID="w2R-Kv-mQO">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="7j6-mg-BsA" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="GoalVC" automaticallyAdjustsScrollViewInsets="NO" id="7j6-mg-BsA" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Item" id="FXN-Ev-Uev"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" largeTitles="YES" id="MI7-Dw-RRo">

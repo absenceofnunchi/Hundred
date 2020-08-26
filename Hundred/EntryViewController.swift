@@ -14,7 +14,6 @@ protocol CallBackDelegate {
     func callBack(value: Progress)
 }
 
-
 class EntryViewController: UIViewController, CallBackDelegate {
     
     @IBOutlet weak var scrollView: UIScrollView!
@@ -33,11 +32,6 @@ class EntryViewController: UIViewController, CallBackDelegate {
     }
     var metrics: [String]?
     var data: [String: UIColor]!
-
-    func callBack(value: Progress) {
-        print(value)
-        progress = value
-    }
     
     private lazy var stackView: UIStackView = {
         let stackView = UIStackView()
@@ -156,6 +150,10 @@ class EntryViewController: UIViewController, CallBackDelegate {
         configureStackView()
         setStackViewConstraints()
         setData()
+    }
+    
+    func callBack(value: Progress) {
+        progress = value
     }
 
     func configureStackView() {

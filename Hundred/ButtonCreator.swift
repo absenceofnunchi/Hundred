@@ -53,12 +53,18 @@ struct ButtonCreator {
 // 1. delete button - done
 // 2. image delete - done
 // 3. custom cell for goals - done
-// 4. icloud kit
+// 4. icloud kit - needs a developer account
 // 5. keychain
-// 6. spotlight
+// 6. spotlight - appdelegate doesn't work
 // 7. face id
-// 8. substract from plist when deleted
+// 8. substract from plist when deleted - done
 // 9. 100 days count
 // 10. share
 // 11. chart
-// 12. show dates everywhere
+// 12. show dates everywhere, esp. goal created date
+// 13. notification
+// 14. disable a done button
+// 15. fix detail custom cell text alignment
+// 16. map
+// 17. peek
+// 18. only show select plist per entry

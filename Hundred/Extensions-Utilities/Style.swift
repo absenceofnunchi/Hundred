@@ -32,4 +32,28 @@ extension UIViewController {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return paths[0]
     }
+    
+    func pListURL() -> URL? {
+        guard let result = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("Heatmap.plist") else { return nil  }
+        return result
+    }
+    
+    func write(dictionary: [String: [String: Int]]) {
+        if let url = pListURL() {
+            do {
+                let plistData = try PropertyListSerialization.data(fromPropertyList: dictionary, format: .xml, options: 0)
+                try plistData.write(to: url)
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
+    func dateForPlist(date: Date) -> String {
+           let calendar = Calendar.current
+           let year = calendar.component(.year, from: date)
+           let month = calendar.component(.month, from: date)
+           let day = calendar.component(.day, from: date)
+           return "\(year).\(month).\(day)"
+    }
 }

@@ -11,13 +11,17 @@ import UIKit
 class GoalCell: UITableViewCell {
     
     var containerView = UIView()
+    var upperContainer = UIView()
     var titleLabel = UILabel()
+    var countLabel = UILabel()
     var detailLabel = UILabel()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         addSubview(containerView)
-        containerView.addSubview(self.titleLabel)
+        containerView.addSubview(upperContainer)
+        upperContainer.addSubview(titleLabel)
+        upperContainer.addSubview(countLabel)
         containerView.addSubview(self.detailLabel)
         
         configureUI()
@@ -39,6 +43,9 @@ class GoalCell: UITableViewCell {
         titleLabel.adjustsFontSizeToFitWidth = false
         titleLabel.lineBreakMode = .byTruncatingTail
         titleLabel.textAlignment = .left
+        
+        countLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
+        countLabel.font = 
 
         detailLabel.font = UIFont.preferredFont(forTextStyle: .footnote)
         detailLabel.numberOfLines = 0
@@ -72,7 +79,7 @@ class GoalCell: UITableViewCell {
         if let detail = goal.detail {
             detailLabel.text = detail
         }
-        
+  
         if let progressEntry = goal.progress.first {
             if progressEntry.image != nil {
                 let imagePath = getDocumentsDirectory().appendingPathComponent(progressEntry.image!)
@@ -86,8 +93,14 @@ class GoalCell: UITableViewCell {
                         }
                     }
                 }
+            } else {
+                containerView.backgroundColor = .white
             }
+        } else {
+            containerView.backgroundColor = .white
         }
+        
+        print("count: \(goal.progress.count)")
     }
     
     func getDocumentsDirectory() -> URL {

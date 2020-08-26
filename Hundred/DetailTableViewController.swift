@@ -13,7 +13,6 @@ import UIKit
 class DetailTableViewController: UITableViewController {
     
     var fetchedResult: Progress!
-    var goalTitle: String!
     var progresses: [Progress]!
     var goal: Goal! {
         didSet {
@@ -32,11 +31,12 @@ class DetailTableViewController: UITableViewController {
         configureTableView()
         
         tabBarController?.tabBar.isHidden = true
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+
         tableView.reloadData()
     }
 
@@ -66,22 +66,35 @@ class DetailTableViewController: UITableViewController {
         }
     }
     
-//    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-//        if editingStyle == .delete {
-//            let progress = progresses[indexPath.row]
-//            self.context.delete(progress)
-//            progresses.remove(at: indexPath.row)
-//            tableView.deleteRows(at: [indexPath], with: .fade)
-//
-//            self.saveContext()
-//        } else if editingStyle == .none {
-//            print("insert")
-//        }
-//    }
-    
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { (contextualAction, view, boolValue) in
             let progress = self.progresses[indexPath.row]
+            let formattedDate = self.dateForPlist(date: progress.date)
+            print("formattedDate: \(formattedDate)")
+            if let url = self.pListURL() {
+                if FileManager.default.fileExists(atPath: url.path) {
+                    do {
+                        let dataContent = try Data(contentsOf: url)
+                        if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
+                            if var count = dict[self.goal.title]?[formattedDate] {
+                                print("count: \(count)")
+                                if count > 0 {
+                                    count -= 1
+                                    dict[self.goal.title]?[formattedDate] = count
+                                    self.write(dictionary: dict)
+                                    if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
+                                        let dataImporter = DataImporter()
+                                        mainVC.data = dataImporter.loadData()
+                                    }
+                                }
+                            }
+                        }
+                    } catch {
+                        print("error :\(error.localizedDescription)")
+                    }
+                }
+            }
+            
             self.context.delete(progress)
             self.progresses.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
@@ -122,3 +135,4 @@ class DetailTableViewController: UITableViewController {
 //        navigationController?.pushViewController(viewControllerToCommit, animated: true)
 //    }
 //}
+

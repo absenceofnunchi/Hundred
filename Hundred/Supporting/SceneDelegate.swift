@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreSpotlight
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -18,6 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let _ = (scene as? UIWindowScene) else { return }
+
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -50,7 +52,43 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Save changes in the application's managed object context when the application transitions to the background.
         (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
     }
+    
+    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+//        if userActivity.activityType == CSSearchableItemActionType {
+//            if let uniqueIdentifier = userActivity.userInfo?[CSSearchableItemActivityIdentifier] as? String {
+//                print("uniqueIdentifier: \(uniqueIdentifier)")
+//                if let tabbarController = window?.rootViewController as? UITabBarController {
+//                    print("tabbarController: \(tabbarController)")
+//                    tabbarController.selectedIndex = 3
+//                    let vc = tabbarController.selectedViewController
+//                    
+//                    let goalRequest = Goal.createFetchRequest()
+//                    goalRequest.predicate = NSPredicate(format: "title == %@", uniqueIdentifier)
+//                    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+//                    if let fetchedGoal = try? appDelegate.persistentContainer.viewContext.fetch(goalRequest) {
+//                        print("fetchedGoal: \(fetchedGoal)")
+//                        if fetchedGoal.count > 0 {
+////                            vc.goal = fetchedGoal.first
+//                        }
+//                    }
+//                    if let viewController =  tabbarController.selectedViewController as? DetailTableViewController {
+//                        print("viewController: \(viewController)")
+//                        let goalRequest = Goal.createFetchRequest()
+//                        goalRequest.predicate = NSPredicate(format: "title == %@", uniqueIdentifier)
+//                        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+//                        if let fetchedGoal = try? appDelegate.persistentContainer.viewContext.fetch(goalRequest) {
+//                            print("fetchedGoal: \(fetchedGoal)")
+//                            if fetchedGoal.count > 0 {
+//                                viewController.goal = fetchedGoal.first
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+    }
 
 
 }
+
 

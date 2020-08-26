@@ -8,6 +8,8 @@
 
 import UIKit
 import CoreData
+import CoreSpotlight
+import MobileCoreServices
 
 class GoalsTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
     struct Cells {
@@ -30,7 +32,6 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tabBarController?.tabBar.isHidden = false
-        
     }
     
     func configureTableView() {
@@ -96,7 +97,6 @@ extension GoalsTableViewController {
             cell.set(goal: goal)
         }
         
-        //        cell.accessoryType = .disclosureIndicator
         return cell
     }
     
@@ -111,21 +111,45 @@ extension GoalsTableViewController {
         if editingStyle == .delete {
             if let goal = fetchedResultsController?.object(at: indexPath) {
                 self.context.delete(goal)
+                self.saveContext()
             }
-            
-            self.saveContext()
-        } 
-        
-        // delete plist
+        }
     }
     
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { (contextualAction, view, boolValue) in
             if let goal = self.fetchedResultsController?.object(at: indexPath) {
+                // deindex from Core Spotlight
+                CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: ["\(goal.title)"]) { (error) in
+                    if let error = error {
+                        print("Deindexing error: \(error.localizedDescription)")
+                    } else {
+                        print("Search item successfully deindexed")
+                    }
+                }
+                
+                if let url = self.pListURL() {
+                    if FileManager.default.fileExists(atPath: url.path) {
+                        do {
+                            let dataContent = try Data(contentsOf: url)
+                            if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
+                                dict.removeValue(forKey: goal.title)
+                                self.write(dictionary: dict)
+                            }
+                        } catch {
+                            print("error :\(error.localizedDescription)")
+                        }
+                    }
+                }
+                
                 self.context.delete(goal)
+                self.saveContext()
+                
+                if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
+                    let dataImporter = DataImporter()
+                    mainVC.data = dataImporter.loadData()
+                }
             }
-            
-            self.saveContext()
         }
         deleteAction.backgroundColor = .red
         

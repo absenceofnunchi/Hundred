@@ -24,16 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-//        if let goalsVC = window?.rootViewController as? GoalsTableViewController {
-//            goalsVC.container = persistentContainer
-//        }
-//        
-//        if let existingGoalsVC = window?.rootViewController as? ExistingGoalsMenuTableViewController {
-//            existingGoalsVC.container = persistentContainer
-//        }
-//
-//        UITabBar.appearance().barTintColor = .black
-//        UITabBar.appearance().tintColor = red
+
         return true
     }
 
@@ -97,4 +88,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
     }
+    
+    // MARK: - Core Spotlight
+    
+//    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+//        print("userActivity: \(userActivity)")
+//        if userActivity.activityType == CSSearchableItemActionType {
+//            if let uniqueIdentifier = userActivity.userInfo?[CSSearchableItemActivityIdentifier] as? String {
+//                print("uniqueIdentifier: \(uniqueIdentifier)")
+//                if let navigationController = window?.rootViewController as? UINavigationController {
+//                    print("navigationController: \(navigationController)")
+//                    if let viewController = navigationController.topViewController as? DetailTableViewController {
+//                        print("viewController: \(viewController)")
+//                        let goalRequest = Goal.createFetchRequest()
+//                        goalRequest.predicate = NSPredicate(format: "title == %@", uniqueIdentifier)
+//                        if let fetchedGoal = try? persistentContainer.viewContext.fetch(goalRequest) {
+//                            print("fetchedGoal: \(fetchedGoal)")
+//                            if fetchedGoal.count > 0 {
+//                                viewController.goal = fetchedGoal.first
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        return true
+//    }
+
 }

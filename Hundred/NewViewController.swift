@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import CoreSpotlight
+import MobileCoreServices
 
 class NewViewController: UIViewController {
     var imagePathString: String?
@@ -619,6 +621,23 @@ class NewViewController: UIViewController {
                         }
                         
                         goal.progress.insert(progress)
+                         
+                        // Core Spotlight indexing
+                        let attributeSet = CSSearchableItemAttributeSet(itemContentType: kUTTypeText as String)
+                        attributeSet.title = goalText
+                        attributeSet.contentCreationDate = Date()
+                        attributeSet.contentDescription = goalDescTextView.text
+                        attributeSet.keywords = ["productivity", "goal setting", "habit"]
+                        
+                        let item = CSSearchableItem(uniqueIdentifier: "\(goalText)", domainIdentifier: "com.noName.Hundred", attributeSet: attributeSet)
+                        item.expirationDate = Date.distantFuture
+                        CSSearchableIndex.default().indexSearchableItems([item]) { (error) in
+                            if let error = error {
+                                print("Indexing error: \(error.localizedDescription)")
+                            } else {
+                                print("Search item successfully indexed")
+                            }
+                        }
                     }
                 }
             // Add to an existing goal
@@ -644,6 +663,7 @@ class NewViewController: UIViewController {
             savePList()
             self.saveContext()
             
+            imagePathString = nil
             goalFromCoreData = nil
             existingGoal = nil
             goalTextField.text = nil
@@ -659,6 +679,7 @@ class NewViewController: UIViewController {
                 }
             }
             
+            tabBarController?.selectedIndex = 1
         case 5:
             if let vc = storyboard?.instantiateViewController(withIdentifier: "ExistingGoalsMenu") as? ExistingGoalsMenuTableViewController {
                 vc.isDismissed = { [weak self] goal in
@@ -780,18 +801,8 @@ class NewViewController: UIViewController {
         self.dismiss(animated: true, completion: nil)
     }
     
-    func pListURL() -> URL? {
-        guard let result = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("Heatmap.plist") else { return nil  }
-        return result
-    }
-    
     func savePList() {
-        let date = Date()
-        let calendar = Calendar.current
-        let year = calendar.component(.year, from: date)
-        let month = calendar.component(.month, from: date)
-        let day = calendar.component(.day, from: date)
-        let dateString = "\(year).\(month).\(day)"
+        let dateString = dateForPlist(date: Date())
         
         if let url = pListURL() {
             if FileManager.default.fileExists(atPath: url.path) {
@@ -799,15 +810,13 @@ class NewViewController: UIViewController {
                     let dataContent = try Data(contentsOf: url)
                     if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
                         if let oldGoalTitle = existingGoal?.title {
-                            if var oldGoalData = dict[oldGoalTitle] {
+                            if let oldGoalData = dict[oldGoalTitle] {
                                 if var count = oldGoalData[dateString] {
                                     count += 1
-                                    oldGoalData[dateString] = count
-                                    dict[oldGoalTitle] = oldGoalData
+                                    dict.updateValue([dateString: count], forKey: oldGoalTitle)
                                     write(dictionary: dict)
                                 } else {
-                                    oldGoalData[dateString] = 1
-                                    dict[oldGoalTitle] = oldGoalData
+                                    dict.updateValue([dateString: 1], forKey: oldGoalTitle)
                                     write(dictionary: dict)
                                 }
                             } else {
@@ -816,7 +825,7 @@ class NewViewController: UIViewController {
                             }
                         } else {
                             if let newGoalTitle = goalTextField.text {
-                                dict = [newGoalTitle: [dateString: 1]]
+                                dict.updateValue([dateString: 1], forKey: newGoalTitle)
                                 write(dictionary: dict)
                             } else {
                                 let ac = UIAlertController(title: "Error", message: "The goal title cannot be empty", preferredStyle: .alert)
@@ -839,22 +848,12 @@ class NewViewController: UIViewController {
         }
         
         if let mainVC = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
-            print("mainVC: \(mainVC)")
             let dataImporter = DataImporter()
-            print("loadData: \(dataImporter.loadData())")
             mainVC.data = dataImporter.loadData()
         }
-    }
-    
-    func write(dictionary: [String: [String: Int]]) {
-        if let url = pListURL() {
-            do {
-                let plistData = try PropertyListSerialization.data(fromPropertyList: dictionary, format: .xml, options: 0)
-                try plistData.write(to: url)
-            } catch {
-                print(error)
-            }
-        }
+        
+//        let vc = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? DetailTableViewController
+        
     }
     
 }
