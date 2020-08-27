@@ -11,17 +11,16 @@ import UIKit
 class ProgressCell: UITableViewCell {
     var progressImageView = UIImageView()
     var progressTitleLabel = UILabel()
+    var progressDateLabel = UILabel()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        progressImageView = UIImageView()
         addSubview(progressImageView)
         addSubview(progressTitleLabel)
+        addSubview(progressDateLabel)
         
-        configureImageView()
-        configureTitleLabel()
-        setImageConstraints()
-        setTitleLabelConstraints()
+        configureUI()
+        setConstraints()
     }
     
     required init?(coder: NSCoder) {
@@ -44,36 +43,49 @@ class ProgressCell: UITableViewCell {
             progressImageView.widthAnchor.constraint(equalToConstant: 0).isActive = true
         }
         progressTitleLabel.text = progress.comment
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM/dd"
+        progressDateLabel.text = dateFormatter.string(from: progress.date)
     }
     
-    func configureImageView() {
+    func configureUI() {
         progressImageView.layer.cornerRadius = 5
         progressImageView.clipsToBounds = true
-    }
-    
-    func configureTitleLabel() {
+        
         progressTitleLabel.numberOfLines = 0
         progressTitleLabel.adjustsFontSizeToFitWidth = false
         progressTitleLabel.lineBreakMode = .byTruncatingTail
         progressTitleLabel.font = UIFont.preferredFont(forTextStyle: .footnote)
         progressTitleLabel.textAlignment = .left
+        
+        progressDateLabel.textAlignment = .right
+        progressDateLabel.font = UIFont.preferredFont(forTextStyle: .footnote)
+        progressDateLabel.textColor = .lightGray
     }
     
-    func setImageConstraints() {
+    
+    func setConstraints() {
         progressImageView.translatesAutoresizingMaskIntoConstraints = false
         progressImageView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
-        progressImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12).isActive = true
+        progressImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15).isActive = true
         progressImageView.heightAnchor.constraint(equalToConstant: 55).isActive = true
-    }
-    
-    func setTitleLabelConstraints() {
+        
         progressTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         progressTitleLabel.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
-        progressTitleLabel.leadingAnchor.constraint(equalTo: progressImageView.trailingAnchor, constant: 5).isActive = true
+        progressTitleLabel.leadingAnchor.constraint(equalTo: progressImageView.trailingAnchor, constant: 8).isActive = true
         progressTitleLabel.heightAnchor.constraint(equalToConstant: 55).isActive = true
-        progressTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12).isActive = true
-        progressTitleLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 100).isActive = true
+        progressTitleLabel.trailingAnchor.constraint(equalTo: progressDateLabel.leadingAnchor, constant: -8).isActive = true
+//        progressTitleLabel.widthAnchor.constraint(lessThanOrEqualTo: widthAnchor).isActive = true
+        
+        progressDateLabel.translatesAutoresizingMaskIntoConstraints = false
+        progressDateLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15).isActive = true
+        progressDateLabel.heightAnchor.constraint(equalToConstant: 55).isActive = true
+        progressDateLabel.widthAnchor.constraint(equalToConstant: 40).isActive = true
+        progressDateLabel.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
+
     }
+    
 }
 
 

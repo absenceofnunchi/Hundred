@@ -56,7 +56,7 @@ class ViewController: UIViewController {
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(reloadHeatmap))
         
-        let dataImporter = DataImporter()
+        var dataImporter = DataImporter(goalTitle: nil)
         data = dataImporter.data
     }
     

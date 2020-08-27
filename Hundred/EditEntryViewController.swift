@@ -343,8 +343,7 @@ extension EditEntryViewController: UIImagePickerControllerDelegate, UINavigation
         })
     }
     
-//    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
-//        print("progress: \(progress)")
-//        (viewController as? EntryViewController)?.EntryViewControllerDelegate?.progress = progress
-//    }
+    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
+        (viewController as? DetailTableViewController)?.tableView.reloadData()
+    }
 }

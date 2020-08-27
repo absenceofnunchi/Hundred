@@ -569,7 +569,12 @@ class NewViewController: UIViewController {
             if Array(metricDict.keys).isDistinct() == true {
                 for singleMetricPair in metricDict {
                     let metric = Metric(context: self.context)
-                    metric.date = Date()
+                    
+                    let df = DateFormatter()
+                    df.dateFormat = "yyyy/MM/dd HH:mm"
+                    let someDateTime = df.date(from: "2020/08/25 22:31")
+                    metric.date = someDateTime!
+//                    metric.date = Date()
                     metric.unit = singleMetricPair.key
                     metric.id = NSUUID() as UUID
                     
@@ -848,8 +853,8 @@ class NewViewController: UIViewController {
         }
         
         if let mainVC = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
-            let dataImporter = DataImporter()
-            mainVC.data = dataImporter.loadData()
+            let dataImporter = DataImporter(goalTitle: nil)
+            mainVC.data = dataImporter.loadData(goalTitle: nil)
         }
         
 //        let vc = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? DetailTableViewController

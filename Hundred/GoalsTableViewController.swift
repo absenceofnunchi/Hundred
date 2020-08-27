@@ -146,8 +146,8 @@ extension GoalsTableViewController {
                 self.saveContext()
                 
                 if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
-                    let dataImporter = DataImporter()
-                    mainVC.data = dataImporter.loadData()
+                    let dataImporter = DataImporter(goalTitle: nil)
+                    mainVC.data = dataImporter.loadData(goalTitle: nil)
                 }
             }
         }

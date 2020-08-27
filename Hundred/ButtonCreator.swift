@@ -58,13 +58,19 @@ struct ButtonCreator {
 // 6. spotlight - appdelegate doesn't work
 // 7. face id
 // 8. substract from plist when deleted - done
-// 9. 100 days count
+// 9. 100 days count - done
 // 10. share
 // 11. chart
-// 12. show dates everywhere, esp. goal created date
+// 12. show dates everywhere, esp. goal created date - done
 // 13. notification
 // 14. disable a done button
 // 15. fix detail custom cell text alignment
 // 16. map
 // 17. peek
-// 18. only show select plist per entry
+// 18. only show select plist per entry - done
+
+
+// view controller 59
+// detail 86
+// goaltable 149
+// new 851

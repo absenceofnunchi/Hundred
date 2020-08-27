@@ -22,7 +22,7 @@ class GoalCell: UITableViewCell {
         containerView.addSubview(upperContainer)
         upperContainer.addSubview(titleLabel)
         upperContainer.addSubview(countLabel)
-        containerView.addSubview(self.detailLabel)
+        containerView.addSubview(detailLabel)
         
         configureUI()
         setConstraints()
@@ -45,7 +45,9 @@ class GoalCell: UITableViewCell {
         titleLabel.textAlignment = .left
         
         countLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
-        countLabel.font = 
+        countLabel.textColor = .lightGray
+        countLabel.adjustsFontSizeToFitWidth = false
+        countLabel.textAlignment = .right
 
         detailLabel.font = UIFont.preferredFont(forTextStyle: .footnote)
         detailLabel.numberOfLines = 0
@@ -61,11 +63,21 @@ class GoalCell: UITableViewCell {
         containerView.topAnchor.constraint(equalTo: self.topAnchor, constant: 10).isActive = true
         containerView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -10).isActive = true
         
+        upperContainer.translatesAutoresizingMaskIntoConstraints = false
+        upperContainer.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        upperContainer.topAnchor.constraint(equalTo: containerView.topAnchor).isActive = true
+        upperContainer.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.9).isActive = true
+        upperContainer.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
+        
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10).isActive = true
-        titleLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.9).isActive = true
-        titleLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
-        titleLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        titleLabel.topAnchor.constraint(equalTo: upperContainer.topAnchor, constant: 10).isActive = true
+        titleLabel.leadingAnchor.constraint(equalTo: upperContainer.leadingAnchor).isActive = true
+        titleLabel.heightAnchor.constraint(equalTo: upperContainer.heightAnchor).isActive = true
+        
+        countLabel.translatesAutoresizingMaskIntoConstraints = false
+        countLabel.topAnchor.constraint(equalTo: upperContainer.topAnchor, constant: 10).isActive = true
+        countLabel.trailingAnchor.constraint(equalTo: upperContainer.trailingAnchor).isActive = true
+        countLabel.heightAnchor.constraint(equalTo: upperContainer.heightAnchor).isActive = true
         
         detailLabel.translatesAutoresizingMaskIntoConstraints = false
         detailLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10).isActive = true
@@ -76,6 +88,8 @@ class GoalCell: UITableViewCell {
     
     func set(goal: Goal) {
         titleLabel.text = goal.title
+
+        countLabel.text = "\(String(goal.progress.count))/100"
         if let detail = goal.detail {
             detailLabel.text = detail
         }
@@ -99,8 +113,6 @@ class GoalCell: UITableViewCell {
         } else {
             containerView.backgroundColor = .white
         }
-        
-        print("count: \(goal.progress.count)")
     }
     
     func getDocumentsDirectory() -> URL {

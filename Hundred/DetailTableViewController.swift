@@ -70,21 +70,19 @@ class DetailTableViewController: UITableViewController {
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { (contextualAction, view, boolValue) in
             let progress = self.progresses[indexPath.row]
             let formattedDate = self.dateForPlist(date: progress.date)
-            print("formattedDate: \(formattedDate)")
             if let url = self.pListURL() {
                 if FileManager.default.fileExists(atPath: url.path) {
                     do {
                         let dataContent = try Data(contentsOf: url)
                         if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
                             if var count = dict[self.goal.title]?[formattedDate] {
-                                print("count: \(count)")
                                 if count > 0 {
                                     count -= 1
                                     dict[self.goal.title]?[formattedDate] = count
                                     self.write(dictionary: dict)
                                     if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
-                                        let dataImporter = DataImporter()
-                                        mainVC.data = dataImporter.loadData()
+                                        let dataImporter = DataImporter(goalTitle: nil)
+                                        mainVC.data = dataImporter.loadData(goalTitle: nil)
                                     }
                                 }
                             }

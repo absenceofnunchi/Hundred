@@ -47,6 +47,16 @@ class EntryViewController: UIViewController, CallBackDelegate {
     
     var imageView = UIImageView()
     
+    private lazy var dateLabel: UILabel = {
+        let dLabel = UILabel()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM/dd"
+        dLabel.text = dateFormatter.string(from: progress.date)
+        dLabel.textAlignment = .right
+        dLabel.textColor = .lightGray
+        return dLabel
+    }()
+    
     private var commentLabel: UILabel = {
         let comment = UILabel()
         comment.numberOfLines = 0
@@ -66,11 +76,11 @@ class EntryViewController: UIViewController, CallBackDelegate {
         config.monthHeight = 30
         config.monthStrings = DateFormatter().shortMonthSymbols
         config.monthFont = UIFont.systemFont(ofSize: 18)
-        config.monthColor = UIColor(ciColor: .black)
+        config.monthColor = UIColor(ciColor: .gray)
         // config weekday label on left
         config.weekDayFont = UIFont.systemFont(ofSize: 12)
         config.weekDayWidth = 30
-        config.weekDayColor = UIColor(ciColor: .black)
+        config.weekDayColor = UIColor(ciColor: .gray)
         
         var dateComponent = DateComponents()
         let yearsBefore = -1
@@ -84,32 +94,6 @@ class EntryViewController: UIViewController, CallBackDelegate {
             calendar.delegate = self
             return calendar
         }
-    }()
-    
-    private lazy var lineChartView: LineChartView = {
-        let chartView = LineChartView()
-        chartView.rightAxis.enabled = false
-        chartView.pinchZoomEnabled = true
-        
-        let yAxis = chartView.leftAxis
-        yAxis.labelFont = .boldSystemFont(ofSize: 12)
-        yAxis.setLabelCount(6, force: false)
-        yAxis.labelTextColor = UIColor(red: 0, green: 0, blue: 255/255, alpha: 1.0)
-        yAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
-        yAxis.labelPosition = .outsideChart
-        yAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
-        
-        let xAxis = chartView.xAxis
-        xAxis.labelPosition = .bottom
-        xAxis.labelFont = .boldSystemFont(ofSize: 12)
-        xAxis.setLabelCount(6, force: false)
-        xAxis.labelTextColor = UIColor(red: 0, green: 0, blue: 255/255, alpha: 1.0)
-        xAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
-        xAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
-        
-        chartView.animate(xAxisDuration: 1.5)
-        
-        return chartView
     }()
     
     lazy var buttonPanel: UIView = {
@@ -144,20 +128,76 @@ class EntryViewController: UIViewController, CallBackDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let dataImporter = DataImporter()
+        title = progress.goal.title
+        
+        var dataImporter = DataImporter(goalTitle: progress.goal.title)
         data = dataImporter.data
+        
+        configureUI()
+        setConstraints()
+        
+        if let importedMetrics = metrics {
+            if importedMetrics.count > 0 {
+                stackView.setCustomSpacing(50, after: calendarHeatMap)
                 
-        configureStackView()
-        setStackViewConstraints()
-        setData()
+                let lineChartView = LineChartView()
+                let data = loadMetricsData()
+                lineChartView.data = data
+                lineChartView.rightAxis.enabled = false
+                lineChartView.pinchZoomEnabled = true
+                
+                let yAxis = lineChartView.leftAxis
+                yAxis.labelFont = .boldSystemFont(ofSize: 12)
+                yAxis.setLabelCount(6, force: false)
+                yAxis.labelTextColor = UIColor(red: 0, green: 0, blue: 255/255, alpha: 1.0)
+                yAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
+                yAxis.labelPosition = .outsideChart
+                yAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
+                
+                let xAxis = lineChartView.xAxis
+                xAxis.labelPosition = .bottom
+                xAxis.labelFont = .boldSystemFont(ofSize: 12)
+                xAxis.setLabelCount(6, force: false)
+                xAxis.labelTextColor = UIColor(red: 0, green: 0, blue: 255/255, alpha: 1.0)
+                xAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
+                xAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
+                xAxis.valueFormatter = ChartXAxisFormatter()
+                
+//                xAxis.granularityEnabled = true
+//                xAxis.granularity = 1.0
+//                xAxis.setLabelCount(1, force: true)
+//                xAxis.avoidFirstLastClippingEnabled = false
+//                xAxis.forceLabelsEnabled = true
+                
+                let chartContainer = UIStackView()
+                chartContainer.axis = .vertical
+                chartContainer.distribution = .fill
+                chartContainer.alignment = .fill
+                
+                addHeader(text: "Progress Chart", stackView: chartContainer)
+                chartContainer.addArrangedSubview(lineChartView)
+                stackView.insertArrangedSubview(chartContainer, at: 7)
+                stackView.setCustomSpacing(100, after: chartContainer)
+                
+                lineChartView.translatesAutoresizingMaskIntoConstraints = false
+                lineChartView.heightAnchor.constraint(equalToConstant: 250).isActive = true
+            } else {
+                stackView.setCustomSpacing(150, after: calendarHeatMap)
+            }
+        } else {
+            stackView.setCustomSpacing(150, after: calendarHeatMap)
+        }
     }
     
     func callBack(value: Progress) {
         progress = value
     }
-
-    func configureStackView() {
+    
+    func configureUI() {
         scrollView.addSubview(imageView)
+        
+        stackView.addArrangedSubview(dateLabel)
+        stackView.setCustomSpacing(10, after: dateLabel)
         
         addHeader(text: "Comment", stackView: stackView)
         stackView.addArrangedSubview(commentLabel)
@@ -165,17 +205,12 @@ class EntryViewController: UIViewController, CallBackDelegate {
         
         addHeader(text: "Calendar", stackView: stackView)
         stackView.addArrangedSubview(calendarHeatMap)
-        stackView.setCustomSpacing(50, after: calendarHeatMap)
-        
-        addHeader(text: "Progress Chart", stackView: stackView)
-        stackView.addArrangedSubview(lineChartView)
-        stackView.setCustomSpacing(100, after: lineChartView)
         
         stackView.addArrangedSubview(buttonPanel)
         stackView.setCustomSpacing(80, after: buttonPanel)
     }
     
-    func setStackViewConstraints() {
+    func setConstraints() {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         if progress.image != nil {
             imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -200,9 +235,6 @@ class EntryViewController: UIViewController, CallBackDelegate {
         calendarHeatMap.translatesAutoresizingMaskIntoConstraints = false
         calendarHeatMap.heightAnchor.constraint(equalToConstant: 200).isActive = true
         
-        lineChartView.translatesAutoresizingMaskIntoConstraints = false
-        lineChartView.heightAnchor.constraint(equalToConstant: 250).isActive = true
-        
         buttonPanel.translatesAutoresizingMaskIntoConstraints = false
         buttonPanel.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
@@ -215,31 +247,76 @@ class EntryViewController: UIViewController, CallBackDelegate {
         deleteButton.centerYAnchor.constraint(equalTo: buttonPanel.centerYAnchor).isActive = true
     }
     
-    func setData() {
-        let set1 = LineChartDataSet(entries: yValues, label: "Subscribers")
-        set1.drawCirclesEnabled = false
-        set1.lineWidth = 3
-        set1.mode = .cubicBezier
-        set1.setColor(.white)
-        set1.fill = Fill(color: .lightGray)
-        set1.fillAlpha = 0.4
-        set1.drawFilledEnabled = true
-        set1.drawHorizontalHighlightIndicatorEnabled = false
-        set1.highlightColor = .systemRed
-        
-        let data = LineChartData(dataSet: set1)
-        data.setDrawValues(false)
-        lineChartView.data = data
+    var metricDict = [String: [ChartDataEntry]]()
+    
+    func loadMetricsData() -> LineChartData {
+        let metricsRequest = Metric.createFetchRequest()
+        metricsRequest.predicate = NSPredicate(format: "metricToGoal.title == %@", progress.goal.title)
+        if let fetchedMetrics = try? self.context.fetch(metricsRequest) {
+            if fetchedMetrics.count > 0 {
+                for fetchedMetric in fetchedMetrics {
+                    let date = fetchedMetric.date.timeIntervalSince1970
+//                    let date = 1598493067.140078
+                    print("date: \(date)")
+                    if var yValues = metricDict[fetchedMetric.unit] {
+                        yValues.append(ChartDataEntry(x: date, y: Double(truncating: fetchedMetric.value)))
+                        metricDict.updateValue(yValues, forKey: fetchedMetric.unit)
+                    } else {
+                        metricDict.updateValue([ChartDataEntry(x: date, y: Double(truncating: fetchedMetric.value))], forKey: fetchedMetric.unit)
+                    }
+                }
+                
+                let dataSet = metricDict.map { (set) -> LineChartDataSet in
+                    let set = LineChartDataSet(entries: set.value, label: set.key)
+                    set.drawIconsEnabled = false
+                    set.lineDashLengths = [5, 2.5]
+                    set.highlightLineDashLengths = [5, 2.5]
+                    let randomColour = UIColor(red: CGFloat.random(in: 50..<255)/255, green: CGFloat.random(in: 0..<220)/255, blue: CGFloat.random(in: 0..<220)/255, alpha: 0.8)
+                    set.setColor(randomColour)
+                    set.setCircleColor(randomColour)
+                    set.lineWidth = 1
+                    set.circleRadius = 3
+                    set.drawCircleHoleEnabled = false
+                    set.valueFont = .systemFont(ofSize: 9)
+                    set.formLineDashLengths = [5, 2.5]
+                    set.formLineWidth = 1
+                    set.formSize = 15
+                    return set
+                }
+                
+//                let yAxis = [
+//                    ChartDataEntry(x: 10, y: 10),
+//                    ChartDataEntry(x: 20, y: 20),
+//                    ChartDataEntry(x: 30, y: 30),
+//                    ChartDataEntry(x: 40, y: 40),
+//                    ChartDataEntry(x: 50, y: 50)
+//                ]
+//
+//                let set = LineChartDataSet(entries: yAxis, label: "Yellow")
+//                set.drawIconsEnabled = false
+//                set.lineDashLengths = [5, 2.5]
+//                set.highlightLineDashLengths = [5, 2.5]
+//                let randomColour = UIColor(red: CGFloat.random(in: 50..<255)/255, green: CGFloat.random(in: 0..<220)/255, blue: CGFloat.random(in: 0..<220)/255, alpha: 0.8)
+//                set.setColor(randomColour)
+//                set.setCircleColor(randomColour)
+//                set.lineWidth = 1
+//                set.circleRadius = 3
+//                set.drawCircleHoleEnabled = false
+//                set.valueFont = .systemFont(ofSize: 9)
+//                set.formLineDashLengths = [5, 2.5]
+//                set.formLineWidth = 1
+//                set.formSize = 15
+//
+//                let data = LineChartData(dataSet: set)
+                let data = LineChartData(dataSets: dataSet)
+                data.setValueTextColor(.white)
+                data.setValueFont(.systemFont(ofSize: 9))
+                return data
+            }
+        }
+        return LineChartData(dataSets: nil)
     }
     
-    let yValues: [ChartDataEntry] = [
-        ChartDataEntry(x: 0.0, y: 10.0),
-        ChartDataEntry(x: 1.0, y: 14.0),
-        ChartDataEntry(x: 2.0, y: 4.0),
-        ChartDataEntry(x: 3.0, y: 19.0),
-        ChartDataEntry(x: 4.0, y: 34.0),
-        ChartDataEntry(x: 5.0, y: 29.0),
-    ]
     
     @objc func buttonPressed(sender: UIButton!) {
         switch sender.tag {
@@ -283,7 +360,7 @@ extension EntryViewController: CalendarHeatmapDelegate {
     }
     
     func finishLoadCalendar() {
-        calendarHeatMap.scrollTo(date: Date(), at: .right, animated: false)
+        calendarHeatMap.scrollTo(date: progress.date, at: .left, animated: false)
     }
 }
 
@@ -293,5 +370,7 @@ extension EntryViewController: CalendarHeatmapDelegate {
 //        (viewController as? DetailTableViewController)?.tableView.reloadData()
 //    }
 //}
+
+
 
 

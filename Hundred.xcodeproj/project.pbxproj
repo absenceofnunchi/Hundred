@@ -35,6 +35,7 @@
 		49C8690524F44D66005D0C4D /* GoalCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C8690424F44D66005D0C4D /* GoalCell.swift */; };
 		49DB512A24EC453B00857634 /* Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DB512924EC453B00857634 /* Style.swift */; };
 		49DB512C24ECAA6500857634 /* ButtonCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DB512B24ECAA6500857634 /* ButtonCreator.swift */; };
+		49DE68A624F71838009C886C /* ChartXAxisFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */; };
 		959BBA5D7FE2D6CC34668FE7 /* Pods_Hundred.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E151965057E79A8338541A10 /* Pods_Hundred.framework */; };
 /* End PBXBuildFile section */
 
@@ -69,6 +70,7 @@
 		49C8690424F44D66005D0C4D /* GoalCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalCell.swift; sourceTree = "<group>"; };
 		49DB512924EC453B00857634 /* Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Style.swift; sourceTree = "<group>"; };
 		49DB512B24ECAA6500857634 /* ButtonCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonCreator.swift; sourceTree = "<group>"; };
+		49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartXAxisFormatter.swift; sourceTree = "<group>"; };
 		A27ACB2AB86EC0276A9D5E1C /* Pods-Hundred.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hundred.debug.xcconfig"; path = "Target Support Files/Pods-Hundred/Pods-Hundred.debug.xcconfig"; sourceTree = "<group>"; };
 		E151965057E79A8338541A10 /* Pods_Hundred.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Hundred.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF20E996A044CC08C66516E8 /* Pods-Hundred.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hundred.release.xcconfig"; path = "Target Support Files/Pods-Hundred/Pods-Hundred.release.xcconfig"; sourceTree = "<group>"; };
@@ -150,13 +152,14 @@
 				497DC78324EA15A800446178 /* NewViewController.swift */,
 				494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */,
 				49795B7524DC864000D27111 /* EntryViewController.swift */,
-				499E8B2E24F0CC1700C829C8 /* EditViewController.swift */,
 				4906B77424F2FEA700417574 /* EditEntryViewController.swift */,
+				499E8B2E24F0CC1700C829C8 /* EditViewController.swift */,
 				494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */,
 				49C8690424F44D66005D0C4D /* GoalCell.swift */,
 				49026F9A24DB4FBF00724369 /* ProgressCell.swift */,
 				49B328FD24E3269F00D9E8D4 /* DataImporter.swift */,
 				49DB512B24ECAA6500857634 /* ButtonCreator.swift */,
+				49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */,
 				4996BD5524D485CB00E301B4 /* Info.plist */,
 				49026F9024DB41EB00724369 /* Extensions-Utilities */,
 				49026F9324DB4E2600724369 /* Supporting */,
@@ -309,6 +312,7 @@
 				49B328FE24E3269F00D9E8D4 /* DataImporter.swift in Sources */,
 				494F0C2C24D7246A00C5450C /* ManagedObjectContext.swift in Sources */,
 				496AA42F24F34A0B00438C6B /* Metric+CoreDataClass.swift in Sources */,
+				49DE68A624F71838009C886C /* ChartXAxisFormatter.swift in Sources */,
 				496AA42E24F34A0B00438C6B /* Progress+CoreDataProperties.swift in Sources */,
 				4996BD4724D485C900E301B4 /* SceneDelegate.swift in Sources */,
 				49DB512A24EC453B00857634 /* Style.swift in Sources */,
