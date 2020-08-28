@@ -570,11 +570,11 @@ class NewViewController: UIViewController {
                 for singleMetricPair in metricDict {
                     let metric = Metric(context: self.context)
                     
-                    let df = DateFormatter()
-                    df.dateFormat = "yyyy/MM/dd HH:mm"
-                    let someDateTime = df.date(from: "2020/08/25 22:31")
-                    metric.date = someDateTime!
-//                    metric.date = Date()
+//                    let df = DateFormatter()
+//                    df.dateFormat = "yyyy/MM/dd HH:mm"
+//                    let someDateTime = df.date(from: "2020/08/24 22:31")
+//                    metric.date = someDateTime!
+                    metric.date = Date()
                     metric.unit = singleMetricPair.key
                     metric.id = NSUUID() as UUID
                     

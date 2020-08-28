@@ -14,7 +14,7 @@ protocol CallBackDelegate {
     func callBack(value: Progress)
 }
 
-class EntryViewController: UIViewController, CallBackDelegate {
+class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate {
     
     @IBOutlet weak var scrollView: UIScrollView!
     var uiImage: UIImage!
@@ -141,33 +141,45 @@ class EntryViewController: UIViewController, CallBackDelegate {
                 stackView.setCustomSpacing(50, after: calendarHeatMap)
                 
                 let lineChartView = LineChartView()
-                let data = loadMetricsData()
-                lineChartView.data = data
+                lineChartView.data = loadMetricsData()
                 lineChartView.rightAxis.enabled = false
                 lineChartView.pinchZoomEnabled = true
+                lineChartView.dragEnabled = true
+                lineChartView.setScaleEnabled(true)
+                lineChartView.drawBordersEnabled = false
+                lineChartView.delegate = self
+
+                let l = lineChartView.legend
+                l.form = .circle
+                l.font = UIFont(name: "HelveticaNeue-Light", size: 11)!
+                l.textColor = .black
+                l.horizontalAlignment = .right
+                l.verticalAlignment = .top
+                l.orientation = .horizontal
+                l.drawInside = false
+                l.xEntrySpace = 7
+                    
                 
                 let yAxis = lineChartView.leftAxis
                 yAxis.labelFont = .boldSystemFont(ofSize: 12)
                 yAxis.setLabelCount(6, force: false)
-                yAxis.labelTextColor = UIColor(red: 0, green: 0, blue: 255/255, alpha: 1.0)
+                yAxis.labelTextColor = .gray
                 yAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
                 yAxis.labelPosition = .outsideChart
                 yAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
                 
                 let xAxis = lineChartView.xAxis
                 xAxis.labelPosition = .bottom
-                xAxis.labelFont = .boldSystemFont(ofSize: 12)
-                xAxis.setLabelCount(6, force: false)
-                xAxis.labelTextColor = UIColor(red: 0, green: 0, blue: 255/255, alpha: 1.0)
+                xAxis.labelFont = .boldSystemFont(ofSize: 10)
+                xAxis.labelTextColor = .gray
                 xAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
                 xAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
+                xAxis.drawLimitLinesBehindDataEnabled = true
+                xAxis.drawAxisLineEnabled = false
+                xAxis.granularityEnabled = true
+                xAxis.granularity = 86400
+//                xAxis.valueFormatter = ChartXAxisFormatter(usingMetrics: metricsArr)
                 xAxis.valueFormatter = ChartXAxisFormatter()
-                
-//                xAxis.granularityEnabled = true
-//                xAxis.granularity = 1.0
-//                xAxis.setLabelCount(1, force: true)
-//                xAxis.avoidFirstLastClippingEnabled = false
-//                xAxis.forceLabelsEnabled = true
                 
                 let chartContainer = UIStackView()
                 chartContainer.axis = .vertical
@@ -247,67 +259,52 @@ class EntryViewController: UIViewController, CallBackDelegate {
         deleteButton.centerYAnchor.constraint(equalTo: buttonPanel.centerYAnchor).isActive = true
     }
     
+    //    From what I understand, the whole idea is to prevent the date formatter to generate unpredictable numbers, causing a single date to be represented into multiple dates, like 1598409060.6000004, 1598409060.600023434, etc.
+    
+    
     var metricDict = [String: [ChartDataEntry]]()
+    var metricsArr: [Metric] = []
     
     func loadMetricsData() -> LineChartData {
         let metricsRequest = Metric.createFetchRequest()
         metricsRequest.predicate = NSPredicate(format: "metricToGoal.title == %@", progress.goal.title)
+        let sort = NSSortDescriptor(key: "date", ascending: true)
+        metricsRequest.sortDescriptors = [sort]
         if let fetchedMetrics = try? self.context.fetch(metricsRequest) {
             if fetchedMetrics.count > 0 {
-                for fetchedMetric in fetchedMetrics {
+                metricsArr = fetchedMetrics
+                for (index, fetchedMetric) in fetchedMetrics.enumerated() {
                     let date = fetchedMetric.date.timeIntervalSince1970
-//                    let date = 1598493067.140078
-                    print("date: \(date)")
+                    print("before: \(date)")
+                    
                     if var yValues = metricDict[fetchedMetric.unit] {
                         yValues.append(ChartDataEntry(x: date, y: Double(truncating: fetchedMetric.value)))
+//                        yValues.append(ChartDataEntry(x: Double(index), y: Double(truncating: fetchedMetric.value)))
                         metricDict.updateValue(yValues, forKey: fetchedMetric.unit)
                     } else {
                         metricDict.updateValue([ChartDataEntry(x: date, y: Double(truncating: fetchedMetric.value))], forKey: fetchedMetric.unit)
+//                        metricDict.updateValue([ChartDataEntry(x: Double(index), y: Double(truncating: fetchedMetric.value))], forKey: fetchedMetric.unit)
                     }
                 }
                 
                 let dataSet = metricDict.map { (set) -> LineChartDataSet in
-                    let set = LineChartDataSet(entries: set.value, label: set.key)
-                    set.drawIconsEnabled = false
-                    set.lineDashLengths = [5, 2.5]
-                    set.highlightLineDashLengths = [5, 2.5]
+                    let lineChartDataSet = LineChartDataSet(entries: set.value, label: set.key)
+                    lineChartDataSet.drawIconsEnabled = false
+                    lineChartDataSet.lineDashLengths = [5, 2.5]
+                    lineChartDataSet.highlightLineDashLengths = [5, 2.5]
                     let randomColour = UIColor(red: CGFloat.random(in: 50..<255)/255, green: CGFloat.random(in: 0..<220)/255, blue: CGFloat.random(in: 0..<220)/255, alpha: 0.8)
-                    set.setColor(randomColour)
-                    set.setCircleColor(randomColour)
-                    set.lineWidth = 1
-                    set.circleRadius = 3
-                    set.drawCircleHoleEnabled = false
-                    set.valueFont = .systemFont(ofSize: 9)
-                    set.formLineDashLengths = [5, 2.5]
-                    set.formLineWidth = 1
-                    set.formSize = 15
-                    return set
+                    lineChartDataSet.setColor(randomColour)
+                    lineChartDataSet.setCircleColor(randomColour)
+                    lineChartDataSet.lineWidth = 1
+                    lineChartDataSet.circleRadius = 3
+                    lineChartDataSet.drawCircleHoleEnabled = false
+                    lineChartDataSet.valueFont = .systemFont(ofSize: 9)
+                    lineChartDataSet.formLineDashLengths = [5, 2.5]
+                    lineChartDataSet.formLineWidth = 1
+                    lineChartDataSet.formSize = 15
+                    return lineChartDataSet
                 }
                 
-//                let yAxis = [
-//                    ChartDataEntry(x: 10, y: 10),
-//                    ChartDataEntry(x: 20, y: 20),
-//                    ChartDataEntry(x: 30, y: 30),
-//                    ChartDataEntry(x: 40, y: 40),
-//                    ChartDataEntry(x: 50, y: 50)
-//                ]
-//
-//                let set = LineChartDataSet(entries: yAxis, label: "Yellow")
-//                set.drawIconsEnabled = false
-//                set.lineDashLengths = [5, 2.5]
-//                set.highlightLineDashLengths = [5, 2.5]
-//                let randomColour = UIColor(red: CGFloat.random(in: 50..<255)/255, green: CGFloat.random(in: 0..<220)/255, blue: CGFloat.random(in: 0..<220)/255, alpha: 0.8)
-//                set.setColor(randomColour)
-//                set.setCircleColor(randomColour)
-//                set.lineWidth = 1
-//                set.circleRadius = 3
-//                set.drawCircleHoleEnabled = false
-//                set.valueFont = .systemFont(ofSize: 9)
-//                set.formLineDashLengths = [5, 2.5]
-//                set.formLineWidth = 1
-//                set.formSize = 15
-//
-//                let data = LineChartData(dataSet: set)
                 let data = LineChartData(dataSets: dataSet)
                 data.setValueTextColor(.white)
                 data.setValueFont(.systemFont(ofSize: 9))
@@ -371,6 +368,28 @@ extension EntryViewController: CalendarHeatmapDelegate {
 //    }
 //}
 
-
-
+//                let yAxis = [
+//                    ChartDataEntry(x: 10, y: 10),
+//                    ChartDataEntry(x: 20, y: 20),
+//                    ChartDataEntry(x: 30, y: 30),
+//                    ChartDataEntry(x: 40, y: 40),
+//                    ChartDataEntry(x: 50, y: 50)
+//                ]
+//
+//                let set = LineChartDataSet(entries: yAxis, label: "Yellow")
+//                set.drawIconsEnabled = false
+//                set.lineDashLengths = [5, 2.5]
+//                set.highlightLineDashLengths = [5, 2.5]
+//                let randomColour = UIColor(red: CGFloat.random(in: 50..<255)/255, green: CGFloat.random(in: 0..<220)/255, blue: CGFloat.random(in: 0..<220)/255, alpha: 0.8)
+//                set.setColor(randomColour)
+//                set.setCircleColor(randomColour)
+//                set.lineWidth = 1
+//                set.circleRadius = 3
+//                set.drawCircleHoleEnabled = false
+//                set.valueFont = .systemFont(ofSize: 9)
+//                set.formLineDashLengths = [5, 2.5]
+//                set.formLineWidth = 1
+//                set.formSize = 15
+//
+//                let data = LineChartData(dataSet: set)
 
