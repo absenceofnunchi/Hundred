@@ -60,12 +60,12 @@ struct ButtonCreator {
 // 8. substract from plist when deleted - done
 // 9. 100 days count - done
 // 10. share
-// 11. chart
+// 11. chart - done
 // 12. show dates everywhere, esp. goal created date - done
 // 13. notification
-// 14. disable a done button
+// 14. disable a done button  - done
 // 15. fix detail custom cell text alignment
-// 16. map
+// 16. map - needs google places
 // 17. peek
 // 18. only show select plist per entry - done
 

@@ -96,12 +96,9 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
         }
     }()
     
-    lazy var buttonPanel: UIView = {
-        let bView = UIView()
-        return bView
-    }()
+    var buttonPanel = UIView()
     
-    lazy var editButton: UIButton = {
+    private lazy var editButton: UIButton = {
         let gButton = UIButton()
         let largeConfig = UIImage.SymbolConfiguration(pointSize: 40, weight: .medium, scale: .medium)
         let uiImage = UIImage(systemName: "pencil.circle", withConfiguration: largeConfig)
@@ -113,7 +110,7 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
         return gButton
     }()
     
-    lazy var deleteButton: UIButton = {
+    private lazy var deleteButton: UIButton = {
         let gButton = UIButton()
         let largeConfig = UIImage.SymbolConfiguration(pointSize: 40, weight: .medium, scale: .medium)
         let uiImage = UIImage(systemName: "trash.circle", withConfiguration: largeConfig)
@@ -259,9 +256,6 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
         deleteButton.centerYAnchor.constraint(equalTo: buttonPanel.centerYAnchor).isActive = true
     }
     
-    //    From what I understand, the whole idea is to prevent the date formatter to generate unpredictable numbers, causing a single date to be represented into multiple dates, like 1598409060.6000004, 1598409060.600023434, etc.
-    
-    
     var metricDict = [String: [ChartDataEntry]]()
     var metricsArr: [Metric] = []
     
@@ -273,17 +267,13 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
         if let fetchedMetrics = try? self.context.fetch(metricsRequest) {
             if fetchedMetrics.count > 0 {
                 metricsArr = fetchedMetrics
-                for (index, fetchedMetric) in fetchedMetrics.enumerated() {
+                for fetchedMetric in fetchedMetrics {
                     let date = fetchedMetric.date.timeIntervalSince1970
-                    print("before: \(date)")
-                    
                     if var yValues = metricDict[fetchedMetric.unit] {
                         yValues.append(ChartDataEntry(x: date, y: Double(truncating: fetchedMetric.value)))
-//                        yValues.append(ChartDataEntry(x: Double(index), y: Double(truncating: fetchedMetric.value)))
                         metricDict.updateValue(yValues, forKey: fetchedMetric.unit)
                     } else {
                         metricDict.updateValue([ChartDataEntry(x: date, y: Double(truncating: fetchedMetric.value))], forKey: fetchedMetric.unit)
-//                        metricDict.updateValue([ChartDataEntry(x: Double(index), y: Double(truncating: fetchedMetric.value))], forKey: fetchedMetric.unit)
                     }
                 }
                 

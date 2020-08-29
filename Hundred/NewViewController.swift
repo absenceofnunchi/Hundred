@@ -40,20 +40,35 @@ class NewViewController: UIViewController {
         textField.font = UIFont.preferredFont(forTextStyle: .body)
         textField.borderStyle = .roundedRect
         let borderColor = UIColor.gray
-        textField.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
+        textField.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
+        textField.layer.masksToBounds = false
+        textField.layer.cornerRadius = 7.0;
+        textField.layer.backgroundColor = UIColor.white.cgColor
+//        textField.layer.borderColor = UIColor.clear.cgColor
+        textField.layer.shadowColor = UIColor.black.cgColor
+        textField.layer.shadowOffset = CGSize(width: 0, height: 0)
+        textField.layer.shadowOpacity = 0.2
+        textField.layer.shadowRadius = 4.0
+        textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         return textField
     }()
-    
+        
     var goalLabel: UILabel = {
         let gLabel = UILabel()
-        gLabel.textAlignment = .center
+        gLabel.textAlignment = .left
         gLabel.font = UIFont.preferredFont(forTextStyle: .body)
-        let borderColor = UIColor.gray
-        gLabel.layer.borderColor = borderColor.withAlphaComponent(0.4).cgColor
-        gLabel.layer.borderWidth = 1
-        gLabel.layer.masksToBounds = true
-        gLabel.layer.cornerRadius = 5
         gLabel.alpha = 0
+        let borderColor = UIColor.gray
+        gLabel.layer.borderColor = borderColor.withAlphaComponent(0.7).cgColor
+        gLabel.layer.borderWidth = 1
+        gLabel.layer.masksToBounds = false
+        gLabel.layer.cornerRadius = 7.0;
+        gLabel.layer.backgroundColor = UIColor.white.cgColor
+        gLabel.layer.borderColor = UIColor.clear.cgColor
+        gLabel.layer.shadowColor = UIColor.black.cgColor
+        gLabel.layer.shadowOffset = CGSize(width: 0, height: 0)
+        gLabel.layer.shadowOpacity = 0.2
+        gLabel.layer.shadowRadius = 4.0
         return gLabel
     }()
     
@@ -62,7 +77,7 @@ class NewViewController: UIViewController {
         gButton.setTitle("Get existing goals", for: .normal)
         gButton.tag = 5
         gButton.backgroundColor = UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0)
-        gButton.layer.cornerRadius = 10
+        gButton.layer.cornerRadius = 7
         gButton.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
         return gButton
     }()
@@ -118,6 +133,9 @@ class NewViewController: UIViewController {
     var existingGoal: Goal? {
         didSet {
             if existingGoal == nil {
+                doneButton.isEnabled = false
+                doneButton.backgroundColor = .systemGray3
+                
                 let largeConfig = UIImage.SymbolConfiguration(pointSize: 60, weight: .medium, scale: .large)
                 let uiImage = UIImage(systemName: "camera.circle", withConfiguration: largeConfig)
                 self.cameraButton.setImage(uiImage, for: .normal)
@@ -186,6 +204,9 @@ class NewViewController: UIViewController {
 //                    self.goalButton.alpha = 1
 //                })
             } else {
+                doneButton.isEnabled = true
+                doneButton.backgroundColor = UIColor(red: 254/255, green: 211/255, blue: 48/255, alpha: 1.0)
+                
                 let largeConfig = UIImage.SymbolConfiguration(pointSize: 60, weight: .medium, scale: .large)
                 let uiImage = UIImage(systemName: "camera.circle", withConfiguration: largeConfig)
                 self.cameraButton.setImage(uiImage, for: .normal)
@@ -347,12 +368,13 @@ class NewViewController: UIViewController {
         dButton.setTitle("Done", for: .normal)
         dButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .body)
         dButton.layer.cornerRadius = 0
-        dButton.backgroundColor = .systemYellow
         if let tabBarHeight = tabBarController?.tabBar.frame.size.height {
             dButton.frame = CGRect(x: 0, y: view.frame.size.height - CGFloat(tabBarHeight + 50), width: view.frame.size.width, height: 50)
         }
         dButton.tag = 4
+        dButton.backgroundColor = .systemGray3
         dButton.addTarget(self, action: #selector(buttonPressed) , for: .touchUpInside)
+        dButton.isEnabled = false
         return dButton
     }()
     
@@ -365,7 +387,7 @@ class NewViewController: UIViewController {
         plusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 2)
         minusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 3)
         
-        configureStackView()
+        configureUI()
         setConstraints()
         view.addSubview(doneButton)
         
@@ -376,7 +398,7 @@ class NewViewController: UIViewController {
        self.navigationController?.navigationBar.setValue(true, forKey: "hidesShadow")
     }
     
-    func configureStackView() {
+    func configureUI() {
         stackView.addArrangedSubview(cameraButton)
         stackView.setCustomSpacing(40, after: cameraButton)
         
@@ -484,6 +506,15 @@ class NewViewController: UIViewController {
             let ac = UIAlertController(title: "Pick an image", message: nil, preferredStyle: .actionSheet)
             ac.addAction(UIAlertAction(title: "Photos", style: .default, handler: openPhoto))
             ac.addAction(UIAlertAction(title: "Camera", style: .default, handler: openCamera))
+            if imagePathString != nil {
+                ac.addAction(UIAlertAction(title: "No Image", style: .default, handler: { action in
+                    let largeConfig = UIImage.SymbolConfiguration(pointSize: 60, weight: .medium, scale: .large)
+                    let uiImage = UIImage(systemName: "camera.circle", withConfiguration: largeConfig)
+                    self.cameraButton.tintColor = UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0)
+                    self.cameraButton.setImage(uiImage, for: .normal)
+                }))
+                self.imagePathString = nil
+            }
             present(ac, animated: true, completion: {() -> Void in
                 let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
                 ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
@@ -624,7 +655,7 @@ class NewViewController: UIViewController {
                             progress.metric.insert(singleEntry)
                             goal.goalToMetric.insert(singleEntry)
                         }
-                        
+
                         goal.progress.insert(progress)
                          
                         // Core Spotlight indexing
@@ -773,6 +804,16 @@ class NewViewController: UIViewController {
             doneButton.frame = CGRect(x: 0, y: view.frame.size.height - keyboardViewEndFrame.height - 50, width: view.frame.size.width, height: 50)
         }
         scrollView.scrollIndicatorInsets = scrollView.contentInset
+    }
+    
+    @objc func textFieldDidChange(textField: UITextField) {
+        if let text = textField.text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            doneButton.isEnabled = true
+            doneButton.backgroundColor = UIColor(red: 254/255, green: 211/255, blue: 48/255, alpha: 1.0)
+        } else {
+            doneButton.isEnabled = false
+            doneButton.backgroundColor = .systemGray3
+        }
     }
     
     func openPhoto(action: UIAlertAction) {

@@ -10,7 +10,7 @@
 
 import UIKit
 
-class DetailTableViewController: UITableViewController {
+class DetailTableViewController: UITableViewController, UIViewControllerPreviewingDelegate {
     
     var fetchedResult: Progress!
     var progresses: [Progress]!
@@ -28,9 +28,10 @@ class DetailTableViewController: UITableViewController {
         super.viewDidLoad()
         
         title = goal.title
-        configureTableView()
-        
         tabBarController?.tabBar.isHidden = true
+
+        configureTableView()
+        registerForPreviewing(with: self, sourceView: tableView)
         
     }
     
@@ -43,6 +44,34 @@ class DetailTableViewController: UITableViewController {
     func configureTableView() {
         tableView.register(ProgressCell.self, forCellReuseIdentifier: Cells.progressCell)
         tableView.rowHeight = 85
+    }
+    
+    // MARK: - Peek and pop
+    
+    func entryViewController(progress: Progress, metrics: [String]?) -> EntryViewController {
+        guard let vc = storyboard?.instantiateViewController(withIdentifier: "Entry") as? EntryViewController else {
+            preconditionFailure("Expected a EntryViewController")
+        }
+        
+        vc.progress = progress
+        vc.metrics = metrics
+        return vc
+    }
+
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
+        // First, get the index path and view for the previewed cell.
+        guard let indexPath = tableView.indexPathForRow(at: location),
+            let cell = tableView.cellForRow(at: indexPath)
+            else { return nil }
+
+        // Enable blurring of other UI elements, and a zoom in animation while peeking.
+        previewingContext.sourceRect = cell.frame
+
+        return entryViewController(progress: progresses[indexPath.row], metrics: goal.metrics)
+    }
+    
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
+        navigationController?.pushViewController(viewControllerToCommit, animated: true)
     }
     
     // MARK: - Table view data source
