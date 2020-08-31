@@ -558,7 +558,7 @@ class NewViewController: UIViewController {
                     
 //                    let df = DateFormatter()
 //                    df.dateFormat = "yyyy/MM/dd HH:mm"
-//                    let someDateTime = df.date(from: "2020/08/24 22:31")
+//                    let someDateTime = df.date(from: "2020/08/26 22:31")
 //                    metric.date = someDateTime!
                     metric.date = Date()
                     metric.unit = singleMetricPair.key
@@ -694,8 +694,10 @@ class NewViewController: UIViewController {
                     subView.removeFromSuperview()
                 }
             }
+            
+            view.endEditing(true)
             self.showSpinner(container: self.scrollView)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 self.tabBarController?.selectedIndex = 1
                 self.removeSpinner()
             }

@@ -135,8 +135,6 @@ class DetailTableViewController: UITableViewController {
     }
 }
 
-
-
 //extension DetailTableViewController: UIViewControllerPreviewingDelegate {
 //    func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
 //        if let indexPath = tableView.indexPathForRow(at: location) {
@@ -147,13 +145,11 @@ class DetailTableViewController: UITableViewController {
 //                return vc
 //            }
 //        }
-//        
+//
 //        return nil
 //    }
-//    
+//
 //    func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
 //        navigationController?.pushViewController(viewControllerToCommit, animated: true)
 //    }
 //}
-
-

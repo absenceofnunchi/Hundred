@@ -16,6 +16,8 @@
 		494F0C2C24D7246A00C5450C /* ManagedObjectContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */; };
 		49795B7624DC864000D27111 /* EntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49795B7524DC864000D27111 /* EntryViewController.swift */; };
 		497DC78424EA15A800446178 /* NewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 497DC78324EA15A800446178 /* NewViewController.swift */; };
+		498AC32724FD520D003FDBF2 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498AC32624FD520D003FDBF2 /* BaseViewController.swift */; };
+		498AC32924FD524C003FDBF2 /* PieChartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498AC32824FD524C003FDBF2 /* PieChartViewController.swift */; };
 		4996BD4524D485C900E301B4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD4424D485C900E301B4 /* AppDelegate.swift */; };
 		4996BD4724D485C900E301B4 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD4624D485C900E301B4 /* SceneDelegate.swift */; };
 		4996BD4924D485C900E301B4 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD4824D485C900E301B4 /* ViewController.swift */; };
@@ -53,6 +55,8 @@
 		494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedObjectContext.swift; sourceTree = "<group>"; };
 		49795B7524DC864000D27111 /* EntryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryViewController.swift; sourceTree = "<group>"; };
 		497DC78324EA15A800446178 /* NewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewViewController.swift; sourceTree = "<group>"; };
+		498AC32624FD520D003FDBF2 /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
+		498AC32824FD524C003FDBF2 /* PieChartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PieChartViewController.swift; sourceTree = "<group>"; };
 		4996BD4124D485C900E301B4 /* Hundred.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hundred.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4996BD4424D485C900E301B4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4996BD4624D485C900E301B4 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -154,6 +158,7 @@
 				49E9631724FC9DBE0041239B /* Metric+CoreDataClass.swift */,
 				49E9631824FC9DBE0041239B /* Metric+CoreDataProperties.swift */,
 				4996BD4824D485C900E301B4 /* ViewController.swift */,
+				498AC32824FD524C003FDBF2 /* PieChartViewController.swift */,
 				49F1B1E924FB21B8006D6887 /* CalendarDetailTableViewController.swift */,
 				4996BD5D24D4910600E301B4 /* AddGoalViewController.swift */,
 				4996BD5B24D48B0700E301B4 /* GoalsTableViewController.swift */,
@@ -164,6 +169,7 @@
 				491165FE24FAE4A000B2963A /* Test.swift */,
 				4906B77424F2FEA700417574 /* EditEntryViewController.swift */,
 				499E8B2E24F0CC1700C829C8 /* EditViewController.swift */,
+				498AC32624FD520D003FDBF2 /* BaseViewController.swift */,
 				49E9631124FC8FA10041239B /* SpinnerViewController.swift */,
 				494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */,
 				49C8690424F44D66005D0C4D /* GoalCell.swift */,
@@ -307,7 +313,9 @@
 				49795B7624DC864000D27111 /* EntryViewController.swift in Sources */,
 				49E9631224FC8FA10041239B /* SpinnerViewController.swift in Sources */,
 				4996BD5C24D48B0700E301B4 /* GoalsTableViewController.swift in Sources */,
+				498AC32724FD520D003FDBF2 /* BaseViewController.swift in Sources */,
 				4906B77524F2FEA700417574 /* EditEntryViewController.swift in Sources */,
+				498AC32924FD524C003FDBF2 /* PieChartViewController.swift in Sources */,
 				499E8B2F24F0CC1700C829C8 /* EditViewController.swift in Sources */,
 				49F1B1EC24FB34BA006D6887 /* CalendarCell.swift in Sources */,
 				49E9631D24FC9DBE0041239B /* Metric+CoreDataClass.swift in Sources */,

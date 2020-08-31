@@ -7,13 +7,19 @@
 //
 
 import UIKit
+import Charts
 
 extension UIViewController {
     
-    func addCard<T: UIView>(text: String, subItem: T, stackView: UIStackView, containerHeight: CGFloat? = 20, bottomSpacing: CGFloat? = 60) {
+    func addCard<T: UIView>(text: String, subItem: T, stackView: UIStackView, containerHeight: CGFloat? = 20, bottomSpacing: CGFloat? = 60, insert: Int? = nil) {
         let container = UIView()
         customShadowBorder(for: container)
-        stackView.addArrangedSubview(container)
+        if let insert = insert {
+            stackView.insertArrangedSubview(container, at: insert)
+        } else {
+            stackView.addArrangedSubview(container)
+        }
+        
         if let height = containerHeight {
             container.translatesAutoresizingMaskIntoConstraints = false
             container.heightAnchor.constraint(greaterThanOrEqualToConstant: height).isActive = true
@@ -200,5 +206,48 @@ extension UITableView {
             }, completion: nil)
             delayCounter += 1
         }
+    }
+}
+
+extension UIFont {
+
+    static var title1: UIFont {
+        return UIFont.preferredFont(forTextStyle: .title1)
+    }
+    
+    static var body: UIFont {
+        return UIFont.preferredFont(forTextStyle: .body)
+    }
+    
+    static var subheadline: UIFont {
+        return UIFont.preferredFont(forTextStyle: .subheadline)
+    }
+    
+    static var caption: UIFont {
+        return UIFont.preferredFont(forTextStyle: .caption2)
+    }
+
+    func with(weight: UIFont.Weight) -> UIFont {
+        return UIFont.systemFont(ofSize: pointSize, weight: weight)
+    }
+
+}
+
+extension NSUIColor {
+    
+    convenience init(red: Int, green: Int, blue: Int) {
+        assert(red >= 0 && red <= 255, "Invalid red cmoponent")
+        assert(green >= 0 && green <= 255, "Invalid green cmoponent")
+        assert(blue >= 0 && blue <= 255, "Invalid blue cmoponent")
+        
+        self.init(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: 1.0)
+    }
+    
+    convenience init(hex: Int) {
+        self.init(
+            red: (hex >> 16) & 0xFF,
+            green: (hex >> 8) & 0xFF,
+            blue: hex & 0xFF
+        )
     }
 }
