@@ -8,9 +8,23 @@
 
 import UIKit
 import CalendarHeatmap
+import CoreData
 
 class ViewController: UIViewController {
+    @IBOutlet weak var scrollView: UIScrollView!
     var data: [String: UIColor]!
+    
+    lazy var stackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.distribution = .fill
+        stackView.alignment = .fill
+        stackView.spacing = 20
+        stackView.isLayoutMarginsRelativeArrangement = true
+        stackView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 15, leading: 30, bottom:  50, trailing: 30)
+        scrollView.addSubview(stackView)
+        return stackView
+    }()
     
     lazy var calendarHeatMap: CalendarHeatmap = {
         var config = CalendarHeatmapConfig()
@@ -44,29 +58,76 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        view.addSubview(calendarHeatMap)
-        calendarHeatMap.translatesAutoresizingMaskIntoConstraints = false
-
-        NSLayoutConstraint.activate([
-            calendarHeatMap.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 6),
-            calendarHeatMap.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 6),
-            calendarHeatMap.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20)
-        ])
-
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(reloadHeatmap))
-        
+                
         var dataImporter = DataImporter(goalTitle: nil)
         data = dataImporter.data
+        
+        configureUI()
+        setConstraints()
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         calendarHeatMap.reload()
-    }
+        
+        calculateStreak()
 
-    @objc private func reloadHeatmap() {
-        calendarHeatMap.reload()
+    }
+    
+    func configureUI() {
+        navigationController?.title = "Home"
+        navigationController?.navigationBar.isHidden = true
+        
+        addCard(text: "Calendar", subItem: calendarHeatMap, stackView: stackView, containerHeight: 270)
+    }
+    
+    func setConstraints() {
+        stackView.pin(to: scrollView)
+    }
+    
+    func calculateStreak() {
+        struct FakeGoal {
+            var title: String!
+            var longestStreak: Int16
+            var streak: Int16
+        }
+        
+        let goal1 = FakeGoal(title: "Bike", longestStreak: 100, streak: 3)
+        let goal2 = FakeGoal(title: "Boat", longestStreak: 23, streak: 23)
+        let goal3 = FakeGoal(title: "Car", longestStreak: 34, streak: 2)
+        let goal4 = FakeGoal(title: "Running", longestStreak: 56, streak: 45)
+        let goal5 = FakeGoal(title: "Drum", longestStreak: 78, streak: 6)
+        
+        let fakeGoals = [goal1, goal2, goal3, goal4, goal5]
+        
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Goal")
+        do {
+            let result = try self.context.fetch(fetchRequest)
+            let goals = result as! [Goal]
+            
+            for goal in fakeGoals {
+                let streakContainer = UIView()
+                let currentStreak = UILabel()
+                currentStreak.text = String(goal.streak)
+                let longestStreak = UILabel()
+                longestStreak.text = String(goal.longestStreak)
+                streakContainer.addSubview(currentStreak)
+                streakContainer.addSubview(longestStreak)
+                
+                
+                currentStreak.translatesAutoresizingMaskIntoConstraints = false
+                currentStreak.widthAnchor.constraint(equalTo: streakContainer.widthAnchor, multiplier: 0.5).isActive = true
+                currentStreak.leadingAnchor.constraint(equalTo: streakContainer.leadingAnchor).isActive = true
+                longestStreak.translatesAutoresizingMaskIntoConstraints = false
+                longestStreak.widthAnchor.constraint(equalTo: streakContainer.widthAnchor, multiplier: 0.5).isActive = true
+                longestStreak.leadingAnchor.constraint(equalTo: currentStreak.trailingAnchor).isActive = true
+                
+                addCard(text: goal.title, subItem: streakContainer, stackView: stackView, containerHeight: 130, bottomSpacing: 40)
+            }
+        } catch {
+            print("error")
+        }
     }
 }
 
@@ -75,7 +136,11 @@ extension ViewController: CalendarHeatmapDelegate {
         guard let year = dateComponents.year,
             let month = dateComponents.month,
             let day = dateComponents.day else { return }
-        print(year, month, day)
+ 
+        if let vc = storyboard?.instantiateViewController(withIdentifier: "CalendarDetail") as? CalendarDetailTableViewController {
+            vc.date = [year, month, day]
+            present(vc, animated: true)
+        }
     }
     
     func colorFor(dateComponents: DateComponents) -> UIColor {
@@ -91,12 +156,3 @@ extension ViewController: CalendarHeatmapDelegate {
     }
 }
 
-extension Date {
-    init(_ year:Int, _ month: Int, _ day: Int) {
-        var dateComponents = DateComponents()
-        dateComponents.year = year
-        dateComponents.month = month
-        dateComponents.day = day
-        self.init(timeInterval:0, since: Calendar.current.date(from: dateComponents)!)
-    }
-}

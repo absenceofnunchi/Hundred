@@ -12,7 +12,6 @@ import MobileCoreServices
 
 class NewViewController: UIViewController {
     var imagePathString: String?
-    var test: String!
 
     @IBOutlet weak var scrollView: UIScrollView!
     
@@ -34,41 +33,21 @@ class NewViewController: UIViewController {
         return createButton(title: nil, image: "camera.circle", cornerRadius: 0, color:  UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 60, tag: 1)
     }()
     
-    var goalTextField: UITextField = {
-        let textField = UITextField()
+    lazy var goalTextField: CustomTextField = {
+        let textField = CustomTextField()
         textField.placeholder = "Goal Title"
         textField.font = UIFont.preferredFont(forTextStyle: .body)
-        textField.borderStyle = .roundedRect
-        let borderColor = UIColor.gray
-        textField.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
-        textField.layer.masksToBounds = false
-        textField.layer.cornerRadius = 7.0;
-        textField.layer.backgroundColor = UIColor.white.cgColor
-//        textField.layer.borderColor = UIColor.clear.cgColor
-        textField.layer.shadowColor = UIColor.black.cgColor
-        textField.layer.shadowOffset = CGSize(width: 0, height: 0)
-        textField.layer.shadowOpacity = 0.2
-        textField.layer.shadowRadius = 4.0
+        customShadowBorder(for: textField)
         textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         return textField
     }()
         
-    var goalLabel: UILabel = {
-        let gLabel = UILabel()
+    lazy var goalLabel: CustomLabel = {
+        let gLabel = CustomLabel()
         gLabel.textAlignment = .left
         gLabel.font = UIFont.preferredFont(forTextStyle: .body)
         gLabel.alpha = 0
-        let borderColor = UIColor.gray
-        gLabel.layer.borderColor = borderColor.withAlphaComponent(0.7).cgColor
-        gLabel.layer.borderWidth = 1
-        gLabel.layer.masksToBounds = false
-        gLabel.layer.cornerRadius = 7.0;
-        gLabel.layer.backgroundColor = UIColor.white.cgColor
-        gLabel.layer.borderColor = UIColor.clear.cgColor
-        gLabel.layer.shadowColor = UIColor.black.cgColor
-        gLabel.layer.shadowOffset = CGSize(width: 0, height: 0)
-        gLabel.layer.shadowOpacity = 0.2
-        gLabel.layer.shadowRadius = 4.0
+        customShadowBorder(for: gLabel)
         return gLabel
     }()
     
@@ -77,7 +56,16 @@ class NewViewController: UIViewController {
         gButton.setTitle("Get existing goals", for: .normal)
         gButton.tag = 5
         gButton.backgroundColor = UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0)
-        gButton.layer.cornerRadius = 7
+        gButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .body)
+        let borderColor = UIColor.gray
+        gButton.layer.borderWidth = 1
+        gButton.layer.masksToBounds = false
+        gButton.layer.cornerRadius = 7.0;
+        gButton.layer.borderColor = UIColor.clear.cgColor
+        gButton.layer.shadowColor = UIColor.black.cgColor
+        gButton.layer.shadowOffset = CGSize(width: 0, height: 0)
+        gButton.layer.shadowOpacity = 0.2
+        gButton.layer.shadowRadius = 4.0
         gButton.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
         return gButton
     }()
@@ -152,7 +140,7 @@ class NewViewController: UIViewController {
                 }
 
                 for singleSubview in metricStackView.arrangedSubviews {
-                    UIView.animate(withDuration: 1.5, animations: {
+                    UIView.animate(withDuration: 0.5, delay: 0.1, options: [.curveEaseOut], animations: {
                         singleSubview.alpha = 0
                     })
                     metricStackView.removeArrangedSubview(singleSubview)
@@ -163,7 +151,7 @@ class NewViewController: UIViewController {
                 metricStackView.removeFromSuperview()
                 
                 self.stackView.insertArrangedSubview(self.goalTextField, at: 3)
-                UIView.animate(withDuration: 0.5, animations: {
+                UIView.animate(withDuration: 0.5, delay: 0.1, options: [.curveEaseOut], animations: {
                     self.goalTextField.alpha = 1
                     self.plusButton.alpha = 1
                     self.minusButton.alpha = 1
@@ -171,13 +159,13 @@ class NewViewController: UIViewController {
                 
                 goalButton.alpha = 0
                 stackView.insertArrangedSubview(goalButton, at: 4)
-                stackView.setCustomSpacing(60, after: goalButton)
-                UIView.animate(withDuration: 1, animations: {
+                stackView.setCustomSpacing(70, after: goalButton)
+                UIView.animate(withDuration: 0.5, delay: 0.1, options: [.curveEaseOut], animations: {
                     self.goalButton.alpha = 1
                 })
                 
                 self.stackView.insertArrangedSubview(self.goalDescContainer, at: 5)
-                self.stackView.setCustomSpacing(60, after: self.goalDescContainer)
+                self.stackView.setCustomSpacing(70, after: self.goalDescContainer)
                 self.goalDescContainer.alpha = 1
                 
                 self.commentTextView.text = "Provide a comment about your first progress"
@@ -187,22 +175,8 @@ class NewViewController: UIViewController {
                 metricPanel.addSubview(minusButton)
                 stackView.addArrangedSubview(metricPanel)
                 stackView.addArrangedSubview(metricStackView)
-                stackView.setCustomSpacing(60, after: metricStackView)
+                stackView.setCustomSpacing(70, after: metricStackView)
                 setConstraints()
-                
-
-//                if stackView.contains(editButtonContainer) {
-//                    stackView.removeArrangedSubview(editButtonContainer)
-//                    editButtonContainer.removeFromSuperview()
-//                }
-//                stackView.insertArrangedSubview(goalButton, at: 4)
-//                stackView.setCustomSpacing(60, after: goalButton)
-//                goalButton.alpha = 0
-//                goalButton.setTitle("Get existing goals", for: .normal)
-//                goalButton.tag = 5
-//                UIView.animate(withDuration: 1, animations: {
-//                    self.goalButton.alpha = 1
-//                })
             } else {
                 doneButton.isEnabled = true
                 doneButton.backgroundColor = UIColor(red: 254/255, green: 211/255, blue: 48/255, alpha: 1.0)
@@ -218,13 +192,13 @@ class NewViewController: UIViewController {
                 }
                 editButtonContainer.alpha = 0
                 stackView.insertArrangedSubview(editButtonContainer, at: 4)
-                stackView.setCustomSpacing(60, after: editButtonContainer)
-                UIView.animate(withDuration: 1, animations: {
+                stackView.setCustomSpacing(70, after: editButtonContainer)
+                UIView.animate(withDuration: 0.5, delay: 0.1, options: [.curveEaseOut], animations: {
                     self.editButtonContainer.alpha = 1
                 })
                 
                 // remove the existing fields for a new goal
-                UIView.animate(withDuration: 1.5, animations: {
+                UIView.animate(withDuration: 0.5, delay: 0.1, options: [.curveEaseOut], animations: {
                     self.goalTextField.alpha = 0
                     self.goalDescContainer.alpha = 0
                     self.plusButton.alpha = 0
@@ -242,7 +216,7 @@ class NewViewController: UIViewController {
                 
                 // add the fields relevant to the existing goal
                 stackView.insertArrangedSubview(goalLabel, at: 3)
-                UIView.animate(withDuration: 1.5, animations: {
+                UIView.animate(withDuration: 0.5, delay: 0.1, options: [.curveEaseOut], animations: {
                     self.goalLabel.text = self.existingGoal?.title
                     self.goalLabel.alpha = 1
                 })
@@ -264,19 +238,14 @@ class NewViewController: UIViewController {
                         let metricLabel = UILabel()
                         metricLabel.text = metric
                         metricLabel.textAlignment = .center
-                        let borderColor = UIColor.gray
-                        metricLabel.layer.borderColor = borderColor.withAlphaComponent(0.4).cgColor
-                        metricLabel.layer.borderWidth = 1
-                        metricLabel.layer.masksToBounds = true
-                        metricLabel.layer.cornerRadius = 5
+                        customShadowBorder(for: metricLabel)
                         metricView.addSubview(metricLabel)
                         
                         let metricTextField = UITextField()
                         metricTextField.keyboardType = UIKeyboardType.decimalPad
                         metricTextField.placeholder = "Metrics"
                         metricTextField.textAlignment = .center
-                        metricTextField.borderStyle = .roundedRect
-                        metricTextField.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
+                        customShadowBorder(for: metricTextField)
                         metricView.addSubview(metricTextField)
                         
                         metricStackView.addArrangedSubview(metricView)
@@ -296,7 +265,7 @@ class NewViewController: UIViewController {
                         metricView.translatesAutoresizingMaskIntoConstraints = false
                         metricView.heightAnchor.constraint(equalToConstant: 50).isActive = true
                         
-                        UIView.animate(withDuration: 1.5, animations: {
+                        UIView.animate(withDuration: 0.5, delay: 0.1, options: [.curveEaseOut], animations: {
                             metricView.alpha = 1
                         })
                     }
@@ -321,18 +290,14 @@ class NewViewController: UIViewController {
         textView.text = "Provide a description about your goal"
         textView.font = UIFont.preferredFont(forTextStyle: .body)
         textView.textColor = UIColor.lightGray
-        textView.layer.cornerRadius = 4
-        textView.layer.borderWidth = 1
-        textView.layer.masksToBounds = true
-        
-        let borderColor = UIColor.gray
-        textView.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
         addHeader(text: "Goal Description", stackView: self.goalDescContainer)
         self.goalDescContainer.addArrangedSubview(textView)
+        customShadowBorder(for: textView)
+        
         return textView
     }()
     
-    var commentTextView: UITextView = {
+    lazy var commentTextView: UITextView = {
         let textView = UITextView()
         textView.isEditable = true
         textView.isSelectable = true
@@ -340,12 +305,7 @@ class NewViewController: UIViewController {
         textView.text = "Provide a comment about your first progress"
         textView.font = UIFont.preferredFont(forTextStyle: .body)
         textView.textColor = UIColor.lightGray
-        textView.layer.cornerRadius = 4
-        textView.layer.borderWidth = 1
-        textView.layer.masksToBounds = true
-
-        let borderColor = UIColor.gray
-        textView.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
+        customShadowBorder(for: textView)
         
         return textView
     }()
@@ -399,36 +359,33 @@ class NewViewController: UIViewController {
     }
     
     func configureUI() {
+        navigationController?.title = "New Entry"
+        
         stackView.addArrangedSubview(cameraButton)
         stackView.setCustomSpacing(40, after: cameraButton)
         
         addHeader(text: "Goal Title", stackView: stackView)
         stackView.addArrangedSubview(goalTextField)
         stackView.addArrangedSubview(goalButton)
-        stackView.setCustomSpacing(60, after: goalButton)
+        stackView.setCustomSpacing(70, after: goalButton)
         
         stackView.addArrangedSubview(goalDescContainer)
-        stackView.setCustomSpacing(60, after: goalDescContainer)
+        stackView.setCustomSpacing(70, after: goalDescContainer)
         
         addHeader(text: "Comment", stackView: stackView)
         stackView.addArrangedSubview(commentTextView)
-        stackView.setCustomSpacing(60, after: commentTextView)
+        stackView.setCustomSpacing(70, after: commentTextView)
         
         addHeader(text: "Metrics", stackView: stackView)
         metricPanel.addSubview(plusButton)
         metricPanel.addSubview(minusButton)
         stackView.addArrangedSubview(metricPanel)
         stackView.addArrangedSubview(metricStackView)
-        stackView.setCustomSpacing(60, after: metricStackView)
+        stackView.setCustomSpacing(70, after: metricStackView)
     }
     
     func setConstraints() {
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-        stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
-        stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
-        stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
-        stackView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor).isActive = true
+        stackView.pin(to: scrollView)
         
         cameraButton.translatesAutoresizingMaskIntoConstraints = false
         cameraButton.heightAnchor.constraint(lessThanOrEqualToConstant: 300).isActive = true
@@ -441,7 +398,7 @@ class NewViewController: UIViewController {
         
         goalButton.translatesAutoresizingMaskIntoConstraints = false
         goalButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        
+
         editButtonContainer.translatesAutoresizingMaskIntoConstraints = false
         editButtonContainer.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
@@ -524,27 +481,25 @@ class NewViewController: UIViewController {
             let metricView = UIView()
             metricView.alpha = 0
             
-            let metricUnitTextField = UITextField()
-            metricUnitTextField.placeholder = "Metrics Unit"
+            let metricUnitTextField = CustomTextField()
+            metricUnitTextField.placeholder = "Unit"
             metricUnitTextField.textAlignment = .center
-            metricUnitTextField.borderStyle = .roundedRect
+            
             metricUnitTextField.autocapitalizationType = .none
             metricUnitTextField.autocorrectionType = .no
-            let borderColor = UIColor.gray
-            metricUnitTextField.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
+            customShadowBorder(for: metricUnitTextField)
             metricView.addSubview(metricUnitTextField)
             
-            let metricTextField = UITextField()
+            let metricTextField = CustomTextField()
             metricTextField.keyboardType = UIKeyboardType.decimalPad
             metricTextField.placeholder = "Metrics"
             metricTextField.textAlignment = .center
-            metricTextField.borderStyle = .roundedRect
-            metricTextField.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
+            customShadowBorder(for: metricTextField)
             metricView.addSubview(metricTextField)
             
             metricView.translatesAutoresizingMaskIntoConstraints = false
             metricStackView.addArrangedSubview(metricView)
-            UIView.animate(withDuration: 1, animations: {
+            UIView.animate(withDuration: 0.5, delay: 0.1, options: [.curveEaseOut], animations: {
                 metricView.alpha = 1
             })
             
@@ -564,7 +519,7 @@ class NewViewController: UIViewController {
         case 3:
             if metricStackView.arrangedSubviews.count > 0 {
                 let metricSubview = metricStackView.arrangedSubviews[metricStackView.arrangedSubviews.count - 1]
-                UIView.animate(withDuration: 1, animations: {
+                UIView.animate(withDuration: 0.5, delay: 0.1, options: [.curveEaseOut], animations: {
                     metricSubview.alpha = 0
                 }, completion: { finished in
                     self.metricStackView.removeArrangedSubview(metricSubview)
@@ -644,6 +599,9 @@ class NewViewController: UIViewController {
                         goal.title = goalText
                         goal.detail = goalDescTextView.text
                         goal.date = Date()
+                        goal.lastUpdatedDate = Date()
+                        goal.streak = 0
+                        goal.longestStreak = 0
                         
                         for item in metricDict {
                             if case nil = goal.metrics?.append(item.key) {
@@ -681,6 +639,7 @@ class NewViewController: UIViewController {
                 goalRequest.predicate = NSPredicate(format: "title == %@", existingGoalText)
                 if let fetchedGoal = try? self.context.fetch(goalRequest) {
                     if fetchedGoal.count > 0 {
+                        // Update existing Core Data
                         goalFromCoreData = fetchedGoal.first
                         
                         for singleEntry in metricArr {
@@ -689,6 +648,27 @@ class NewViewController: UIViewController {
                         }
                         
                         goalFromCoreData.progress.insert(progress)
+                        
+                        if let lastUpdatedDate =  goalFromCoreData.lastUpdatedDate {
+                            let deadline = dayVariance(date: lastUpdatedDate, value: 1)
+                            let endOfToday = dayVariance(date: Date(), value: 0)
+                            let endOfYesterday = dayVariance(date: Date(), value: -1)
+                            
+                            // prevent multiple streaks from the same day
+                            if deadline > Date() && !(endOfYesterday < lastUpdatedDate &&  lastUpdatedDate < endOfToday) {
+                                goalFromCoreData.streak += 1
+                                
+                                if goalFromCoreData.streak > goalFromCoreData.longestStreak {
+                                    goalFromCoreData.longestStreak = goalFromCoreData.streak
+                                }
+                            } else {
+                                goalFromCoreData.streak = 0
+                            }
+                        } else {
+                            goalFromCoreData.streak = 0
+                        }
+                        
+                        goalFromCoreData.lastUpdatedDate = Date()
                     } else {
                         print("goal's in the existing list, but doesn't fetch")
                         return
@@ -708,14 +688,18 @@ class NewViewController: UIViewController {
             commentTextView.text = "Provide a comment about your first progress"
             commentTextView.textColor = UIColor.lightGray
 
-            if metricStackView.arrangedSubviews.count > 0 {
-                for subView in metricStackView.arrangedSubviews {
-                    metricStackView.removeArrangedSubview(subView)
+            if self.metricStackView.arrangedSubviews.count > 0 {
+                for subView in self.metricStackView.arrangedSubviews {
+                    self.metricStackView.removeArrangedSubview(subView)
                     subView.removeFromSuperview()
                 }
             }
+            self.showSpinner(container: self.scrollView)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                self.tabBarController?.selectedIndex = 1
+                self.removeSpinner()
+            }
             
-            tabBarController?.selectedIndex = 1
         case 5:
             if let vc = storyboard?.instantiateViewController(withIdentifier: "ExistingGoalsMenu") as? ExistingGoalsMenuTableViewController {
                 vc.isDismissed = { [weak self] goal in
@@ -724,44 +708,6 @@ class NewViewController: UIViewController {
                 navigationController?.pushViewController(vc, animated: true)
             }
         case 6:
-            
-//            stackView.removeArrangedSubview(editButtonContainer)
-//            editButtonContainer.removeFromSuperview()
-//
-//            for singleSubview in metricStackView.arrangedSubviews {
-//                UIView.animate(withDuration: 1.5, animations: {
-//                    singleSubview.alpha = 0
-//                })
-//                metricStackView.removeArrangedSubview(singleSubview)
-//                singleSubview.removeFromSuperview()
-//            }
-//
-//            stackView.removeArrangedSubview(metricStackView)
-//            metricStackView.removeFromSuperview()
-//
-//            self.goalLabel.alpha = 0
-//            self.goalLabel.text = nil
-//            self.stackView.removeArrangedSubview(self.goalLabel)
-//            self.goalLabel.removeFromSuperview()
-//
-//            self.stackView.insertArrangedSubview(self.goalTextField, at: 3)
-//            UIView.animate(withDuration: 1.5, animations: {
-//                self.goalTextField.alpha = 1
-//                self.plusButton.alpha = 1
-//                self.minusButton.alpha = 1
-//            })
-//
-//            self.stackView.insertArrangedSubview(self.goalDescContainer, at: 4)
-//            self.stackView.setCustomSpacing(60, after: self.goalDescContainer)
-//            self.goalDescContainer.alpha = 1
-//
-//            metricPanel.addSubview(plusButton)
-//            metricPanel.addSubview(minusButton)
-//            stackView.addArrangedSubview(metricPanel)
-//            stackView.addArrangedSubview(metricStackView)
-//            stackView.setCustomSpacing(60, after: metricStackView)
-//            setConstraints()
-
             existingGoal = nil
         case 7:
             let ac = UIAlertController(title: "Delete Goal", message: "Are you sure you want to delete this goal? All the related entries and the metrics will be deleted as well.", preferredStyle: .alert)
@@ -807,7 +753,7 @@ class NewViewController: UIViewController {
     }
     
     @objc func textFieldDidChange(textField: UITextField) {
-        if let text = textField.text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        if let text = textField.text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, let commentText = commentTextView.text, !commentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             doneButton.isEnabled = true
             doneButton.backgroundColor = UIColor(red: 254/255, green: 211/255, blue: 48/255, alpha: 1.0)
         } else {
@@ -959,3 +905,5 @@ extension Sequence where Element: Hashable {
         return true
     }
 }
+
+

@@ -17,7 +17,6 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
     }
     
     var fetchedResultsController: NSFetchedResultsController<Goal>?
-    //    var goalPredicate: NSPredicate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,17 +31,13 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tabBarController?.tabBar.isHidden = false
+        tableView.reloadData()
     }
     
     func configureTableView() {
         tableView.register(GoalCell.self, forCellReuseIdentifier: Cells.goalCell)
         tableView.rowHeight = 150
         tableView.separatorStyle = .none
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        tableView.reloadData()
     }
     
     @objc func addGoals() {
@@ -64,8 +59,6 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
             fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: self.context, sectionNameKeyPath: nil, cacheName: nil)
             fetchedResultsController?.delegate = self
         }
-        
-        //        fetchedResultsController.fetchRequest.predicate = goalPredicate
         
         do {
             try fetchedResultsController?.performFetch()
@@ -215,4 +208,18 @@ extension UIViewController {
             navigationController?.navigationBar.isTranslucent = false
             navigationItem.title = title
         }
-    }}
+    }
+}
+
+
+
+extension Date {
+    init(_ year:Int, _ month: Int, _ day: Int) {
+        var dateComponents = DateComponents()
+        dateComponents.year = year
+        dateComponents.month = month
+        dateComponents.day = day
+        self.init(timeInterval:0, since: Calendar.current.date(from: dateComponents)!)
+    }
+}
+

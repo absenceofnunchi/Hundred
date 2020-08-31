@@ -10,11 +10,7 @@ import CalendarHeatmap
 import Charts
 import UIKit
 
-protocol CallBackDelegate {
-    func callBack(value: Progress)
-}
-
-class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate {
+class EntryViewController1: UIViewController, CallBackDelegate, ChartViewDelegate {
     
     @IBOutlet weak var scrollView: UIScrollView!
     var uiImage: UIImage!
@@ -32,9 +28,6 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
     }
     var metrics: [String]?
     var data: [String: UIColor]!
-    var detailTableVCDelegate: DetailTableViewController?
-    var indexPathRow: Int!
-    var indexPath: IndexPath!
     
     private lazy var stackView: UIStackView = {
         let stackView = UIStackView()
@@ -72,7 +65,7 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
     private lazy var calendarHeatMap: CalendarHeatmap = {
         var config = CalendarHeatmapConfig()
         config.backgroundColor = UIColor(ciColor: .white)
-        //        config.backgroundColor = UIColor(red: 252/255, green: 252/255, blue: 252/255, alpha: 1.0)
+//        config.backgroundColor = UIColor(red: 252/255, green: 252/255, blue: 252/255, alpha: 1.0)
         // config item
         config.selectedItemBorderColor = .white
         config.allowItemSelection = true
@@ -91,11 +84,9 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
         dateComponent.year = yearsBefore
         if let startDate = Calendar.current.date(byAdding: dateComponent, to: Date()) {
             let calendar = CalendarHeatmap(config: config, startDate: startDate, endDate: Date())
-            calendar.delegate = self
             return calendar
         } else {
             let calendar = CalendarHeatmap(config: config, startDate: Date(2019, 1, 1), endDate: Date())
-            calendar.delegate = self
             return calendar
         }
     }()
@@ -129,24 +120,93 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        title = progress.goal.title
+        
         var dataImporter = DataImporter(goalTitle: progress.goal.title)
         data = dataImporter.data
-                
+        
         configureUI()
         setConstraints()
         
-        displayChart(metrics: metrics)
+        if let importedMetrics = metrics {
+            if importedMetrics.count > 0 {
+//                stackView.setCustomSpacing(80, after: calendarHeatMap)
+//
+//                let lineChartView = LineChartView()
+//                lineChartView.data = loadMetricsData()
+//                lineChartView.rightAxis.enabled = false
+//                lineChartView.pinchZoomEnabled = true
+//                lineChartView.dragEnabled = true
+//                lineChartView.setScaleEnabled(true)
+//                lineChartView.drawBordersEnabled = false
+//                lineChartView.delegate = self
+//
+//                let l = lineChartView.legend
+//                l.form = .circle
+//                l.font = UIFont(name: "HelveticaNeue-Light", size: 11)!
+//                l.textColor = .black
+//                l.horizontalAlignment = .right
+//                l.verticalAlignment = .top
+//                l.orientation = .horizontal
+//                l.drawInside = false
+//                l.xEntrySpace = 7
+//
+//                let yAxis = lineChartView.leftAxis
+//                yAxis.labelFont = .boldSystemFont(ofSize: 12)
+//                yAxis.setLabelCount(6, force: false)
+//                yAxis.labelTextColor = .gray
+//                yAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
+//                yAxis.labelPosition = .outsideChart
+//                yAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
+//
+//                let xAxis = lineChartView.xAxis
+//                xAxis.labelPosition = .bottom
+//                xAxis.labelFont = .boldSystemFont(ofSize: 10)
+//                xAxis.labelTextColor = .gray
+//                xAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
+//                xAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
+//                xAxis.drawLimitLinesBehindDataEnabled = true
+//                xAxis.drawAxisLineEnabled = false
+//                xAxis.granularityEnabled = true
+//                xAxis.granularity = 86400
+////                xAxis.valueFormatter = ChartXAxisFormatter(usingMetrics: metricsArr)
+//                xAxis.valueFormatter = ChartXAxisFormatter()
+//
+//                let chartContainer = UIStackView()
+//                chartContainer.axis = .vertical
+//                chartContainer.distribution = .fill
+//                chartContainer.alignment = .fill
+//
+//                addHeader(text: "Progress Chart", stackView: chartContainer)
+//                chartContainer.addArrangedSubview(lineChartView)
+//                stackView.insertArrangedSubview(chartContainer, at: 7)
+//                stackView.setCustomSpacing(100, after: chartContainer)
+//
+//                lineChartView.translatesAutoresizingMaskIntoConstraints = false
+//                lineChartView.heightAnchor.constraint(equalToConstant: 250).isActive = true
+            } else {
+                stackView.setCustomSpacing(150, after: calendarHeatMap)
+            }
+        } else {
+            stackView.setCustomSpacing(150, after: calendarHeatMap)
+        }
+    }
+    
+    func callBack(value: Progress) {
+        progress = value
     }
     
     func configureUI() {
-        title = progress.goal.title
-        
         scrollView.addSubview(imageView)
-        
+
         stackView.addArrangedSubview(dateLabel)
         stackView.setCustomSpacing(30, after: dateLabel)
-        addCard(text: "Comment", subItem: commentLabel, stackView: stackView, containerHeight: 40)
+        addCard(text: "Comment", subItem: commentLabel, stackView: stackView, containerHeight: nil)
         addCard(text: "Calendar", subItem: calendarHeatMap, stackView: stackView, containerHeight: 270)
+
+//
+//        stackView.addArrangedSubview(buttonPanel)
+//        stackView.setCustomSpacing(80, after: buttonPanel)
     }
     
     func setConstraints() {
@@ -171,6 +231,9 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
         stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
         stackView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor).isActive = true
         
+//        calendarHeatMap.translatesAutoresizingMaskIntoConstraints = false
+//        calendarHeatMap.heightAnchor.constraint(equalToConstant: 200).isActive = true
+        
         buttonPanel.translatesAutoresizingMaskIntoConstraints = false
         buttonPanel.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
@@ -181,74 +244,6 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
         deleteButton.centerXAnchor.constraint(equalTo: buttonPanel.centerXAnchor, constant: 50).isActive = true
         deleteButton.centerYAnchor.constraint(equalTo: buttonPanel.centerYAnchor).isActive = true
-    }
-    
-    
-    func displayChart(metrics: [String]?) {
-        if let importedMetrics = metrics {
-            if importedMetrics.count > 0 {
-                
-                let lineChartView = LineChartView()
-                lineChartView.data = loadMetricsData()
-                lineChartView.rightAxis.enabled = false
-                lineChartView.pinchZoomEnabled = true
-                lineChartView.dragEnabled = true
-                lineChartView.setScaleEnabled(true)
-                lineChartView.drawBordersEnabled = false
-                lineChartView.delegate = self
-                
-                let l = lineChartView.legend
-                l.form = .circle
-                l.font = UIFont(name: "HelveticaNeue-Light", size: 11)!
-                l.textColor = .black
-                l.horizontalAlignment = .right
-                l.verticalAlignment = .top
-                l.orientation = .horizontal
-                l.drawInside = false
-                l.xEntrySpace = 7
-                
-                let yAxis = lineChartView.leftAxis
-                yAxis.labelFont = .boldSystemFont(ofSize: 12)
-                yAxis.setLabelCount(6, force: false)
-                yAxis.labelTextColor = .gray
-                yAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
-                yAxis.labelPosition = .outsideChart
-                yAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
-                
-                let xAxis = lineChartView.xAxis
-                xAxis.labelPosition = .bottom
-                xAxis.labelFont = .boldSystemFont(ofSize: 10)
-                xAxis.labelTextColor = .gray
-                xAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
-                xAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
-                xAxis.drawLimitLinesBehindDataEnabled = true
-                xAxis.drawAxisLineEnabled = false
-                xAxis.granularityEnabled = true
-                xAxis.granularity = 86400
-                //                xAxis.valueFormatter = ChartXAxisFormatter(usingMetrics: metricsArr)
-                xAxis.valueFormatter = ChartXAxisFormatter()
-                
-                let chartContainer = UIStackView()
-                chartContainer.axis = .vertical
-                chartContainer.distribution = .fill
-                chartContainer.alignment = .fill
-                
-                addCard(text: "Progress Chart", subItem: lineChartView, stackView: stackView, containerHeight: 270)
-                
-                stackView.addArrangedSubview(buttonPanel)
-                stackView.setCustomSpacing(80, after: buttonPanel)
-            } else {
-                stackView.addArrangedSubview(buttonPanel)
-                stackView.setCustomSpacing(80, after: buttonPanel)
-            }
-        } else {
-            stackView.addArrangedSubview(buttonPanel)
-            stackView.setCustomSpacing(80, after: buttonPanel)
-        }
-    }
-    
-    func callBack(value: Progress) {
-        progress = value
     }
     
     var metricDict = [String: [ChartDataEntry]]()
@@ -299,6 +294,7 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
         return LineChartData(dataSets: nil)
     }
     
+    
     @objc func buttonPressed(sender: UIButton!) {
         switch sender.tag {
         case 1:
@@ -308,46 +304,11 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
                 self.navigationController?.pushViewController(vc, animated: true)
             }
         case 2:
-//            // check to see if the entry is within the streak and if it is, end the streak
-//            if let lastUpdatedDate = self.progress.goal.lastUpdatedDate {
-//                if self.dayVariance(date: lastUpdatedDate, value: -Int(self.progress.goal.streak)) < self.progress.date && self.progress.date < lastUpdatedDate && progress.goal.streak > 0 {
-//
-//                    let ac = UIAlertController(title: "Delete", message: "Deletion of this entry will end the streak it belongs to. Are you sure you want to proceed?", preferredStyle: .alert)
-//                    ac.addAction(UIAlertAction(title: "Delete", style: .default, handler: { action in
-//                        self.deletePlist(progress: self.progress)
-//                        self.progress.goal.streak = 0
-//                        self.context.delete(self.progress)
-//                        self.saveContext()
-//                        _ = self.navigationController?.popViewController(animated: true)
-//                    }))
-//                    ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-//                    present(ac, animated: true)
-//                } else {
-//                    let ac = UIAlertController(title: "Delete", message: "Are you sure you want to delete your entry?", preferredStyle: .alert)
-//                    ac.addAction(UIAlertAction(title: "Delete", style: .default, handler: { action in
-////                        self.deletePlist(progress: self.progress)
-//                        self.context.delete(self.progress)
-//                        self.saveContext()
-//                        _ = self.navigationController?.popViewController(animated: true)
-//                    }))
-//                    ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-//                    present(ac, animated: true)
-//                }
-//            }
-      
             let ac = UIAlertController(title: "Delete", message: "Are you sure you want to delete your entry?", preferredStyle: .alert)
             ac.addAction(UIAlertAction(title: "Delete", style: .default, handler: { action in
                 self.context.delete(self.progress)
                 self.saveContext()
-                
-                DispatchQueue.main.async {
-                    if let indexPathRow = self.indexPathRow {
-                        self.detailTableVCDelegate?.progresses.remove(at: indexPathRow)
-                        self.detailTableVCDelegate?.tableView.deleteRows(at: [self.indexPath], with: .fade)
-                        _ = self.navigationController?.popViewController(animated: true)
-                    }
-                }
-                
+                _ = self.navigationController?.popViewController(animated: true)
             }))
             ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
             present(ac, animated: true)
@@ -356,53 +317,37 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
         }
     }
     
-    func deletePlist(progress: Progress) {
-        let formattedDate = self.dateForPlist(date: progress.date)
-        if let url = self.pListURL() {
-            if FileManager.default.fileExists(atPath: url.path) {
-                do {
-                    let dataContent = try Data(contentsOf: url)
-                    if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
-                        if var count = dict[progress.goal.title]?[formattedDate] {
-                            if count > 0 {
-                                count -= 1
-                                dict[progress.goal.title]?[formattedDate] = count
-                                self.write(dictionary: dict)
-                                if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
-                                    let dataImporter = DataImporter(goalTitle: nil)
-                                    mainVC.data = dataImporter.loadData(goalTitle: nil)
-                                }
-                            }
-                        }
-                    }
-                } catch {
-                    print("error :\(error.localizedDescription)")
-                }
-            }
-        }
-    }
 }
 
-extension EntryViewController: CalendarHeatmapDelegate {
-    func didSelectedAt(dateComponents: DateComponents) {
-        guard let year = dateComponents.year,
-            let month = dateComponents.month,
-            let day = dateComponents.day else { return }
-        print(year, month, day)
-    }
-    
-    func colorFor(dateComponents: DateComponents) -> UIColor {
-        guard let year = dateComponents.year,
-            let month = dateComponents.month,
-            let day = dateComponents.day else { return .clear}
-        let dateString = "\(year).\(month).\(day)"
-        
-        return data[dateString] ?? UIColor(red: 240/255, green: 240/255, blue: 240/255, alpha: 1.0)
-    }
-    
-    func finishLoadCalendar() {
-        calendarHeatMap.scrollTo(date: progress.date, at: .left, animated: false)
-    }
-}
+//extension EntryViewController: UINavigationControllerDelegate {
+//
+//    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
+//        (viewController as? DetailTableViewController)?.tableView.reloadData()
+//    }
+//}
 
+//                let yAxis = [
+//                    ChartDataEntry(x: 10, y: 10),
+//                    ChartDataEntry(x: 20, y: 20),
+//                    ChartDataEntry(x: 30, y: 30),
+//                    ChartDataEntry(x: 40, y: 40),
+//                    ChartDataEntry(x: 50, y: 50)
+//                ]
+//
+//                let set = LineChartDataSet(entries: yAxis, label: "Yellow")
+//                set.drawIconsEnabled = false
+//                set.lineDashLengths = [5, 2.5]
+//                set.highlightLineDashLengths = [5, 2.5]
+//                let randomColour = UIColor(red: CGFloat.random(in: 50..<255)/255, green: CGFloat.random(in: 0..<220)/255, blue: CGFloat.random(in: 0..<220)/255, alpha: 0.8)
+//                set.setColor(randomColour)
+//                set.setCircleColor(randomColour)
+//                set.lineWidth = 1
+//                set.circleRadius = 3
+//                set.drawCircleHoleEnabled = false
+//                set.valueFont = .systemFont(ofSize: 9)
+//                set.formLineDashLengths = [5, 2.5]
+//                set.formLineWidth = 1
+//                set.formSize = 15
+//
+//                let data = LineChartData(dataSet: set)
 

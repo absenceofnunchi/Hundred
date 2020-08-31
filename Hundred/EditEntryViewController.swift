@@ -273,8 +273,12 @@ class EditEntryViewController: UIViewController {
                     
                     self.saveContext()
                     
-                    delegate?.callBack(value: progress)
-                    _ = navigationController?.popViewController(animated: true)
+                    DispatchQueue.main.async {
+                        self.delegate?.callBack(value: self.progress)
+//                        self.delegate?.tableView.reloadData()
+                        _ = self.navigationController?.popViewController(animated: true)
+                    }
+                    
                 }
             }
         default:

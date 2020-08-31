@@ -87,7 +87,8 @@ struct DataImporter {
         return contributionData.mapValues { (colorIndex) -> UIColor in
             switch colorIndex {
             case 0:
-                return UIColor(red: 240/255, green: 240/255, blue: 240/255, alpha: 1.0)
+//                return UIColor(red: 240/255, green: 240/255, blue: 240/255, alpha: 1.0)
+                return .darkGray
             case 1:
                 return UIColor(red: 255/255, green: 235/255, blue: 235/255, alpha: 1.0)
             case 2:
@@ -113,7 +114,8 @@ struct DataImporter {
             case 12:
                 return UIColor(red: 157/255, green: 0, blue: 0, alpha: 1.0)
             default:
-                return UIColor(red: 0, green: 0, blue: 15/255, alpha: 1.0)
+//                return UIColor(red: 0, green: 0, blue: 15/255, alpha: 1.0)
+                return .darkGray
             }
 
         }

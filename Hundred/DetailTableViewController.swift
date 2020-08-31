@@ -6,13 +6,10 @@
 //  Copyright © 2020 J. All rights reserved.
 //
 
-// Hundred`closure #1 in DetailTableViewController.goal.didset:
-
 import UIKit
 
-class DetailTableViewController: UITableViewController, UIViewControllerPreviewingDelegate {
+class DetailTableViewController: UITableViewController {
     
-    var fetchedResult: Progress!
     var progresses: [Progress]!
     var goal: Goal! {
         didSet {
@@ -31,49 +28,23 @@ class DetailTableViewController: UITableViewController, UIViewControllerPreviewi
         tabBarController?.tabBar.isHidden = true
 
         configureTableView()
-        registerForPreviewing(with: self, sourceView: tableView)
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        tableView.reloadData()
+        DispatchQueue.main.async {
+//            self.tableView.reloadWithAnimation()
+            self.tableView.reloadData()
+        }
     }
-
+ 
     func configureTableView() {
         tableView.register(ProgressCell.self, forCellReuseIdentifier: Cells.progressCell)
         tableView.rowHeight = 85
     }
     
-    // MARK: - Peek and pop
-    
-    func entryViewController(progress: Progress, metrics: [String]?) -> EntryViewController {
-        guard let vc = storyboard?.instantiateViewController(withIdentifier: "Entry") as? EntryViewController else {
-            preconditionFailure("Expected a EntryViewController")
-        }
-        
-        vc.progress = progress
-        vc.metrics = metrics
-        return vc
-    }
-
-    func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
-        // First, get the index path and view for the previewed cell.
-        guard let indexPath = tableView.indexPathForRow(at: location),
-            let cell = tableView.cellForRow(at: indexPath)
-            else { return nil }
-
-        // Enable blurring of other UI elements, and a zoom in animation while peeking.
-        previewingContext.sourceRect = cell.frame
-
-        return entryViewController(progress: progresses[indexPath.row], metrics: goal.metrics)
-    }
-    
-    func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
-        navigationController?.pushViewController(viewControllerToCommit, animated: true)
-    }
-    
+  
     // MARK: - Table view data source
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -91,6 +62,8 @@ class DetailTableViewController: UITableViewController, UIViewControllerPreviewi
         if let vc = storyboard?.instantiateViewController(identifier: "Entry") as? EntryViewController {
             vc.progress = progresses[indexPath.row]
             vc.metrics = goal.metrics
+            vc.indexPathRow = indexPath.row
+            vc.indexPath = indexPath
             navigationController?.pushViewController(vc, animated: true)
         }
     }
@@ -98,34 +71,23 @@ class DetailTableViewController: UITableViewController, UIViewControllerPreviewi
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { (contextualAction, view, boolValue) in
             let progress = self.progresses[indexPath.row]
-            let formattedDate = self.dateForPlist(date: progress.date)
-            if let url = self.pListURL() {
-                if FileManager.default.fileExists(atPath: url.path) {
-                    do {
-                        let dataContent = try Data(contentsOf: url)
-                        if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
-                            if var count = dict[self.goal.title]?[formattedDate] {
-                                if count > 0 {
-                                    count -= 1
-                                    dict[self.goal.title]?[formattedDate] = count
-                                    self.write(dictionary: dict)
-                                    if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
-                                        let dataImporter = DataImporter(goalTitle: nil)
-                                        mainVC.data = dataImporter.loadData(goalTitle: nil)
-                                    }
-                                }
-                            }
-                        }
-                    } catch {
-                        print("error :\(error.localizedDescription)")
-                    }
-                }
-            }
             
-            self.context.delete(progress)
-            self.progresses.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .fade)
-            self.saveContext()
+            // check to see if the entry is within the streak and if it is, end the streak
+             if let lastUpdatedDate = progress.goal.lastUpdatedDate {
+                 if self.dayVariance(date: lastUpdatedDate, value: -Int(progress.goal.streak)) < progress.date && progress.date < lastUpdatedDate && progress.goal.streak > 0 {
+                     
+                     let ac = UIAlertController(title: "Delete", message: "Deletion of this entry will end the streak it belongs to. Are you sure you want to proceed?", preferredStyle: .alert)
+                     ac.addAction(UIAlertAction(title: "Delete", style: .default, handler: { action in
+                         progress.goal.streak = 0
+                        self.deleteAction(progress: progress, indexPath: indexPath)
+                     }))
+                     ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+                    self.present(ac, animated: true)
+                 } else {
+                    self.deleteAction(progress: progress, indexPath: indexPath)
+                 }
+             }
+
         }
         deleteAction.backgroundColor = .red
         
@@ -139,6 +101,37 @@ class DetailTableViewController: UITableViewController, UIViewControllerPreviewi
         
         let configuration = UISwipeActionsConfiguration(actions: [deleteAction, editAction])
         return configuration
+    }
+    
+    func deleteAction(progress: Progress, indexPath: IndexPath) {
+        let formattedDate = self.dateForPlist(date: progress.date)
+        if let url = self.pListURL() {
+            if FileManager.default.fileExists(atPath: url.path) {
+                do {
+                    let dataContent = try Data(contentsOf: url)
+                    if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
+                        if var count = dict[self.goal.title]?[formattedDate] {
+                            if count > 0 {
+                                count -= 1
+                                dict[self.goal.title]?[formattedDate] = count
+                                self.write(dictionary: dict)
+                                if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
+                                    let dataImporter = DataImporter(goalTitle: nil)
+                                    mainVC.data = dataImporter.loadData(goalTitle: nil)
+                                }
+                            }
+                        }
+                    }
+                } catch {
+                    print("error :\(error.localizedDescription)")
+                }
+            }
+        }
+        
+        self.context.delete(progress)
+        self.progresses.remove(at: indexPath.row)
+        tableView.deleteRows(at: [indexPath], with: .fade)
+        self.saveContext()
     }
 }
 
@@ -162,4 +155,5 @@ class DetailTableViewController: UITableViewController, UIViewControllerPreviewi
 //        navigationController?.pushViewController(viewControllerToCommit, animated: true)
 //    }
 //}
+
 

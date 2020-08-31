@@ -68,9 +68,5 @@ struct ButtonCreator {
 // 16. map - needs google places
 // 17. peek
 // 18. only show select plist per entry - done
-
-
-// view controller 59
-// detail 86
-// goaltable 149
-// new 851
+// 19. image corner radius
+// 20. cell animation

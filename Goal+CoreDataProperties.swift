@@ -2,7 +2,7 @@
 //  Goal+CoreDataProperties.swift
 //  Hundred
 //
-//  Created by jc on 2020-08-23.
+//  Created by jc on 2020-08-30.
 //  Copyright © 2020 J. All rights reserved.
 //
 //
@@ -19,10 +19,14 @@ extension Goal {
 
     @NSManaged public var date: Date
     @NSManaged public var detail: String?
+    @NSManaged public var lastUpdatedDate: Date?
     @NSManaged public var metrics: [String]?
+    @NSManaged public var streak: Int16
     @NSManaged public var title: String
-    @NSManaged public var progress: Set<Progress>
+    @NSManaged public var longestStreak: Int16
     @NSManaged public var goalToMetric: Set<Metric>
+    @NSManaged public var progress: Set<Progress>
+
 }
 
 // MARK: Generated accessors for goalToMetric

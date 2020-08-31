@@ -64,6 +64,34 @@
             </objects>
             <point key="canvasLocation" x="3302.898550724638" y="-1667.4107142857142"/>
         </scene>
+        <!--Calendar Detail Table View Controller-->
+        <scene sceneID="OKR-Ha-fyh">
+            <objects>
+                <tableViewController storyboardIdentifier="CalendarDetail" id="18E-dI-tA6" customClass="CalendarDetailTableViewController" customModule="Hundred" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="eBu-wc-OSH">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="CalendarDetailCell" id="R9m-ph-Vz9">
+                                <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="R9m-ph-Vz9" id="ZZZ-Eh-wmn">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="18E-dI-tA6" id="5re-sA-PZu"/>
+                            <outlet property="delegate" destination="18E-dI-tA6" id="KZx-9g-1f7"/>
+                        </connections>
+                    </tableView>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="XTT-fp-xJH" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2548" y="-297"/>
+        </scene>
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
@@ -71,14 +99,29 @@
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZDY-Jl-HjV">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                            </scrollView>
+                        </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="top" secondItem="ZDY-Jl-HjV" secondAttribute="top" constant="44" id="JXd-8n-xqX"/>
+                            <constraint firstItem="ZDY-Jl-HjV" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="PdN-19-ra3"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="ZDY-Jl-HjV" secondAttribute="trailing" id="Z06-bc-7oV"/>
+                            <constraint firstItem="ZDY-Jl-HjV" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" constant="83" id="oCa-xZ-Unr"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <navigationItem key="navigationItem" id="KYh-pW-zlo"/>
+                    <nil key="simulatedTopBarMetrics"/>
+                    <connections>
+                        <outlet property="scrollView" destination="ZDY-Jl-HjV" id="BEe-59-SHO"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1800" y="-297"/>
+            <point key="canvasLocation" x="1800.0000000000002" y="-297.32142857142856"/>
         </scene>
         <!--Goals Table View Controller-->
         <scene sceneID="7gr-3R-iyd">
@@ -161,7 +204,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="gge-9i-4uL"/>
                     <connections>
-                        <outlet property="scrollView" destination="b1g-d8-KDa" id="d3b-Bd-lWo"/>
+                        <outlet property="scrollView" destination="b1g-d8-KDa" id="PRU-au-LIu"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0lC-Cr-SZG" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

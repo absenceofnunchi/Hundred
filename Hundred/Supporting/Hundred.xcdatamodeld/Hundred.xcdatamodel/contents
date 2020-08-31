@@ -3,7 +3,10 @@
     <entity name="Goal" representedClassName="Goal" syncable="YES">
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="detail" optional="YES" attributeType="String"/>
+        <attribute name="lastUpdatedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="longestStreak" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="metrics" optional="YES" attributeType="Transformable" customClassName="[String]"/>
+        <attribute name="streak" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="goalToMetric" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Metric" inverseName="metricToGoal" inverseEntity="Metric"/>
         <relationship name="progress" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Progress" inverseName="goal" inverseEntity="Progress"/>
@@ -33,7 +36,7 @@
         </fetchIndex>
     </entity>
     <elements>
-        <element name="Goal" positionX="-63" positionY="-18" width="128" height="133"/>
+        <element name="Goal" positionX="-63" positionY="-18" width="128" height="178"/>
         <element name="Metric" positionX="-45" positionY="99" width="128" height="133"/>
         <element name="Progress" positionX="-36" positionY="90" width="128" height="133"/>
     </elements>
