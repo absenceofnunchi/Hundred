@@ -69,4 +69,5 @@ struct ButtonCreator {
 // 17. peek
 // 18. only show select plist per entry - done
 // 19. image corner radius
-// 20. cell animation
+// 20. cell animation - delays touch
+// 21. landscape pie chart

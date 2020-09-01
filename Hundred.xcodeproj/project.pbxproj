@@ -30,16 +30,18 @@
 		499E8B2F24F0CC1700C829C8 /* EditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 499E8B2E24F0CC1700C829C8 /* EditViewController.swift */; };
 		49B328FE24E3269F00D9E8D4 /* DataImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B328FD24E3269F00D9E8D4 /* DataImporter.swift */; };
 		49C8690524F44D66005D0C4D /* GoalCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C8690424F44D66005D0C4D /* GoalCell.swift */; };
+		49D1162024FDCA7400FB75BF /* Metric+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D1161824FDCA7400FB75BF /* Metric+CoreDataClass.swift */; };
+		49D1162124FDCA7400FB75BF /* Metric+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D1161924FDCA7400FB75BF /* Metric+CoreDataProperties.swift */; };
+		49D1162224FDCA7400FB75BF /* Progress+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D1161A24FDCA7400FB75BF /* Progress+CoreDataClass.swift */; };
+		49D1162324FDCA7400FB75BF /* Progress+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D1161B24FDCA7400FB75BF /* Progress+CoreDataProperties.swift */; };
+		49D1162424FDCA7400FB75BF /* Goal+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D1161C24FDCA7400FB75BF /* Goal+CoreDataClass.swift */; };
+		49D1162524FDCA7400FB75BF /* Goal+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D1161D24FDCA7400FB75BF /* Goal+CoreDataProperties.swift */; };
+		49D1162624FDCA7400FB75BF /* HighestMetrics+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D1161E24FDCA7400FB75BF /* HighestMetrics+CoreDataClass.swift */; };
+		49D1162724FDCA7400FB75BF /* HighestMetrics+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D1161F24FDCA7400FB75BF /* HighestMetrics+CoreDataProperties.swift */; };
 		49DB512A24EC453B00857634 /* Extensions-Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DB512924EC453B00857634 /* Extensions-Style.swift */; };
 		49DB512C24ECAA6500857634 /* ButtonCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DB512B24ECAA6500857634 /* ButtonCreator.swift */; };
 		49DE68A624F71838009C886C /* ChartXAxisFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */; };
 		49E9631224FC8FA10041239B /* SpinnerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E9631124FC8FA10041239B /* SpinnerViewController.swift */; };
-		49E9631924FC9DBE0041239B /* Goal+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E9631324FC9DBE0041239B /* Goal+CoreDataClass.swift */; };
-		49E9631A24FC9DBE0041239B /* Goal+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E9631424FC9DBE0041239B /* Goal+CoreDataProperties.swift */; };
-		49E9631B24FC9DBE0041239B /* Progress+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E9631524FC9DBE0041239B /* Progress+CoreDataClass.swift */; };
-		49E9631C24FC9DBE0041239B /* Progress+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E9631624FC9DBE0041239B /* Progress+CoreDataProperties.swift */; };
-		49E9631D24FC9DBE0041239B /* Metric+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E9631724FC9DBE0041239B /* Metric+CoreDataClass.swift */; };
-		49E9631E24FC9DBE0041239B /* Metric+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E9631824FC9DBE0041239B /* Metric+CoreDataProperties.swift */; };
 		49F1B1EA24FB21B8006D6887 /* CalendarDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F1B1E924FB21B8006D6887 /* CalendarDetailTableViewController.swift */; };
 		49F1B1EC24FB34BA006D6887 /* CalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F1B1EB24FB34BA006D6887 /* CalendarCell.swift */; };
 		959BBA5D7FE2D6CC34668FE7 /* Pods_Hundred.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E151965057E79A8338541A10 /* Pods_Hundred.framework */; };
@@ -71,16 +73,18 @@
 		499E8B2E24F0CC1700C829C8 /* EditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewController.swift; sourceTree = "<group>"; };
 		49B328FD24E3269F00D9E8D4 /* DataImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataImporter.swift; sourceTree = "<group>"; };
 		49C8690424F44D66005D0C4D /* GoalCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalCell.swift; sourceTree = "<group>"; };
+		49D1161824FDCA7400FB75BF /* Metric+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Metric+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		49D1161924FDCA7400FB75BF /* Metric+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Metric+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		49D1161A24FDCA7400FB75BF /* Progress+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Progress+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		49D1161B24FDCA7400FB75BF /* Progress+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Progress+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		49D1161C24FDCA7400FB75BF /* Goal+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Goal+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		49D1161D24FDCA7400FB75BF /* Goal+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Goal+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		49D1161E24FDCA7400FB75BF /* HighestMetrics+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HighestMetrics+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		49D1161F24FDCA7400FB75BF /* HighestMetrics+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HighestMetrics+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 		49DB512924EC453B00857634 /* Extensions-Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extensions-Style.swift"; sourceTree = "<group>"; };
 		49DB512B24ECAA6500857634 /* ButtonCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonCreator.swift; sourceTree = "<group>"; };
 		49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartXAxisFormatter.swift; sourceTree = "<group>"; };
 		49E9631124FC8FA10041239B /* SpinnerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerViewController.swift; sourceTree = "<group>"; };
-		49E9631324FC9DBE0041239B /* Goal+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Goal+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
-		49E9631424FC9DBE0041239B /* Goal+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Goal+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
-		49E9631524FC9DBE0041239B /* Progress+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Progress+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
-		49E9631624FC9DBE0041239B /* Progress+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Progress+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
-		49E9631724FC9DBE0041239B /* Metric+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Metric+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
-		49E9631824FC9DBE0041239B /* Metric+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Metric+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 		49F1B1E924FB21B8006D6887 /* CalendarDetailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDetailTableViewController.swift; sourceTree = "<group>"; };
 		49F1B1EB24FB34BA006D6887 /* CalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCell.swift; sourceTree = "<group>"; };
 		A27ACB2AB86EC0276A9D5E1C /* Pods-Hundred.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hundred.debug.xcconfig"; path = "Target Support Files/Pods-Hundred/Pods-Hundred.debug.xcconfig"; sourceTree = "<group>"; };
@@ -151,12 +155,14 @@
 		4996BD4324D485C900E301B4 /* Hundred */ = {
 			isa = PBXGroup;
 			children = (
-				49E9631324FC9DBE0041239B /* Goal+CoreDataClass.swift */,
-				49E9631424FC9DBE0041239B /* Goal+CoreDataProperties.swift */,
-				49E9631524FC9DBE0041239B /* Progress+CoreDataClass.swift */,
-				49E9631624FC9DBE0041239B /* Progress+CoreDataProperties.swift */,
-				49E9631724FC9DBE0041239B /* Metric+CoreDataClass.swift */,
-				49E9631824FC9DBE0041239B /* Metric+CoreDataProperties.swift */,
+				49D1161824FDCA7400FB75BF /* Metric+CoreDataClass.swift */,
+				49D1161924FDCA7400FB75BF /* Metric+CoreDataProperties.swift */,
+				49D1161A24FDCA7400FB75BF /* Progress+CoreDataClass.swift */,
+				49D1161B24FDCA7400FB75BF /* Progress+CoreDataProperties.swift */,
+				49D1161C24FDCA7400FB75BF /* Goal+CoreDataClass.swift */,
+				49D1161D24FDCA7400FB75BF /* Goal+CoreDataProperties.swift */,
+				49D1161E24FDCA7400FB75BF /* HighestMetrics+CoreDataClass.swift */,
+				49D1161F24FDCA7400FB75BF /* HighestMetrics+CoreDataProperties.swift */,
 				4996BD4824D485C900E301B4 /* ViewController.swift */,
 				498AC32824FD524C003FDBF2 /* PieChartViewController.swift */,
 				49F1B1E924FB21B8006D6887 /* CalendarDetailTableViewController.swift */,
@@ -312,32 +318,34 @@
 				49026F9B24DB4FBF00724369 /* ProgressCell.swift in Sources */,
 				49795B7624DC864000D27111 /* EntryViewController.swift in Sources */,
 				49E9631224FC8FA10041239B /* SpinnerViewController.swift in Sources */,
+				49D1162624FDCA7400FB75BF /* HighestMetrics+CoreDataClass.swift in Sources */,
 				4996BD5C24D48B0700E301B4 /* GoalsTableViewController.swift in Sources */,
 				498AC32724FD520D003FDBF2 /* BaseViewController.swift in Sources */,
+				49D1162124FDCA7400FB75BF /* Metric+CoreDataProperties.swift in Sources */,
 				4906B77524F2FEA700417574 /* EditEntryViewController.swift in Sources */,
+				49D1162724FDCA7400FB75BF /* HighestMetrics+CoreDataProperties.swift in Sources */,
 				498AC32924FD524C003FDBF2 /* PieChartViewController.swift in Sources */,
+				49D1162424FDCA7400FB75BF /* Goal+CoreDataClass.swift in Sources */,
 				499E8B2F24F0CC1700C829C8 /* EditViewController.swift in Sources */,
 				49F1B1EC24FB34BA006D6887 /* CalendarCell.swift in Sources */,
-				49E9631D24FC9DBE0041239B /* Metric+CoreDataClass.swift in Sources */,
 				49F1B1EA24FB21B8006D6887 /* CalendarDetailTableViewController.swift in Sources */,
-				49E9631A24FC9DBE0041239B /* Goal+CoreDataProperties.swift in Sources */,
+				49D1162024FDCA7400FB75BF /* Metric+CoreDataClass.swift in Sources */,
 				4996BD4924D485C900E301B4 /* ViewController.swift in Sources */,
 				49026F9224DB423900724369 /* Constraints.swift in Sources */,
 				494F0C2A24D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift in Sources */,
 				4996BD4524D485C900E301B4 /* AppDelegate.swift in Sources */,
+				49D1162324FDCA7400FB75BF /* Progress+CoreDataProperties.swift in Sources */,
 				4996BD5E24D4910600E301B4 /* AddGoalViewController.swift in Sources */,
-				49E9631E24FC9DBE0041239B /* Metric+CoreDataProperties.swift in Sources */,
 				4996BD4F24D485C900E301B4 /* Hundred.xcdatamodeld in Sources */,
 				49C8690524F44D66005D0C4D /* GoalCell.swift in Sources */,
-				49E9631C24FC9DBE0041239B /* Progress+CoreDataProperties.swift in Sources */,
-				49E9631924FC9DBE0041239B /* Goal+CoreDataClass.swift in Sources */,
 				491F5A7C24E458FA0075EDCD /* DetailTableViewController.swift in Sources */,
+				49D1162524FDCA7400FB75BF /* Goal+CoreDataProperties.swift in Sources */,
 				497DC78424EA15A800446178 /* NewViewController.swift in Sources */,
 				49B328FE24E3269F00D9E8D4 /* DataImporter.swift in Sources */,
 				494F0C2C24D7246A00C5450C /* ManagedObjectContext.swift in Sources */,
 				491165FF24FAE4A000B2963A /* Test.swift in Sources */,
-				49E9631B24FC9DBE0041239B /* Progress+CoreDataClass.swift in Sources */,
 				49DE68A624F71838009C886C /* ChartXAxisFormatter.swift in Sources */,
+				49D1162224FDCA7400FB75BF /* Progress+CoreDataClass.swift in Sources */,
 				4996BD4724D485C900E301B4 /* SceneDelegate.swift in Sources */,
 				49DB512A24EC453B00857634 /* Extensions-Style.swift in Sources */,
 				49DB512C24ECAA6500857634 /* ButtonCreator.swift in Sources */,

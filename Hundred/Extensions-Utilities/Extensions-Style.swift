@@ -161,6 +161,11 @@ extension UIViewController {
         grayBackground = nil
     }
     
+    func stringToDecimal(string: String) -> NSDecimalNumber {
+       let formatter = NumberFormatter()
+        formatter.generatesDecimalNumbers = true
+        return formatter.number(from: string) as? NSDecimalNumber ?? 0
+    }
 }
 
 fileprivate var grayBackground: UIView?

@@ -306,6 +306,12 @@ class EditViewController: UIViewController {
                     if goalFromCoreData.metrics == nil {
                         goalFromCoreData.metrics = []
                         goalFromCoreData.metrics = metricArr
+                        for singleMetric in metricArr {
+                            let highestMetric = HighestMetrics()
+                            highestMetric.unit = singleMetric
+                            highestMetric.value = 0
+                            goalFromCoreData.highestToGoal.insert(highestMetric)
+                        }
                     } else {
                         // delete all the metrics from Core Data that are not in the newly updated version
                         if let existingMetrics = goalFromCoreData.metrics {
@@ -316,12 +322,20 @@ class EditViewController: UIViewController {
                                     subPredicateArr.append(NSPredicate(format: "unit = %@", singleMetric))
                                 }
                                 let orPredicate = NSCompoundPredicate(type: .or, subpredicates: subPredicateArr)
+                                
+                                // delete relevent metrics
                                 let metricRequest = Metric.fetchRequest()
                                 metricRequest.predicate = orPredicate
                                 let deleteRequest = NSBatchDeleteRequest(fetchRequest: metricRequest)
+                                
+                                // delete relevant highest metric records
+                                let highestMetricRequest = HighestMetrics.fetchRequest()
+                                highestMetricRequest.predicate = orPredicate
+                                let highestMetricDeleteRequest = NSBatchDeleteRequest(fetchRequest: highestMetricRequest)
 
                                 do {
                                     _ = try self.context.execute(deleteRequest)
+                                    _ = try self.context.execute(highestMetricDeleteRequest)
                                 } catch {
                                     fatalError("Delete failed: \(error.localizedDescription)")
                                 }

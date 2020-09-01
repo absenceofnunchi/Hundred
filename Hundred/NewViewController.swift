@@ -12,6 +12,7 @@ import MobileCoreServices
 
 class NewViewController: UIViewController {
     var imagePathString: String?
+    var imagePath: URL?
 
     @IBOutlet weak var scrollView: UIScrollView!
     
@@ -536,6 +537,13 @@ class NewViewController: UIViewController {
                     let valueTextField = metricPair.subviews[1] as! UITextField
                     
                     if let textContent = unitTextField.text, let valueTextContent = valueTextField.text {
+                        guard Double(valueTextContent) != nil else {
+                            let ac = UIAlertController(title: "Invalid Input", message: "The metric value has to be a number", preferredStyle: .alert)
+                            ac.addAction(UIAlertAction(title: "Got it", style: .cancel, handler: nil))
+                            present(ac, animated: true)
+                            return
+                        }
+                        
                         let trimmedKey = textContent.trimmingCharacters(in: .whitespacesAndNewlines)
                         let trimmedValue = valueTextContent.trimmingCharacters(in: .whitespacesAndNewlines)
                         metricDict.updateValue(trimmedValue, forKey: trimmedKey)
@@ -563,10 +571,7 @@ class NewViewController: UIViewController {
                     metric.date = Date()
                     metric.unit = singleMetricPair.key
                     metric.id = NSUUID() as UUID
-                    
-                    let formatter = NumberFormatter()
-                    formatter.generatesDecimalNumbers = true
-                    metric.value = formatter.number(from: singleMetricPair.value) as? NSDecimalNumber ?? 0
+                    metric.value = stringToDecimal(string: singleMetricPair.value)
                     metricArr.append(metric)
                 }
             } else {
@@ -581,6 +586,34 @@ class NewViewController: UIViewController {
             progress.image = imagePathString
             progress.comment = commentTextView.text
             progress.date = Date()
+//            progress.id = UUID().uuidString
+            
+            // Core Spotlight indexing for Progress
+            let progressAttributeSet = CSSearchableItemAttributeSet(itemContentType: kUTTypeText as String)
+            progressAttributeSet.title = goalTextField.text
+            progressAttributeSet.contentCreationDate = Date()
+            progressAttributeSet.contentDescription = commentTextView.text
+            if let titleKeywords =  goalTextField.text?.components(separatedBy: " ") {
+                var keywordsArr = ["productivity", "goal setting", "habit"]
+                for keyword in titleKeywords {
+                    keywordsArr.append(keyword)
+                }
+                progressAttributeSet.keywords = keywordsArr
+            }
+            
+            if let imagePath = imagePath {
+                progressAttributeSet.thumbnailURL = imagePath
+            }
+
+            let progressItem = CSSearchableItem(uniqueIdentifier: "\(String(describing: goalTextField.text))\(Date())", domainIdentifier: "com.noName.Hundred", attributeSet: progressAttributeSet)
+            progressItem.expirationDate = Date.distantFuture
+            CSSearchableIndex.default().indexSearchableItems([progressItem]) { (error) in
+                if let error = error {
+                    print("Indexing error: \(error.localizedDescription)")
+                } else {
+                    print("Search item successfully indexed")
+                }
+            }
             
             var goalFromCoreData: Goal!
             let goalRequest = Goal.createFetchRequest()
@@ -606,6 +639,11 @@ class NewViewController: UIViewController {
                         for item in metricDict {
                             if case nil = goal.metrics?.append(item.key) {
                                 goal.metrics = [item.key]
+                                
+                                let highestMetric = HighestMetrics(context: self.context)
+                                highestMetric.unit = item.key
+                                highestMetric.value = stringToDecimal(string: item.value)
+                                goal.highestToGoal.insert(highestMetric)
                             }
                         }
                         
@@ -621,7 +659,13 @@ class NewViewController: UIViewController {
                         attributeSet.title = goalText
                         attributeSet.contentCreationDate = Date()
                         attributeSet.contentDescription = goalDescTextView.text
-                        attributeSet.keywords = ["productivity", "goal setting", "habit"]
+                        if let titleKeywords =  goalTextField.text?.components(separatedBy: " ") {
+                             var keywordsArr = ["productivity", "goal setting", "habit"]
+                             for keyword in titleKeywords {
+                                 keywordsArr.append(keyword)
+                             }
+                             progressAttributeSet.keywords = keywordsArr
+                         }
                         
                         let item = CSSearchableItem(uniqueIdentifier: "\(goalText)", domainIdentifier: "com.noName.Hundred", attributeSet: attributeSet)
                         item.expirationDate = Date.distantFuture
@@ -642,13 +686,29 @@ class NewViewController: UIViewController {
                         // Update existing Core Data
                         goalFromCoreData = fetchedGoal.first
                         
+                        // metrics
                         for singleEntry in metricArr {
                             progress.metric.insert(singleEntry)
                             goalFromCoreData.goalToMetric.insert(singleEntry)
                         }
                         
+                        // progress
                         goalFromCoreData.progress.insert(progress)
                         
+                        // highest metric
+                        for highestMetric in goalFromCoreData.highestToGoal {
+                            if let newMetric = metricDict[highestMetric.unit] {
+                                if let convertedNewMetric = Double(newMetric) {
+                                    if  convertedNewMetric > highestMetric.value.doubleValue {
+                                        highestMetric.value = stringToDecimal(string: newMetric)
+                                    }
+                                } else {
+                                    print("metric couldn't be converted to double")
+                                }
+                            }
+                        }
+                        
+                        // streak
                         if let lastUpdatedDate =  goalFromCoreData.lastUpdatedDate {
                             let deadline = dayVariance(date: lastUpdatedDate, value: 1)
                             let endOfToday = dayVariance(date: Date(), value: 0)
@@ -874,9 +934,9 @@ extension NewViewController: UIImagePickerControllerDelegate, UINavigationContro
         guard let image = info[.editedImage] as? UIImage else { return }
         
         let imageName = UUID().uuidString
-        let imagePath = getDocumentsDirectory().appendingPathComponent(imageName)
+        imagePath = getDocumentsDirectory().appendingPathComponent(imageName)
         if let jpegData = image.jpegData(compressionQuality: 0.8) {
-            try? jpegData.write(to: imagePath)
+            try? jpegData.write(to: imagePath!)
         }
         imagePathString = imageName
         

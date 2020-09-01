@@ -2,7 +2,7 @@
 //  Metric+CoreDataProperties.swift
 //  Hundred
 //
-//  Created by jc on 2020-08-30.
+//  Created by jc on 2020-08-31.
 //  Copyright © 2020 J. All rights reserved.
 //
 //
@@ -21,7 +21,7 @@ extension Metric {
     @NSManaged public var id: UUID
     @NSManaged public var unit: String
     @NSManaged public var value: NSDecimalNumber
-    @NSManaged public var metricToGoal: Set<Goal>
-    @NSManaged public var progress: Set<Progress>
+    @NSManaged public var metricToGoal: Goal
+    @NSManaged public var progress: Progress
 
 }

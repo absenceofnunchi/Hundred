@@ -1,5 +1,5 @@
 //
-//  Progress+CoreDataClass.swift
+//  HighestMetrics+CoreDataClass.swift
 //  Hundred
 //
 //  Created by jc on 2020-08-31.
@@ -10,7 +10,7 @@
 import Foundation
 import CoreData
 
-@objc(Progress)
-public class Progress: NSManagedObject {
+@objc(HighestMetrics)
+public class HighestMetrics: NSManagedObject {
 
 }

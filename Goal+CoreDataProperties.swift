@@ -2,7 +2,7 @@
 //  Goal+CoreDataProperties.swift
 //  Hundred
 //
-//  Created by jc on 2020-08-30.
+//  Created by jc on 2020-08-31.
 //  Copyright © 2020 J. All rights reserved.
 //
 //
@@ -20,12 +20,13 @@ extension Goal {
     @NSManaged public var date: Date
     @NSManaged public var detail: String?
     @NSManaged public var lastUpdatedDate: Date?
+    @NSManaged public var longestStreak: Int16
     @NSManaged public var metrics: [String]?
     @NSManaged public var streak: Int16
     @NSManaged public var title: String
-    @NSManaged public var longestStreak: Int16
     @NSManaged public var goalToMetric: Set<Metric>
     @NSManaged public var progress: Set<Progress>
+    @NSManaged public var highestToGoal: Set<HighestMetrics>
 
 }
 
@@ -60,5 +61,22 @@ extension Goal {
 
     @objc(removeProgress:)
     @NSManaged public func removeFromProgress(_ values: NSSet)
+
+}
+
+// MARK: Generated accessors for highestToGoal
+extension Goal {
+
+    @objc(addHighestToGoalObject:)
+    @NSManaged public func addToHighestToGoal(_ value: HighestMetrics)
+
+    @objc(removeHighestToGoalObject:)
+    @NSManaged public func removeFromHighestToGoal(_ value: HighestMetrics)
+
+    @objc(addHighestToGoal:)
+    @NSManaged public func addToHighestToGoal(_ values: NSSet)
+
+    @objc(removeHighestToGoal:)
+    @NSManaged public func removeFromHighestToGoal(_ values: NSSet)
 
 }
