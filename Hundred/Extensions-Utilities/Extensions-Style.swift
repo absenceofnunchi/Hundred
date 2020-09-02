@@ -14,6 +14,7 @@ extension UIViewController {
     func addCard<T: UIView>(text: String, subItem: T, stackView: UIStackView, containerHeight: CGFloat? = 20, bottomSpacing: CGFloat? = 60, insert: Int? = nil) {
         let container = UIView()
         customShadowBorder(for: container)
+
         if let insert = insert {
             stackView.insertArrangedSubview(container, at: insert)
         } else {
@@ -24,7 +25,7 @@ extension UIViewController {
             container.translatesAutoresizingMaskIntoConstraints = false
             container.heightAnchor.constraint(greaterThanOrEqualToConstant: height).isActive = true
         }
-        
+
         let label = UILabel()
         label.text = text
         label.textColor = UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0)
@@ -37,15 +38,14 @@ extension UIViewController {
         label.widthAnchor.constraint(equalTo: container.widthAnchor, multiplier: 0.9).isActive = true
         label.centerXAnchor.constraint(equalTo: container.centerXAnchor).isActive = true
         label.topAnchor.constraint(equalTo: container.topAnchor, constant: 10).isActive = true
-        
+
         container.addSubview(subItem)
-        
+
         subItem.backgroundColor = .white
         subItem.translatesAutoresizingMaskIntoConstraints = false
         subItem.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 30).isActive = true
         subItem.widthAnchor.constraint(equalTo: container.widthAnchor, multiplier: 0.8).isActive = true
         subItem.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -30).isActive = true
-
         subItem.centerXAnchor.constraint(equalTo: container.centerXAnchor).isActive = true
         
         if let bottomSpacing = bottomSpacing {

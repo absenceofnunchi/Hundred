@@ -8,8 +8,8 @@
         <attribute name="metrics" optional="YES" attributeType="Transformable" customClassName="[String]"/>
         <attribute name="streak" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="title" optional="YES" attributeType="String"/>
-        <relationship name="goalToMetric" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Metric" inverseName="metricToGoal" inverseEntity="Metric"/>
-        <relationship name="highestToGoal" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="HighestMetrics" inverseName="highestToGoal" inverseEntity="HighestMetrics"/>
+        <relationship name="goalToMetric" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Metric" inverseName="metricToGoal" inverseEntity="Metric"/>
+        <relationship name="highestToGoal" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="HighestMetrics" inverseName="highestToGoal" inverseEntity="HighestMetrics"/>
         <relationship name="progress" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Progress" inverseName="goal" inverseEntity="Progress"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
@@ -37,7 +37,7 @@
         <attribute name="image" optional="YES" attributeType="String"/>
         <attribute name="location" optional="YES" attributeType="String"/>
         <relationship name="goal" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Goal" inverseName="progress" inverseEntity="Goal"/>
-        <relationship name="metric" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Metric" inverseName="progress" inverseEntity="Metric"/>
+        <relationship name="metric" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Metric" inverseName="progress" inverseEntity="Metric"/>
         <fetchIndex name="byGoalIndex">
             <fetchIndexElement property="goal" type="Binary" order="ascending"/>
         </fetchIndex>

@@ -566,11 +566,11 @@ class NewViewController: UIViewController {
                     
 //                    let df = DateFormatter()
 //                    df.dateFormat = "yyyy/MM/dd HH:mm"
-//                    let someDateTime = df.date(from: "2020/08/26 22:31")
+//                    let someDateTime = df.date(from: "2020/09/02 22:31")
 //                    metric.date = someDateTime!
                     metric.date = Date()
                     metric.unit = singleMetricPair.key
-                    metric.id = NSUUID() as UUID
+                    metric.id = UUID()
                     metric.value = stringToDecimal(string: singleMetricPair.value)
                     metricArr.append(metric)
                 }
@@ -586,7 +586,8 @@ class NewViewController: UIViewController {
             progress.image = imagePathString
             progress.comment = commentTextView.text
             progress.date = Date()
-//            progress.id = UUID().uuidString
+            let progressId = UUID()
+            progress.id = progressId
             
             // Core Spotlight indexing for Progress
             let progressAttributeSet = CSSearchableItemAttributeSet(itemContentType: kUTTypeText as String)
@@ -605,7 +606,7 @@ class NewViewController: UIViewController {
                 progressAttributeSet.thumbnailURL = imagePath
             }
 
-            let progressItem = CSSearchableItem(uniqueIdentifier: "\(String(describing: goalTextField.text))\(Date())", domainIdentifier: "com.noName.Hundred", attributeSet: progressAttributeSet)
+            let progressItem = CSSearchableItem(uniqueIdentifier: "\(progressId)", domainIdentifier: "com.noName.Hundred", attributeSet: progressAttributeSet)
             progressItem.expirationDate = Date.distantFuture
             CSSearchableIndex.default().indexSearchableItems([progressItem]) { (error) in
                 if let error = error {
@@ -703,7 +704,7 @@ class NewViewController: UIViewController {
                                         highestMetric.value = stringToDecimal(string: newMetric)
                                     }
                                 } else {
-                                    print("metric couldn't be converted to double")
+                                    print("metric couldn't be converted to double or is a zero")
                                 }
                             }
                         }
@@ -715,11 +716,15 @@ class NewViewController: UIViewController {
                             let endOfYesterday = dayVariance(date: Date(), value: -1)
                             
                             // prevent multiple streaks from the same day
-                            if deadline > Date() && !(endOfYesterday < lastUpdatedDate &&  lastUpdatedDate < endOfToday) {
-                                goalFromCoreData.streak += 1
-                                
-                                if goalFromCoreData.streak > goalFromCoreData.longestStreak {
-                                    goalFromCoreData.longestStreak = goalFromCoreData.streak
+                            if deadline > Date() {
+                                if endOfYesterday < lastUpdatedDate && lastUpdatedDate < endOfToday {
+                                    return
+                                } else {
+                                    goalFromCoreData.streak += 1
+                                    
+                                    if goalFromCoreData.streak > goalFromCoreData.longestStreak {
+                                        goalFromCoreData.longestStreak = goalFromCoreData.streak
+                                    }
                                 }
                             } else {
                                 goalFromCoreData.streak = 0

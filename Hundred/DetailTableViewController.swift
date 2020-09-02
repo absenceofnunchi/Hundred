@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import CoreSpotlight
+import MobileCoreServices
 
 class DetailTableViewController: UITableViewController {
     
@@ -43,7 +45,6 @@ class DetailTableViewController: UITableViewController {
         tableView.register(ProgressCell.self, forCellReuseIdentifier: Cells.progressCell)
         tableView.rowHeight = 85
     }
-    
   
     // MARK: - Table view data source
     
@@ -125,6 +126,15 @@ class DetailTableViewController: UITableViewController {
                 } catch {
                     print("error :\(error.localizedDescription)")
                 }
+            }
+        }
+        
+        // deindex from Core Spotlight
+        CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: ["\(progress.id)"]) { (error) in
+            if let error = error {
+                print("Deindexing error: \(error.localizedDescription)")
+            } else {
+                print("Search item successfully deindexed")
             }
         }
         

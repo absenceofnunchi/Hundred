@@ -9,6 +9,8 @@
 import CalendarHeatmap
 import Charts
 import UIKit
+import CoreSpotlight
+import MobileCoreServices
 
 protocol CallBackDelegate {
     func callBack(value: Progress)
@@ -131,7 +133,7 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
         
         var dataImporter = DataImporter(goalTitle: progress.goal.title)
         data = dataImporter.data
-                
+        
         configureUI()
         setConstraints()
         
@@ -308,51 +310,50 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
                 self.navigationController?.pushViewController(vc, animated: true)
             }
         case 2:
-//            // check to see if the entry is within the streak and if it is, end the streak
-//            if let lastUpdatedDate = self.progress.goal.lastUpdatedDate {
-//                if self.dayVariance(date: lastUpdatedDate, value: -Int(self.progress.goal.streak)) < self.progress.date && self.progress.date < lastUpdatedDate && progress.goal.streak > 0 {
-//
-//                    let ac = UIAlertController(title: "Delete", message: "Deletion of this entry will end the streak it belongs to. Are you sure you want to proceed?", preferredStyle: .alert)
-//                    ac.addAction(UIAlertAction(title: "Delete", style: .default, handler: { action in
-//                        self.deletePlist(progress: self.progress)
-//                        self.progress.goal.streak = 0
-//                        self.context.delete(self.progress)
-//                        self.saveContext()
-//                        _ = self.navigationController?.popViewController(animated: true)
-//                    }))
-//                    ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-//                    present(ac, animated: true)
-//                } else {
-//                    let ac = UIAlertController(title: "Delete", message: "Are you sure you want to delete your entry?", preferredStyle: .alert)
-//                    ac.addAction(UIAlertAction(title: "Delete", style: .default, handler: { action in
-////                        self.deletePlist(progress: self.progress)
-//                        self.context.delete(self.progress)
-//                        self.saveContext()
-//                        _ = self.navigationController?.popViewController(animated: true)
-//                    }))
-//                    ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-//                    present(ac, animated: true)
-//                }
-//            }
-      
-            let ac = UIAlertController(title: "Delete", message: "Are you sure you want to delete your entry?", preferredStyle: .alert)
-            ac.addAction(UIAlertAction(title: "Delete", style: .default, handler: { action in
-                self.context.delete(self.progress)
-                self.saveContext()
-                
-                DispatchQueue.main.async {
-                    if let indexPathRow = self.indexPathRow {
-                        self.detailTableVCDelegate?.progresses.remove(at: indexPathRow)
-                        self.detailTableVCDelegate?.tableView.deleteRows(at: [self.indexPath], with: .fade)
-                        _ = self.navigationController?.popViewController(animated: true)
-                    }
+            // check to see if the entry is within the streak and if it is, end the streak
+            if let lastUpdatedDate = self.progress.goal.lastUpdatedDate {
+                if self.dayVariance(date: lastUpdatedDate, value: -Int(self.progress.goal.streak)) < self.progress.date && self.progress.date < lastUpdatedDate && progress.goal.streak > 0 {
+                    
+                    let ac = UIAlertController(title: "Delete", message: "Deletion of this entry will end the streak it belongs to. Are you sure you want to proceed?", preferredStyle: .alert)
+                    ac.addAction(UIAlertAction(title: "Delete", style: .default, handler: { action in
+                        self.progress.goal.streak = 0
+                        self.deleteEntry()
+                    }))
+                    ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+                    present(ac, animated: true)
+                } else {
+                    let ac = UIAlertController(title: "Delete", message: "Are you sure you want to delete your entry?", preferredStyle: .alert)
+                    ac.addAction(UIAlertAction(title: "Delete", style: .default, handler: { action in
+                        self.deleteEntry()
+                    }))
+                    ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+                    present(ac, animated: true)
                 }
-                
-            }))
-            ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-            present(ac, animated: true)
+            }
         default:
             print("default")
+        }
+    }
+    
+    func deleteEntry() {
+        // deindex from Core Spotlight
+        CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: ["\(self.progress.id)"]) { (error) in
+            if let error = error {
+                print("Deindexing error: \(error.localizedDescription)")
+            } else {
+                print("Search item successfully deindexed")
+            }
+        }
+        
+        self.deletePlist(progress: self.progress)
+        self.context.delete(self.progress)
+        self.saveContext()
+        if let indexPathRow = self.indexPathRow {
+            self.detailTableVCDelegate?.progresses.remove(at: indexPathRow)
+            DispatchQueue.main.async {
+                self.detailTableVCDelegate?.tableView.deleteRows(at: [self.indexPath], with: .fade)
+                _ = self.navigationController?.popViewController(animated: true)
+            }
         }
     }
     
@@ -406,3 +407,13 @@ extension EntryViewController: CalendarHeatmapDelegate {
 }
 
 
+//self.context.delete(self.progress)
+//self.saveContext()
+//_ = self.navigationController?.popViewController(animated: true)
+//if let indexPathRow = self.indexPathRow {
+//    self.detailTableVCDelegate?.progresses.remove(at: indexPathRow)
+//    DispatchQueue.main.async {
+//        self.detailTableVCDelegate?.tableView.deleteRows(at: [self.indexPath], with: .fade)
+//        _ = self.navigationController?.popViewController(animated: true)
+//    }
+//}

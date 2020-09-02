@@ -121,6 +121,16 @@ extension GoalsTableViewController {
                     }
                 }
                 
+                for progress in goal.progress {
+                    CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: ["\(progress.id)"]) { (error) in
+                        if let error = error {
+                            print("Deindexing error: \(error.localizedDescription)")
+                        } else {
+                            print("Search item successfully deindexed")
+                        }
+                    }
+                }
+                
                 if let url = self.pListURL() {
                     if FileManager.default.fileExists(atPath: url.path) {
                         do {
@@ -222,4 +232,6 @@ extension Date {
         self.init(timeInterval:0, since: Calendar.current.date(from: dateComponents)!)
     }
 }
+
+
 

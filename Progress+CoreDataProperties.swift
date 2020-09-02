@@ -21,6 +21,7 @@ extension Progress {
     @NSManaged public var date: Date
     @NSManaged public var image: String?
     @NSManaged public var location: String?
+    @NSManaged public var id: UUID
     @NSManaged public var goal: Goal
     @NSManaged public var metric: Set<Metric>
 
