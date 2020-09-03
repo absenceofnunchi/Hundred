@@ -27,7 +27,8 @@ extension Goal {
     @NSManaged public var goalToMetric: Set<Metric>
     @NSManaged public var progress: Set<Progress>
     @NSManaged public var highestToGoal: Set<HighestMetrics>
-
+    
+    
 }
 
 // MARK: Generated accessors for goalToMetric

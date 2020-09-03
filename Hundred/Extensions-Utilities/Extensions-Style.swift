@@ -11,8 +11,11 @@ import Charts
 
 extension UIViewController {
     
-    func addCard<T: UIView>(text: String, subItem: T, stackView: UIStackView, containerHeight: CGFloat? = 20, bottomSpacing: CGFloat? = 60, insert: Int? = nil) {
+    func addCard<T: UIView>(text: String, subItem: T, stackView: UIStackView, containerHeight: CGFloat? = 20, bottomSpacing: CGFloat? = 60, insert: Int? = nil, tag: Int? = 1) {
         let container = UIView()
+        if let tag = tag {
+            container.tag = tag
+        }
         customShadowBorder(for: container)
 
         if let insert = insert {

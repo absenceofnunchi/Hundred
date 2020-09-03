@@ -31,7 +31,7 @@ class NewViewController: UIViewController {
     }()
     
     private lazy var cameraButton: UIButton = {
-        return createButton(title: nil, image: "camera.circle", cornerRadius: 0, color:  UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 60, tag: 1)
+        return createButton(title: nil, image: "camera.circle", cornerRadius: 20, color:  UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 60, tag: 1)
     }()
     
     lazy var goalTextField: CustomTextField = {
@@ -266,7 +266,7 @@ class NewViewController: UIViewController {
                         metricView.translatesAutoresizingMaskIntoConstraints = false
                         metricView.heightAnchor.constraint(equalToConstant: 50).isActive = true
                         
-                        UIView.animate(withDuration: 0.5, delay: 0.1, options: [.curveEaseOut], animations: {
+                        UIView.animate(withDuration: 0.5, delay: 0, options: [.curveEaseOut], animations: {
                             metricView.alpha = 1
                         })
                     }
@@ -464,6 +464,7 @@ class NewViewController: UIViewController {
             let ac = UIAlertController(title: "Pick an image", message: nil, preferredStyle: .actionSheet)
             ac.addAction(UIAlertAction(title: "Photos", style: .default, handler: openPhoto))
             ac.addAction(UIAlertAction(title: "Camera", style: .default, handler: openCamera))
+
             if imagePathString != nil {
                 ac.addAction(UIAlertAction(title: "No Image", style: .default, handler: { action in
                     let largeConfig = UIImage.SymbolConfiguration(pointSize: 60, weight: .medium, scale: .large)
@@ -473,6 +474,13 @@ class NewViewController: UIViewController {
                 }))
                 self.imagePathString = nil
             }
+            
+            if let popoverController = ac.popoverPresentationController {
+                  popoverController.sourceView = self.view
+                  popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                  popoverController.permittedArrowDirections = []
+            }
+            
             present(ac, animated: true, completion: {() -> Void in
                 let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
                 ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
@@ -577,6 +585,13 @@ class NewViewController: UIViewController {
             } else {
                 let ac = UIAlertController(title: "Duplicate Metrics", message: "Each metric unit has to be unique", preferredStyle: .alert)
                 ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                
+                if let popoverController = ac.popoverPresentationController {
+                      popoverController.sourceView = self.view
+                      popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                      popoverController.permittedArrowDirections = []
+                }
+                
                 present(ac, animated: true)
                 return
             }
@@ -604,16 +619,6 @@ class NewViewController: UIViewController {
             
             if let imagePath = imagePath {
                 progressAttributeSet.thumbnailURL = imagePath
-            }
-
-            let progressItem = CSSearchableItem(uniqueIdentifier: "\(progressId)", domainIdentifier: "com.noName.Hundred", attributeSet: progressAttributeSet)
-            progressItem.expirationDate = Date.distantFuture
-            CSSearchableIndex.default().indexSearchableItems([progressItem]) { (error) in
-                if let error = error {
-                    print("Indexing error: \(error.localizedDescription)")
-                } else {
-                    print("Search item successfully indexed")
-                }
             }
             
             var goalFromCoreData: Goal!
@@ -696,19 +701,6 @@ class NewViewController: UIViewController {
                         // progress
                         goalFromCoreData.progress.insert(progress)
                         
-                        // highest metric
-                        for highestMetric in goalFromCoreData.highestToGoal {
-                            if let newMetric = metricDict[highestMetric.unit] {
-                                if let convertedNewMetric = Double(newMetric) {
-                                    if  convertedNewMetric > highestMetric.value.doubleValue {
-                                        highestMetric.value = stringToDecimal(string: newMetric)
-                                    }
-                                } else {
-                                    print("metric couldn't be converted to double or is a zero")
-                                }
-                            }
-                        }
-                        
                         // streak
                         if let lastUpdatedDate =  goalFromCoreData.lastUpdatedDate {
                             let deadline = dayVariance(date: lastUpdatedDate, value: 1)
@@ -741,8 +733,18 @@ class NewViewController: UIViewController {
                 }
             }
             
-            savePList()
+            let progressItem = CSSearchableItem(uniqueIdentifier: "\(progressId)", domainIdentifier: "com.noName.Hundred", attributeSet: progressAttributeSet)
+            progressItem.expirationDate = Date.distantFuture
+            CSSearchableIndex.default().indexSearchableItems([progressItem]) { (error) in
+                if let error = error {
+                    print("Indexing error: \(error.localizedDescription)")
+                } else {
+                    print("Search item for Progress successfully indexed")
+                }
+            }
+            
             self.saveContext()
+            savePList()
             
             imagePathString = nil
             goalFromCoreData = nil
@@ -762,7 +764,7 @@ class NewViewController: UIViewController {
             
             view.endEditing(true)
             self.showSpinner(container: self.scrollView)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.tabBarController?.selectedIndex = 1
                 self.removeSpinner()
             }
@@ -780,6 +782,13 @@ class NewViewController: UIViewController {
             let ac = UIAlertController(title: "Delete Goal", message: "Are you sure you want to delete this goal? All the related entries and the metrics will be deleted as well.", preferredStyle: .alert)
             ac.addAction(UIAlertAction(title: "Delete", style: .default, handler: deleteGoal))
             ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            
+            if let popoverController = ac.popoverPresentationController {
+                  popoverController.sourceView = self.view
+                  popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                  popoverController.permittedArrowDirections = []
+            }
+            
             present(ac, animated: true)
         case 8:
             if let vc = storyboard?.instantiateViewController(withIdentifier: "EditGoal") as? EditViewController {
@@ -852,6 +861,13 @@ class NewViewController: UIViewController {
         } else {
             let ac = UIAlertController(title: "Camera Not Available", message: nil, preferredStyle: .alert)
             ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+            
+            if let popoverController = ac.popoverPresentationController {
+                  popoverController.sourceView = self.view
+                  popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                  popoverController.permittedArrowDirections = []
+            }
+            
             present(ac, animated: true)
         }
     }
@@ -889,6 +905,13 @@ class NewViewController: UIViewController {
                             } else {
                                 let ac = UIAlertController(title: "Error", message: "The goal title cannot be empty", preferredStyle: .alert)
                                 ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                                
+                                if let popoverController = ac.popoverPresentationController {
+                                      popoverController.sourceView = self.view
+                                      popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                                      popoverController.permittedArrowDirections = []
+                                 }
+                                
                                 present(ac, animated: true)
                                 return
                             }
@@ -909,6 +932,9 @@ class NewViewController: UIViewController {
         if let mainVC = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
             let dataImporter = DataImporter(goalTitle: nil)
             mainVC.data = dataImporter.loadData(goalTitle: nil)
+            
+            let mainDataImporter = MainDataImporter()
+            mainVC.goals = mainDataImporter.loadData()
         }
         
 //        let vc = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? DetailTableViewController
@@ -953,6 +979,8 @@ extension NewViewController: UIImagePickerControllerDelegate, UINavigationContro
         } else {
             cameraButton.imageView?.contentMode = .scaleAspectFill
         }
+        cameraButton.imageView?.layer.masksToBounds = true
+//        cameraButton.imageView?.layer.cornerRadius = 50
         
         dismiss(animated: true, completion: nil)
         

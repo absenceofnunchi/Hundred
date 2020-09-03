@@ -12,6 +12,7 @@ class EditEntryViewController: UIViewController {
     @IBOutlet weak var scrollView: UIScrollView!
     var progress: Progress!
     var imagePathString: String?
+    var imageBinary: UIImage?
     var delegate: CallBackDelegate?
     
     lazy var stackView: UIStackView = {
@@ -233,32 +234,60 @@ class EditEntryViewController: UIViewController {
                 self.imagePathString = nil
                 self.progress.image = nil
             }
+            
+            if let popoverController = ac.popoverPresentationController {
+                popoverController.sourceView = self.view
+                popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                popoverController.permittedArrowDirections = []
+            }
+            
             present(ac, animated: true, completion: {() -> Void in
                 let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
                 ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
             })
         case 2:
             let progressRequest = Progress.createFetchRequest()
-            let goalTitlePredicate = NSPredicate(format: "goal.title == %@", progress.goal.title)
-            let datePredicate = NSPredicate(format: "date == %@", progress.date as CVarArg)
-            let andPredicate = NSCompoundPredicate(type: .and, subpredicates: [goalTitlePredicate, datePredicate])
-            progressRequest.predicate = andPredicate
+            let progressPredicate = NSPredicate(format: "id == %@", progress.id as CVarArg)
+            progressRequest.predicate = progressPredicate
             if let fetchedProgress = try? self.context.fetch(progressRequest) {
+                print("fetched image: \(fetchedProgress.first?.image ?? "")")
                 if fetchedProgress.count > 0 {
                     progress = fetchedProgress.first
-                    if imagePathString != nil {
+                    
+                    if let imagePathString = imagePathString, let imageBinary = imageBinary {
+                        print("imagePathString is not nil: \(imagePathString)")
+                        
+                        // write the new image to disk
+                        let imagePath = getDocumentsDirectory().appendingPathComponent(imagePathString)
+                        if let jpegData = imageBinary.jpegData(compressionQuality: 0.8) {
+                            try? jpegData.write(to: imagePath)
+                        }
+                        
+                        // delete the previous image from the directory
+                        if let fetchedImagePath = fetchedProgress.first?.image {
+                            print("fetchedImagePath: \(fetchedImagePath)")
+                            let imagePath = getDocumentsDirectory().appendingPathComponent(fetchedImagePath)
+                            do {
+                                print("image deleted: \(imagePath)")
+                                try FileManager.default.removeItem(at: imagePath)
+                            } catch {
+                                print("The image could not be deleted from the directory: \(error.localizedDescription)")
+                            }
+                        }
+                        
                         progress?.image = imagePathString
+                        
                     } else if imagePathString == nil && progress.image == nil {
                         progress?.image = nil
                     }
                     
                     progress?.comment = commentTextView.text
-                                        
+                    
                     if let metrics = progress?.metric {
                         for metric in metrics {
                             let metricSubview = metricStackView.arrangedSubviews.first { (metricSubview) -> Bool in
                                 let label = metricSubview.subviews[0] as! UILabel
-
+                                
                                 return label.text! == metric.unit
                             }
                             
@@ -273,12 +302,16 @@ class EditEntryViewController: UIViewController {
                     
                     self.saveContext()
                     
-                    DispatchQueue.main.async {
-                        self.delegate?.callBack(value: self.progress)
-//                        self.delegate?.tableView.reloadData()
-                        _ = self.navigationController?.popViewController(animated: true)
+                    if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
+                        let dataImporter = DataImporter(goalTitle: nil)
+                        mainVC.data = dataImporter.loadData(goalTitle: nil)
+                        
+                        let mainDataImporter = MainDataImporter()
+                        mainVC.goals = mainDataImporter.loadData()
                     }
                     
+                    delegate?.callBack(value: progress, metricsExist: progress?.metric != nil)
+                    _ = navigationController?.popViewController(animated: true)
                 }
             }
         default:
@@ -295,6 +328,13 @@ class EditEntryViewController: UIViewController {
         } else {
             let ac = UIAlertController(title: "Photo Library Not Available", message: nil, preferredStyle: .alert)
             ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+            
+            if let popoverController = ac.popoverPresentationController {
+                popoverController.sourceView = self.view
+                popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                popoverController.permittedArrowDirections = []
+            }
+            
             present(ac, animated: true)
         }
     }
@@ -309,6 +349,13 @@ class EditEntryViewController: UIViewController {
         } else {
             let ac = UIAlertController(title: "Camera Not Available", message: nil, preferredStyle: .alert)
             ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+            
+            if let popoverController = ac.popoverPresentationController {
+                popoverController.sourceView = self.view
+                popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                popoverController.permittedArrowDirections = []
+            }
+            
             present(ac, animated: true)
         }
     }
@@ -324,16 +371,12 @@ extension EditEntryViewController: UIImagePickerControllerDelegate, UINavigation
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         guard let image = info[.editedImage] as? UIImage else { return }
         
-        let imageName = UUID().uuidString
-        let imagePath = getDocumentsDirectory().appendingPathComponent(imageName)
-        if let jpegData = image.jpegData(compressionQuality: 0.8) {
-            try? jpegData.write(to: imagePath)
-        }
-        imagePathString = imageName
+        imageBinary = image
+        imagePathString = UUID().uuidString
         
         imageButton.alpha = 0
         imageButton.setImage(image, for: .normal)
-        
+
         if image.size.width > image.size.height {
             imageButton.imageView?.contentMode = .scaleAspectFit
         } else {

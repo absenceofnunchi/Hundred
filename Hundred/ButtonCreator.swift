@@ -71,3 +71,4 @@ struct ButtonCreator {
 // 19. image corner radius
 // 20. cell animation - delays touch
 // 21. landscape pie chart
+// 22. delete the images in ios directory

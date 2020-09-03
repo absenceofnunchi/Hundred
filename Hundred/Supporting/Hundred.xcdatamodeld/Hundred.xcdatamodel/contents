@@ -5,7 +5,7 @@
         <attribute name="detail" optional="YES" attributeType="String"/>
         <attribute name="lastUpdatedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="longestStreak" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="metrics" optional="YES" attributeType="Transformable" customClassName="[String]"/>
+        <attribute name="metrics" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="[String]"/>
         <attribute name="streak" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="goalToMetric" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Metric" inverseName="metricToGoal" inverseEntity="Metric"/>
@@ -44,8 +44,8 @@
     </entity>
     <elements>
         <element name="Goal" positionX="-63" positionY="-18" width="128" height="193"/>
+        <element name="HighestMetrics" positionX="-45" positionY="90" width="128" height="88"/>
         <element name="Metric" positionX="-45" positionY="99" width="128" height="133"/>
         <element name="Progress" positionX="-36" positionY="90" width="128" height="148"/>
-        <element name="HighestMetrics" positionX="-45" positionY="90" width="128" height="88"/>
     </elements>
 </model>

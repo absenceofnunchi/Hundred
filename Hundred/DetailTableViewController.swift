@@ -11,7 +11,6 @@ import CoreSpotlight
 import MobileCoreServices
 
 class DetailTableViewController: UITableViewController {
-    
     var progresses: [Progress]!
     var goal: Goal! {
         didSet {
@@ -83,6 +82,13 @@ class DetailTableViewController: UITableViewController {
                         self.deleteAction(progress: progress, indexPath: indexPath)
                      }))
                      ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+                    
+                    if let popoverController = ac.popoverPresentationController {
+                          popoverController.sourceView = self.view
+                          popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                          popoverController.permittedArrowDirections = []
+                    }
+                    
                     self.present(ac, animated: true)
                  } else {
                     self.deleteAction(progress: progress, indexPath: indexPath)
@@ -116,10 +122,6 @@ class DetailTableViewController: UITableViewController {
                                 count -= 1
                                 dict[self.goal.title]?[formattedDate] = count
                                 self.write(dictionary: dict)
-                                if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
-                                    let dataImporter = DataImporter(goalTitle: nil)
-                                    mainVC.data = dataImporter.loadData(goalTitle: nil)
-                                }
                             }
                         }
                     }
@@ -138,10 +140,28 @@ class DetailTableViewController: UITableViewController {
             }
         }
         
+        // delete the image from the directory
+        if let image = progress.image {
+            let imagePath = getDocumentsDirectory().appendingPathComponent(image)
+            do {
+                try FileManager.default.removeItem(at: imagePath)
+            } catch {
+                print("The image could not be deleted from the directory: \(error.localizedDescription)")
+            }
+        }
+        
         self.context.delete(progress)
         self.progresses.remove(at: indexPath.row)
         tableView.deleteRows(at: [indexPath], with: .fade)
         self.saveContext()
+        
+        if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
+            let dataImporter = DataImporter(goalTitle: nil)
+            mainVC.data = dataImporter.loadData(goalTitle: nil)
+            
+            let mainDataImporter = MainDataImporter()
+            mainVC.goals = mainDataImporter.loadData()
+        }
     }
 }
 

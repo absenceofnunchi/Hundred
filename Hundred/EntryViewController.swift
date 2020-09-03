@@ -13,7 +13,7 @@ import CoreSpotlight
 import MobileCoreServices
 
 protocol CallBackDelegate {
-    func callBack(value: Progress)
+    func callBack(value: Progress, metricsExist: Bool)
 }
 
 class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate {
@@ -190,6 +190,13 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
         if let importedMetrics = metrics {
             if importedMetrics.count > 0 {
                 
+                for arrangedSubview in stackView.arrangedSubviews {
+                    if arrangedSubview.tag == 5 {
+                        stackView.removeArrangedSubview(arrangedSubview)
+                        arrangedSubview.removeFromSuperview()
+                    }
+                }
+                
                 let lineChartView = LineChartView()
                 lineChartView.data = loadMetricsData()
                 lineChartView.rightAxis.enabled = false
@@ -235,22 +242,25 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
                 chartContainer.distribution = .fill
                 chartContainer.alignment = .fill
                 
-                addCard(text: "Progress Chart", subItem: lineChartView, stackView: stackView, containerHeight: 270)
+                addCard(text: "Progress Chart", subItem: lineChartView, stackView: stackView, containerHeight: 270, insert: stackView.arrangedSubviews.count, tag: 5)
                 
                 stackView.addArrangedSubview(buttonPanel)
-                stackView.setCustomSpacing(80, after: buttonPanel)
+                stackView.setCustomSpacing(100, after: buttonPanel)
             } else {
                 stackView.addArrangedSubview(buttonPanel)
-                stackView.setCustomSpacing(80, after: buttonPanel)
+                stackView.setCustomSpacing(100, after: buttonPanel)
             }
         } else {
             stackView.addArrangedSubview(buttonPanel)
-            stackView.setCustomSpacing(80, after: buttonPanel)
+            stackView.setCustomSpacing(100, after: buttonPanel)
         }
     }
     
-    func callBack(value: Progress) {
+    func callBack(value: Progress, metricsExist: Bool) {
         progress = value
+        if metricsExist {
+            displayChart(metrics: ["yes"])
+        }
     }
     
     var metricDict = [String: [ChartDataEntry]]()
@@ -320,6 +330,13 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
                         self.deleteEntry()
                     }))
                     ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+                    
+                    if let popoverController = ac.popoverPresentationController {
+                          popoverController.sourceView = self.view
+                          popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                          popoverController.permittedArrowDirections = []
+                    }
+                    
                     present(ac, animated: true)
                 } else {
                     let ac = UIAlertController(title: "Delete", message: "Are you sure you want to delete your entry?", preferredStyle: .alert)
@@ -327,6 +344,13 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
                         self.deleteEntry()
                     }))
                     ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+                    
+                    if let popoverController = ac.popoverPresentationController {
+                          popoverController.sourceView = self.view
+                          popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                          popoverController.permittedArrowDirections = []
+                    }
+                    
                     present(ac, animated: true)
                 }
             }
@@ -348,13 +372,24 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
         self.deletePlist(progress: self.progress)
         self.context.delete(self.progress)
         self.saveContext()
-        if let indexPathRow = self.indexPathRow {
-            self.detailTableVCDelegate?.progresses.remove(at: indexPathRow)
-            DispatchQueue.main.async {
-                self.detailTableVCDelegate?.tableView.deleteRows(at: [self.indexPath], with: .fade)
-                _ = self.navigationController?.popViewController(animated: true)
-            }
+        
+        if let mainVC = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
+            let dataImporter = DataImporter(goalTitle: nil)
+            mainVC.data = dataImporter.loadData(goalTitle: nil)
+            
+            let mainDataImporter = MainDataImporter()
+            mainVC.goals = mainDataImporter.loadData()
         }
+        
+        self.tabBarController?.selectedIndex = 1
+
+//        if let indexPathRow = self.indexPathRow {
+//            if let vc = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? DetailTableViewController {
+//                vc.progresses.remove(at: indexPathRow)
+//                vc.tableView.deleteRows(at: [self.indexPath], with: .fade)
+//                _ = self.navigationController?.popViewController(animated: true)
+//            }
+//        }
     }
     
     func deletePlist(progress: Progress) {
@@ -405,7 +440,6 @@ extension EntryViewController: CalendarHeatmapDelegate {
         calendarHeatMap.scrollTo(date: progress.date, at: .left, animated: false)
     }
 }
-
 
 //self.context.delete(self.progress)
 //self.saveContext()

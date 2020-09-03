@@ -12,8 +12,10 @@
 		4906B77524F2FEA700417574 /* EditEntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4906B77424F2FEA700417574 /* EditEntryViewController.swift */; };
 		491165FF24FAE4A000B2963A /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 491165FE24FAE4A000B2963A /* Test.swift */; };
 		491F5A7C24E458FA0075EDCD /* DetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 491F5A7B24E458FA0075EDCD /* DetailTableViewController.swift */; };
+		4926509124FF25AF001AA5A3 /* MainDataImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4926509024FF25AF001AA5A3 /* MainDataImporter.swift */; };
 		494F0C2A24D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */; };
 		494F0C2C24D7246A00C5450C /* ManagedObjectContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */; };
+		496149CC25007DAF00C5A23B /* BarChartAxisFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 496149CB25007DAE00C5A23B /* BarChartAxisFormatter.swift */; };
 		49795B7624DC864000D27111 /* EntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49795B7524DC864000D27111 /* EntryViewController.swift */; };
 		497DC78424EA15A800446178 /* NewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 497DC78324EA15A800446178 /* NewViewController.swift */; };
 		498AC32724FD520D003FDBF2 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498AC32624FD520D003FDBF2 /* BaseViewController.swift */; };
@@ -53,8 +55,10 @@
 		4906B77424F2FEA700417574 /* EditEntryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEntryViewController.swift; sourceTree = "<group>"; };
 		491165FE24FAE4A000B2963A /* Test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
 		491F5A7B24E458FA0075EDCD /* DetailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailTableViewController.swift; sourceTree = "<group>"; };
+		4926509024FF25AF001AA5A3 /* MainDataImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainDataImporter.swift; sourceTree = "<group>"; };
 		494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistingGoalsMenuTableViewController.swift; sourceTree = "<group>"; };
 		494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedObjectContext.swift; sourceTree = "<group>"; };
+		496149CB25007DAE00C5A23B /* BarChartAxisFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarChartAxisFormatter.swift; sourceTree = "<group>"; };
 		49795B7524DC864000D27111 /* EntryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryViewController.swift; sourceTree = "<group>"; };
 		497DC78324EA15A800446178 /* NewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewViewController.swift; sourceTree = "<group>"; };
 		498AC32624FD520D003FDBF2 /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
@@ -182,8 +186,10 @@
 				49026F9A24DB4FBF00724369 /* ProgressCell.swift */,
 				49F1B1EB24FB34BA006D6887 /* CalendarCell.swift */,
 				49B328FD24E3269F00D9E8D4 /* DataImporter.swift */,
+				4926509024FF25AF001AA5A3 /* MainDataImporter.swift */,
 				49DB512B24ECAA6500857634 /* ButtonCreator.swift */,
 				49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */,
+				496149CB25007DAE00C5A23B /* BarChartAxisFormatter.swift */,
 				4996BD5524D485CB00E301B4 /* Info.plist */,
 				49026F9024DB41EB00724369 /* Extensions-Utilities */,
 				49026F9324DB4E2600724369 /* Supporting */,
@@ -334,8 +340,10 @@
 				494F0C2A24D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift in Sources */,
 				4996BD4524D485C900E301B4 /* AppDelegate.swift in Sources */,
 				4996BD5E24D4910600E301B4 /* AddGoalViewController.swift in Sources */,
+				4926509124FF25AF001AA5A3 /* MainDataImporter.swift in Sources */,
 				4996BD4F24D485C900E301B4 /* Hundred.xcdatamodeld in Sources */,
 				49C8690524F44D66005D0C4D /* GoalCell.swift in Sources */,
+				496149CC25007DAF00C5A23B /* BarChartAxisFormatter.swift in Sources */,
 				491F5A7C24E458FA0075EDCD /* DetailTableViewController.swift in Sources */,
 				49D1163324FDE22900FB75BF /* Goal+CoreDataProperties.swift in Sources */,
 				497DC78424EA15A800446178 /* NewViewController.swift in Sources */,

@@ -25,6 +25,19 @@ extension Progress {
     @NSManaged public var goal: Goal
     @NSManaged public var metric: Set<Metric>
 
+    public override func prepareForDeletion() {
+        if let image = image {
+            let fm = FileManager.default
+            let paths = fm.urls(for: .documentDirectory, in: .userDomainMask)
+            let imagePath = paths[0].appendingPathComponent(image)
+            do {
+                print("image removed")
+                try fm.removeItem(at: imagePath)
+            } catch {
+                print("The image could not be deleted from the directory: \(error.localizedDescription)")
+            }
+        }
+    }
 }
 
 // MARK: Generated accessors for metric

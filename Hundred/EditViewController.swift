@@ -13,7 +13,7 @@ class EditViewController: UIViewController {
     @IBOutlet weak var scrollView: UIScrollView!
     var goalDetail: Goal!
     var goalFromCoreData: Goal!
-
+    
     lazy var stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
@@ -246,6 +246,13 @@ class EditViewController: UIViewController {
             let ac = UIAlertController(title: "Warning", message: "If you're changing the name of the existing metrics, all the metric values with the previous name will be deleted", preferredStyle: .alert)
             ac.addAction(UIAlertAction(title: "OK", style: .default, handler: update))
             ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            
+            if let popoverController = ac.popoverPresentationController {
+                  popoverController.sourceView = self.view
+                  popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                  popoverController.permittedArrowDirections = []
+            }
+            
             present(ac, animated: true)
             
         default:
@@ -306,12 +313,12 @@ class EditViewController: UIViewController {
                     if goalFromCoreData.metrics == nil {
                         goalFromCoreData.metrics = []
                         goalFromCoreData.metrics = metricArr
-//                        for singleMetric in metricArr {
-//                            let highestMetric = HighestMetrics()
-//                            highestMetric.unit = singleMetric
-//                            highestMetric.value = 0
-//                            goalFromCoreData.highestToGoal.insert(highestMetric)
-//                        }
+                        //                        for singleMetric in metricArr {
+                        //                            let highestMetric = HighestMetrics()
+                        //                            highestMetric.unit = singleMetric
+                        //                            highestMetric.value = 0
+                        //                            goalFromCoreData.highestToGoal.insert(highestMetric)
+                        //                        }
                     } else {
                         // delete all the metrics from Core Data that are not in the newly updated version
                         if let existingMetrics = goalFromCoreData.metrics {
@@ -328,14 +335,14 @@ class EditViewController: UIViewController {
                                 metricRequest.predicate = orPredicate
                                 let deleteRequest = NSBatchDeleteRequest(fetchRequest: metricRequest)
                                 
-//                                // delete relevant highest metric records
-//                                let highestMetricRequest = HighestMetrics.fetchRequest()
-//                                highestMetricRequest.predicate = orPredicate
-//                                let highestMetricDeleteRequest = NSBatchDeleteRequest(fetchRequest: highestMetricRequest)
-
+                                //                                // delete relevant highest metric records
+                                //                                let highestMetricRequest = HighestMetrics.fetchRequest()
+                                //                                highestMetricRequest.predicate = orPredicate
+                                //                                let highestMetricDeleteRequest = NSBatchDeleteRequest(fetchRequest: highestMetricRequest)
+                                
                                 do {
                                     _ = try self.context.execute(deleteRequest)
-//                                    _ = try self.context.execute(highestMetricDeleteRequest)
+                                    //                                    _ = try self.context.execute(highestMetricDeleteRequest)
                                 } catch {
                                     fatalError("Delete failed: \(error.localizedDescription)")
                                 }
@@ -347,7 +354,15 @@ class EditViewController: UIViewController {
                     }
                     
                     self.saveContext()
-
+                    
+                    if let mainVC = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
+                        let dataImporter = DataImporter(goalTitle: nil)
+                        mainVC.data = dataImporter.loadData(goalTitle: nil)
+                        
+                        let mainDataImporter = MainDataImporter()
+                        mainVC.goals = mainDataImporter.loadData()
+                    }
+                    
                     _ = navigationController?.popViewController(animated: true)
                 } else {
                     print("goal's in the existing list, but doesn't fetch")
@@ -357,11 +372,18 @@ class EditViewController: UIViewController {
         } else {
             let ac = UIAlertController(title: "Duplicate Metrics", message: "Each metric unit has to be unique", preferredStyle: .alert)
             ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+            
+            if let popoverController = ac.popoverPresentationController {
+                  popoverController.sourceView = self.view
+                  popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                  popoverController.permittedArrowDirections = []
+            }
+            
             present(ac, animated: true)
             return
         }
     }
-
+    
 }
 
 extension Array where Element: Hashable {
@@ -373,7 +395,7 @@ extension Array where Element: Hashable {
 }
 
 extension EditViewController: UINavigationControllerDelegate {
-
+    
     func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
         (viewController as? NewViewController)?.existingGoal = goalFromCoreData ?? goalDetail
     }

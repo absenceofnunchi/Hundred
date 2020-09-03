@@ -117,7 +117,7 @@ extension GoalsTableViewController {
                     if let error = error {
                         print("Deindexing error: \(error.localizedDescription)")
                     } else {
-                        print("Search item successfully deindexed")
+                        print("Goal successfully deindexed")
                     }
                 }
                 
@@ -126,7 +126,7 @@ extension GoalsTableViewController {
                         if let error = error {
                             print("Deindexing error: \(error.localizedDescription)")
                         } else {
-                            print("Search item successfully deindexed")
+                            print("Progress successfully deindexed")
                         }
                     }
                 }
@@ -151,6 +151,9 @@ extension GoalsTableViewController {
                 if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
                     let dataImporter = DataImporter(goalTitle: nil)
                     mainVC.data = dataImporter.loadData(goalTitle: nil)
+                    
+                    let mainDataImporter = MainDataImporter()
+                    mainVC.goals = mainDataImporter.loadData()
                 }
             }
         }
