@@ -11,7 +11,7 @@ import CoreData
 import CoreSpotlight
 import MobileCoreServices
 
-class GoalsTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
+class GoalsTableViewController: UITableViewController, NSFetchedResultsControllerDelegate, UIContextMenuInteractionDelegate {
     struct Cells {
         static let goalCell = "GoalCell"
     }
@@ -38,6 +38,9 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
         tableView.register(GoalCell.self, forCellReuseIdentifier: Cells.goalCell)
         tableView.rowHeight = 150
         tableView.separatorStyle = .none
+        
+        let inter = UIContextMenuInteraction(delegate: self)
+        self.view.addInteraction(inter)
     }
     
     @objc func addGoals() {
@@ -110,62 +113,15 @@ extension GoalsTableViewController {
     }
     
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        guard let goal = self.fetchedResultsController?.object(at: indexPath) else { return nil }
+        
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { (contextualAction, view, boolValue) in
-            if let goal = self.fetchedResultsController?.object(at: indexPath) {
-                // deindex from Core Spotlight
-                CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: ["\(goal.title)"]) { (error) in
-                    if let error = error {
-                        print("Deindexing error: \(error.localizedDescription)")
-                    } else {
-                        print("Goal successfully deindexed")
-                    }
-                }
-                
-                for progress in goal.progress {
-                    CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: ["\(progress.id)"]) { (error) in
-                        if let error = error {
-                            print("Deindexing error: \(error.localizedDescription)")
-                        } else {
-                            print("Progress successfully deindexed")
-                        }
-                    }
-                }
-                
-                if let url = self.pListURL() {
-                    if FileManager.default.fileExists(atPath: url.path) {
-                        do {
-                            let dataContent = try Data(contentsOf: url)
-                            if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
-                                dict.removeValue(forKey: goal.title)
-                                self.write(dictionary: dict)
-                            }
-                        } catch {
-                            print("error :\(error.localizedDescription)")
-                        }
-                    }
-                }
-                
-                self.context.delete(goal)
-                self.saveContext()
-                
-                if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
-                    let dataImporter = DataImporter(goalTitle: nil)
-                    mainVC.data = dataImporter.loadData(goalTitle: nil)
-                    
-                    let mainDataImporter = MainDataImporter()
-                    mainVC.goals = mainDataImporter.loadData()
-                }
-            }
+            self.deleteAction(goal: goal)
         }
         deleteAction.backgroundColor = .red
         
         let editAction = UIContextualAction(style: .destructive, title: "Edit") { (contextualAction, view, boolValue) in
-            if let vc = self.storyboard?.instantiateViewController(withIdentifier: "EditGoal") as? EditViewController {
-                
-                vc.goalDetail = self.fetchedResultsController?.object(at: indexPath)
-                self.navigationController?.pushViewController(vc, animated: true)
-                
-            }
+            self.editAction(goal: goal)
         }
         editAction.backgroundColor = .systemBlue
         
@@ -173,6 +129,61 @@ extension GoalsTableViewController {
         return configuration
     }
     
+    func deleteAction(goal: Goal) {
+        // deindex goal from Core Spotlight
+        CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: ["\(goal.title)"]) { (error) in
+            if let error = error {
+                print("Deindexing error: \(error.localizedDescription)")
+            } else {
+                print("Goal successfully deindexed")
+            }
+        }
+        
+        // deindex the related progresses from Core Spotlight
+        for progress in goal.progress {
+            CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: ["\(progress.id)"]) { (error) in
+                if let error = error {
+                    print("Deindexing error: \(error.localizedDescription)")
+                } else {
+                    print("Progress successfully deindexed")
+                }
+            }
+        }
+        
+        if let url = self.pListURL() {
+            if FileManager.default.fileExists(atPath: url.path) {
+                do {
+                    let dataContent = try Data(contentsOf: url)
+                    if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
+                        dict.removeValue(forKey: goal.title)
+                        self.write(dictionary: dict)
+                    }
+                } catch {
+                    print("error :\(error.localizedDescription)")
+                }
+            }
+        }
+        
+        self.context.delete(goal)
+        self.saveContext()
+        
+        if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
+            let dataImporter = DataImporter(goalTitle: nil)
+            mainVC.data = dataImporter.loadData(goalTitle: nil)
+            
+            let mainDataImporter = MainDataImporter()
+            mainVC.goals = mainDataImporter.loadData()
+        }
+    }
+    
+    func editAction(goal: Goal) {
+        if let vc = self.storyboard?.instantiateViewController(withIdentifier: "EditGoal") as? EditViewController {
+            vc.goalDetail = goal
+            self.navigationController?.pushViewController(vc, animated: true)
+            
+        }
+    }
+
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
         switch type {
@@ -194,7 +205,6 @@ extension GoalsTableViewController {
         }
     }
 }
-
 
 extension UIViewController {
     func configureNavigationBar(largeTitleColor: UIColor, backgoundColor: UIColor, tintColor: UIColor, title: String, preferredLargeTitle: Bool) {
@@ -220,6 +230,44 @@ extension UIViewController {
             navigationController?.navigationBar.tintColor = tintColor
             navigationController?.navigationBar.isTranslucent = false
             navigationItem.title = title
+        }
+    }
+}
+
+extension GoalsTableViewController {
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        return nil
+    }
+    
+    override func tableView(_ tableView: UITableView,contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        guard let goal = fetchedResultsController?.object(at: indexPath) else { return nil }
+        
+        // Create a UIAction for sharing
+        let share = UIAction(title: "Share", image: UIImage(systemName: "square.and.arrow.up")) { action in
+            // Show system share sheet
+        }
+        
+        let edit = UIAction(title: "Edit", image: UIImage(systemName: "square.and.pencil")) { action in
+            self.editAction(goal: goal)
+        }
+        
+        // Here we specify the "destructive" attribute to show that it’s destructive in nature
+        let delete = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { action in
+            self.deleteAction(goal: goal)
+        }
+        
+        func getPreviewVC(indexPath: IndexPath) -> UIViewController? {
+            if let destinationVC = storyboard?.instantiateViewController(identifier: "Detail") as? DetailTableViewController {
+                destinationVC.goal = goal
+
+                return destinationVC
+            }
+
+            return nil
+        }
+        
+        return UIContextMenuConfiguration(identifier: "DetailPreview" as NSString, previewProvider: { getPreviewVC(indexPath: indexPath) }) { _ in
+            UIMenu(title: "", children: [share, edit, delete])
         }
     }
 }

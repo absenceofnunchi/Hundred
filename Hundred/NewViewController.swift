@@ -9,6 +9,7 @@
 import UIKit
 import CoreSpotlight
 import MobileCoreServices
+import MapKit
 
 class NewViewController: UIViewController {
     var imagePathString: String?
@@ -311,6 +312,34 @@ class NewViewController: UIViewController {
         return textView
     }()
     
+    lazy var locationLabel: CustomLabel = {
+        let locationLabel = CustomLabel()
+        locationLabel.textAlignment = .left
+        locationLabel.font = UIFont.preferredFont(forTextStyle: .body)
+        locationLabel.alpha = 0
+        customShadowBorder(for: locationLabel)
+        return locationLabel
+    }()
+    
+    var location: CLLocationCoordinate2D? {
+        didSet {
+            if location != nil {
+                UIView.animate(withDuration: 0.5, delay: 0.0, options: [.curveEaseOut], animations: {
+                    self.locationLabel.alpha = 1
+                })
+            } else {
+                UIView.animate(withDuration: 0.5, delay: 0.0, options: [.curveEaseOut], animations: {
+                    self.locationLabel.alpha = 0
+                })
+            }
+
+        }
+    }
+    
+    var locationPlusButton: UIButton!
+    var locationMinusButton: UIButton!
+    var mapPanel = UIView()
+    
     var plusButton: UIButton!
     var minusButton: UIButton!
     var metricPanel = UIView()
@@ -348,6 +377,9 @@ class NewViewController: UIViewController {
         plusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 2)
         minusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 3)
         
+        locationPlusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 9)
+        locationMinusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 10)
+        
         configureUI()
         setConstraints()
         view.addSubview(doneButton)
@@ -376,6 +408,13 @@ class NewViewController: UIViewController {
         addHeader(text: "Comment", stackView: stackView)
         stackView.addArrangedSubview(commentTextView)
         stackView.setCustomSpacing(70, after: commentTextView)
+        
+        addHeader(text: "Location", stackView: stackView)
+        mapPanel.addSubview(locationPlusButton)
+        mapPanel.addSubview(locationMinusButton)
+        stackView.addArrangedSubview(mapPanel)
+        stackView.addArrangedSubview(locationLabel)
+        stackView.setCustomSpacing(70, after: locationLabel)
         
         addHeader(text: "Metrics", stackView: stackView)
         metricPanel.addSubview(plusButton)
@@ -408,6 +447,18 @@ class NewViewController: UIViewController {
         
         commentTextView.translatesAutoresizingMaskIntoConstraints = false
         commentTextView.heightAnchor.constraint(equalToConstant: 200).isActive = true
+        
+        locationLabel.translatesAutoresizingMaskIntoConstraints = false
+        locationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        mapPanel.translatesAutoresizingMaskIntoConstraints = false
+        mapPanel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        
+        locationPlusButton.translatesAutoresizingMaskIntoConstraints = false
+        locationPlusButton.trailingAnchor.constraint(equalTo: minusButton.leadingAnchor, constant: -15).isActive = true
+        
+        locationMinusButton.translatesAutoresizingMaskIntoConstraints = false
+        locationMinusButton.trailingAnchor.constraint(equalTo: metricPanel.trailingAnchor).isActive = true
         
         metricPanel.translatesAutoresizingMaskIntoConstraints = false
         metricPanel.heightAnchor.constraint(equalToConstant: 30).isActive = true
@@ -508,7 +559,7 @@ class NewViewController: UIViewController {
             
             metricView.translatesAutoresizingMaskIntoConstraints = false
             metricStackView.addArrangedSubview(metricView)
-            UIView.animate(withDuration: 0.5, delay: 0.1, options: [.curveEaseOut], animations: {
+            UIView.animate(withDuration: 0.5, delay: 0.0, options: [.curveEaseOut], animations: {
                 metricView.alpha = 1
             })
             
@@ -797,6 +848,15 @@ class NewViewController: UIViewController {
                     navigationController?.pushViewController(vc, animated: true)
                 }
             }
+        case 9:
+            if let vc = storyboard?.instantiateViewController(withIdentifier: "Map") as? MapViewController {
+                vc.fetchPlacemarkDelegate = self
+                navigationController?.pushViewController(vc, animated: true)
+            }
+        case 10:
+            location = nil
+            locationLabel.text = nil
+            
         default:
             print("default")
         }
@@ -1001,4 +1061,14 @@ extension Sequence where Element: Hashable {
     }
 }
 
+protocol HandleLocation {
+    func fetchPlacemark(placemark: MKPlacemark)
+}
 
+extension NewViewController: HandleLocation {
+    func fetchPlacemark(placemark: MKPlacemark) {
+        print(placemark)
+        locationLabel.text = placemark.title
+        location = placemark.coordinate
+    }
+}

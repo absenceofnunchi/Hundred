@@ -31,6 +31,11 @@
 		4996BD5E24D4910600E301B4 /* AddGoalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD5D24D4910600E301B4 /* AddGoalViewController.swift */; };
 		499E8B2F24F0CC1700C829C8 /* EditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 499E8B2E24F0CC1700C829C8 /* EditViewController.swift */; };
 		49B328FE24E3269F00D9E8D4 /* DataImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B328FD24E3269F00D9E8D4 /* DataImporter.swift */; };
+		49C70D6925016923000BC383 /* MyAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C70D6825016923000BC383 /* MyAnnotation.swift */; };
+		49C70D6B25016B02000BC383 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49C70D6A25016B02000BC383 /* MapKit.framework */; };
+		49C70D6D25016BF1000BC383 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C70D6C25016BF1000BC383 /* MapViewController.swift */; };
+		49C70D7125018D12000BC383 /* MyAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C70D7025018D12000BC383 /* MyAnnotationView.swift */; };
+		49C70D732501940D000BC383 /* LocationSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C70D722501940D000BC383 /* LocationSearchViewController.swift */; };
 		49C8690524F44D66005D0C4D /* GoalCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C8690424F44D66005D0C4D /* GoalCell.swift */; };
 		49D1163024FDE22900FB75BF /* HighestMetrics+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D1162824FDE22900FB75BF /* HighestMetrics+CoreDataClass.swift */; };
 		49D1163124FDE22900FB75BF /* HighestMetrics+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D1162924FDE22900FB75BF /* HighestMetrics+CoreDataProperties.swift */; };
@@ -76,6 +81,11 @@
 		4996BD5D24D4910600E301B4 /* AddGoalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGoalViewController.swift; sourceTree = "<group>"; };
 		499E8B2E24F0CC1700C829C8 /* EditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewController.swift; sourceTree = "<group>"; };
 		49B328FD24E3269F00D9E8D4 /* DataImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataImporter.swift; sourceTree = "<group>"; };
+		49C70D6825016923000BC383 /* MyAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyAnnotation.swift; sourceTree = "<group>"; };
+		49C70D6A25016B02000BC383 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		49C70D6C25016BF1000BC383 /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
+		49C70D7025018D12000BC383 /* MyAnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyAnnotationView.swift; sourceTree = "<group>"; };
+		49C70D722501940D000BC383 /* LocationSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchViewController.swift; sourceTree = "<group>"; };
 		49C8690424F44D66005D0C4D /* GoalCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalCell.swift; sourceTree = "<group>"; };
 		49D1162824FDE22900FB75BF /* HighestMetrics+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HighestMetrics+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
 		49D1162924FDE22900FB75BF /* HighestMetrics+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HighestMetrics+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
@@ -101,6 +111,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49C70D6B25016B02000BC383 /* MapKit.framework in Frameworks */,
 				959BBA5D7FE2D6CC34668FE7 /* Pods_Hundred.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -111,6 +122,7 @@
 		0A8A307875B520E0F1F62103 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				49C70D6A25016B02000BC383 /* MapKit.framework */,
 				E151965057E79A8338541A10 /* Pods_Hundred.framework */,
 			);
 			name = Frameworks;
@@ -175,6 +187,8 @@
 				491F5A7B24E458FA0075EDCD /* DetailTableViewController.swift */,
 				497DC78324EA15A800446178 /* NewViewController.swift */,
 				494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */,
+				49C70D6C25016BF1000BC383 /* MapViewController.swift */,
+				49C70D722501940D000BC383 /* LocationSearchViewController.swift */,
 				49795B7524DC864000D27111 /* EntryViewController.swift */,
 				491165FE24FAE4A000B2963A /* Test.swift */,
 				4906B77424F2FEA700417574 /* EditEntryViewController.swift */,
@@ -190,6 +204,8 @@
 				49DB512B24ECAA6500857634 /* ButtonCreator.swift */,
 				49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */,
 				496149CB25007DAE00C5A23B /* BarChartAxisFormatter.swift */,
+				49C70D6825016923000BC383 /* MyAnnotation.swift */,
+				49C70D7025018D12000BC383 /* MyAnnotationView.swift */,
 				4996BD5524D485CB00E301B4 /* Info.plist */,
 				49026F9024DB41EB00724369 /* Extensions-Utilities */,
 				49026F9324DB4E2600724369 /* Supporting */,
@@ -328,6 +344,9 @@
 				49026F9B24DB4FBF00724369 /* ProgressCell.swift in Sources */,
 				49795B7624DC864000D27111 /* EntryViewController.swift in Sources */,
 				49E9631224FC8FA10041239B /* SpinnerViewController.swift in Sources */,
+				49C70D732501940D000BC383 /* LocationSearchViewController.swift in Sources */,
+				49C70D7125018D12000BC383 /* MyAnnotationView.swift in Sources */,
+				49C70D6D25016BF1000BC383 /* MapViewController.swift in Sources */,
 				4996BD5C24D48B0700E301B4 /* GoalsTableViewController.swift in Sources */,
 				498AC32724FD520D003FDBF2 /* BaseViewController.swift in Sources */,
 				4906B77524F2FEA700417574 /* EditEntryViewController.swift in Sources */,
@@ -335,6 +354,7 @@
 				499E8B2F24F0CC1700C829C8 /* EditViewController.swift in Sources */,
 				49F1B1EC24FB34BA006D6887 /* CalendarCell.swift in Sources */,
 				49F1B1EA24FB21B8006D6887 /* CalendarDetailTableViewController.swift in Sources */,
+				49C70D6925016923000BC383 /* MyAnnotation.swift in Sources */,
 				4996BD4924D485C900E301B4 /* ViewController.swift in Sources */,
 				49026F9224DB423900724369 /* Constraints.swift in Sources */,
 				494F0C2A24D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift in Sources */,

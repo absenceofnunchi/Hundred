@@ -66,9 +66,11 @@ struct ButtonCreator {
 // 14. disable a done button  - done
 // 15. fix detail custom cell text alignment
 // 16. map - needs google places
-// 17. peek
+// 17. peek - done
 // 18. only show select plist per entry - done
 // 19. image corner radius
 // 20. cell animation - delays touch
 // 21. landscape pie chart
 // 22. delete the images in ios directory
+// 23. fix streak
+// 24. make things background

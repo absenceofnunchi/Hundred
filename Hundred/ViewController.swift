@@ -97,8 +97,8 @@ class ViewController: UIViewController {
         navigationController?.title = "Home"
         navigationController?.navigationBar.isHidden = true
         
-        addCard(text: "Calendar", subItem: calendarHeatMap, stackView: stackView, containerHeight: 270)
-        addCard(text: "Pie Chart", subItem: pieChartView, stackView: stackView, containerHeight: 300)
+        addCard(text: "Contribution Calendar", subItem: calendarHeatMap, stackView: stackView, containerHeight: 270)
+        addCard(text: "Composition Pie Chart", subItem: pieChartView, stackView: stackView, containerHeight: 300)
     }
     
     func setConstraints() {
@@ -180,23 +180,46 @@ class ViewController: UIViewController {
             dateArr.insert(dateFormatter.string(from: progressEntry.date))
         }
         
-        let barChartData = BarChartDataEntry(x: 0, y: Double(99)/100)
-//        let barChartData = BarChartDataEntry(x: 0, y: Double(dateArr.count)/100)
-        let barChartDataSet = BarChartDataSet(entries: [barChartData], label: "DataSet")
-       
-        let c100 = NSUIColor(hex: 0x34ace0)
-        let c2 = NSUIColor(hex: 0x40407a)
-        let c3 = NSUIColor(hex: 0x706fd3)
-        let c4 = NSUIColor(hex: 0xf7f1e3)
-        let c5 = NSUIColor(hex: 0x33d9b2)
-        let c6 = NSUIColor(hex: 0xff5252)
-        let c7 = NSUIColor(hex: 0xff793f)
-        let c8 = NSUIColor(hex: 0xd1ccc0)
-        let c9 = NSUIColor(hex: 0xffb142)
-        let c111 = NSUIColor(hex: 0xffda79)
-        let c1 = NSUIColor(hex: 0x78e08f)
+        var denominator: Double = 100
+        switch Double(dateArr.count)/100 {
+        case 0..<1.1:
+            denominator = 100
+        case 1.1..<2.1:
+            denominator = 200
+        case 2.1..<3.1:
+            denominator = 300
+        case 3.1..<4.1:
+            denominator = 400
+        case 4.1..<5.1:
+            denominator = 500
+        case 5.1..<6.1:
+            denominator = 600
+        case 6.1..<7.1:
+            denominator = 700
+        case 7.1..<8.1:
+            denominator = 800
+        case 8.1..<9.1:
+            denominator = 900
+        case 9.1..<10.1:
+            denominator = 1000
+        case 10.1..<11.1:
+            denominator = 1100
+        case 11.1..<12.1:
+            denominator = 1200
+        case 12.1..<13.1:
+            denominator = 1300
+        case 13.1..<14.1:
+            denominator = 1400
+        case 14.1..<15.1:
+            denominator = 1500
+        default:
+            denominator = 100
+        }
         
-        barChartDataSet.colors = [c8]
+        let barChartData = BarChartDataEntry(x: 0, y: Double(dateArr.count)/100)
+        let barChartDataSet = BarChartDataSet(entries: [barChartData], label: "# of contributed days out of \(Int(denominator)) days")
+       
+        barChartDataSet.colors = [NSUIColor(hex: 0xd1ccc0)]
         
         let valFormatter = NumberFormatter()
         valFormatter.numberStyle = .percent
@@ -206,7 +229,7 @@ class ViewController: UIViewController {
         
         let data = BarChartData(dataSet: barChartDataSet)
         data.setValueFont(UIFont(name:"HelveticaNeue-Light", size:10)!)
-        data.barWidth = 3.0
+        data.barWidth = 1.0
         
         hBarChartview.data = data
         
@@ -580,6 +603,6 @@ extension ViewController: CalendarHeatmapDelegate {
     }
     
     func finishLoadCalendar() {
-        calendarHeatMap.scrollTo(date: Date(), at: .right, animated: false)
+        calendarHeatMap.scrollTo(date: Date(), at: .right, animated: true)
     }
 }

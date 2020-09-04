@@ -6,7 +6,6 @@
 //  Copyright © 2020 J. All rights reserved.
 //
 
-import UIKit
 import CalendarHeatmap
 
 struct DataImporter {

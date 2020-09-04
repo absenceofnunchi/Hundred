@@ -150,7 +150,7 @@ class EditEntryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+                
         initializeHideKeyboard()
         configureView()
         setConstraints()
@@ -246,6 +246,7 @@ class EditEntryViewController: UIViewController {
                 ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
             })
         case 2:
+            // completed editing
             let progressRequest = Progress.createFetchRequest()
             let progressPredicate = NSPredicate(format: "id == %@", progress.id as CVarArg)
             progressRequest.predicate = progressPredicate
@@ -310,7 +311,10 @@ class EditEntryViewController: UIViewController {
                         mainVC.goals = mainDataImporter.loadData()
                     }
                     
-                    delegate?.callBack(value: progress, metricsExist: progress?.metric != nil)
+                    if self.navigationController?.previousViewController is EntryViewController {
+                        delegate?.callBack(value: progress, metricsExist: progress?.metric != nil)
+                    }
+
                     _ = navigationController?.popViewController(animated: true)
                 }
             }
@@ -392,5 +396,12 @@ extension EditEntryViewController: UIImagePickerControllerDelegate, UINavigation
     
     func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
         (viewController as? DetailTableViewController)?.tableView.reloadData()
+    }
+}
+
+// get the previous vc in the nav stack
+extension UINavigationController {
+    var previousViewController: UIViewController? {
+       viewControllers.count > 1 ? viewControllers[viewControllers.count - 2] : nil
     }
 }
