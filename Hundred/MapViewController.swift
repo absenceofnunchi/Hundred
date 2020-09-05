@@ -15,30 +15,28 @@ class MapViewController: UIViewController {
     var resultSearchController: UISearchController? = nil
     let locationManager = CLLocationManager()
     var fetchPlacemarkDelegate: NewViewController? = nil
+    var editPlacemarkDelegate: EditEntryViewController? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         mapView.delegate = self
-        mapView.register(MyAnnotationView.self, forAnnotationViewWithReuseIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
         
-        configureUI()
         checkLocationServices()
         configureLocationSearch()
         
-//        let initialLocation = CLLocation(latitude: 43.6532, longitude: -79.3832)
-
+        tabBarController?.tabBar.isHidden = true
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        tabBarController?.tabBar.isHidden = false
     }
     
 //    func setupLocationManager() {
 //        locationManager.delegate = self
 //        locationManager.desiredAccuracy = kCLLocationAccuracyBest
 //    }
-    
-    func configureUI() {
-//        let _annotation = MyAnnotation(title: "My Location", locationName: "The 6ix", discipline: "6ix", coordinate: CLLocationCoordinate2D(latitude: 43.6532, longitude: -79.3832))
-//        mapView.addAnnotation(_annotation)
-    }
     
     func configureLocationSearch() {
         // Set up the search results table
@@ -139,6 +137,7 @@ extension MapViewController: MKMapViewDelegate {
     @objc func mapButtonPressed() {
         if let selectedPin = selectedPin {
             fetchPlacemarkDelegate?.fetchPlacemark(placemark: selectedPin)
+            editPlacemarkDelegate?.fetchPlacemark(placemark: selectedPin)
             _ = navigationController?.popViewController(animated: true)
         }
     }
@@ -156,9 +155,7 @@ extension MapViewController: HandleMapSearch {
         // clear the existing pins
         mapView.removeAnnotations(mapView.annotations)
         mapView.addAnnotation(placemark)
-        
-        print(placemark.coordinate.latitude is Double)
-        
+                
         let span = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
         let region = MKCoordinateRegion(center: placemark.coordinate, span: span)
         mapView.setRegion(region, animated: true)

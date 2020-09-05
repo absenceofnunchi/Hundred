@@ -14,7 +14,7 @@ import MapKit
 class NewViewController: UIViewController {
     var imagePathString: String?
     var imagePath: URL?
-
+    
     @IBOutlet weak var scrollView: UIScrollView!
     
     lazy var stackView: UIStackView = {
@@ -41,9 +41,10 @@ class NewViewController: UIViewController {
         textField.font = UIFont.preferredFont(forTextStyle: .body)
         customShadowBorder(for: textField)
         textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        textField.delegate = self
         return textField
     }()
-        
+    
     lazy var goalLabel: CustomLabel = {
         let gLabel = CustomLabel()
         gLabel.textAlignment = .left
@@ -140,7 +141,7 @@ class NewViewController: UIViewController {
                     stackView.removeArrangedSubview(editButtonContainer)
                     editButtonContainer.removeFromSuperview()
                 }
-
+                
                 for singleSubview in metricStackView.arrangedSubviews {
                     UIView.animate(withDuration: 0.5, delay: 0.1, options: [.curveEaseOut], animations: {
                         singleSubview.alpha = 0
@@ -247,6 +248,7 @@ class NewViewController: UIViewController {
                         metricTextField.keyboardType = UIKeyboardType.decimalPad
                         metricTextField.placeholder = "Metrics"
                         metricTextField.textAlignment = .center
+                        metricTextField.delegate = self
                         customShadowBorder(for: metricTextField)
                         metricView.addSubview(metricTextField)
                         
@@ -327,12 +329,12 @@ class NewViewController: UIViewController {
                 UIView.animate(withDuration: 0.5, delay: 0.0, options: [.curveEaseOut], animations: {
                     self.locationLabel.alpha = 1
                 })
-            } else {
+            } else {          
                 UIView.animate(withDuration: 0.5, delay: 0.0, options: [.curveEaseOut], animations: {
                     self.locationLabel.alpha = 0
                 })
             }
-
+            
         }
     }
     
@@ -368,6 +370,8 @@ class NewViewController: UIViewController {
         return dButton
     }()
     
+    var contentInset: CGFloat?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         commentTextView.delegate = self
@@ -382,13 +386,17 @@ class NewViewController: UIViewController {
         
         configureUI()
         setConstraints()
-        view.addSubview(doneButton)
         
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         
-       self.navigationController?.navigationBar.setValue(true, forKey: "hidesShadow")
+        self.navigationController?.navigationBar.setValue(true, forKey: "hidesShadow")
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        tabBarController?.tabBar.isHidden = false
     }
     
     func configureUI() {
@@ -421,7 +429,9 @@ class NewViewController: UIViewController {
         metricPanel.addSubview(minusButton)
         stackView.addArrangedSubview(metricPanel)
         stackView.addArrangedSubview(metricStackView)
-        stackView.setCustomSpacing(70, after: metricStackView)
+        stackView.setCustomSpacing(0, after: metricStackView)
+        
+        view.addSubview(doneButton)
     }
     
     func setConstraints() {
@@ -438,7 +448,7 @@ class NewViewController: UIViewController {
         
         goalButton.translatesAutoresizingMaskIntoConstraints = false
         goalButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-
+        
         editButtonContainer.translatesAutoresizingMaskIntoConstraints = false
         editButtonContainer.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
@@ -455,10 +465,10 @@ class NewViewController: UIViewController {
         mapPanel.heightAnchor.constraint(equalToConstant: 30).isActive = true
         
         locationPlusButton.translatesAutoresizingMaskIntoConstraints = false
-        locationPlusButton.trailingAnchor.constraint(equalTo: minusButton.leadingAnchor, constant: -15).isActive = true
+        locationPlusButton.trailingAnchor.constraint(equalTo: locationMinusButton.leadingAnchor, constant: -15).isActive = true
         
         locationMinusButton.translatesAutoresizingMaskIntoConstraints = false
-        locationMinusButton.trailingAnchor.constraint(equalTo: metricPanel.trailingAnchor).isActive = true
+        locationMinusButton.trailingAnchor.constraint(equalTo: mapPanel.trailingAnchor).isActive = true
         
         metricPanel.translatesAutoresizingMaskIntoConstraints = false
         metricPanel.heightAnchor.constraint(equalToConstant: 30).isActive = true
@@ -515,7 +525,7 @@ class NewViewController: UIViewController {
             let ac = UIAlertController(title: "Pick an image", message: nil, preferredStyle: .actionSheet)
             ac.addAction(UIAlertAction(title: "Photos", style: .default, handler: openPhoto))
             ac.addAction(UIAlertAction(title: "Camera", style: .default, handler: openCamera))
-
+            
             if imagePathString != nil {
                 ac.addAction(UIAlertAction(title: "No Image", style: .default, handler: { action in
                     let largeConfig = UIImage.SymbolConfiguration(pointSize: 60, weight: .medium, scale: .large)
@@ -527,9 +537,9 @@ class NewViewController: UIViewController {
             }
             
             if let popoverController = ac.popoverPresentationController {
-                  popoverController.sourceView = self.view
-                  popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-                  popoverController.permittedArrowDirections = []
+                popoverController.sourceView = self.view
+                popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                popoverController.permittedArrowDirections = []
             }
             
             present(ac, animated: true, completion: {() -> Void in
@@ -547,6 +557,7 @@ class NewViewController: UIViewController {
             
             metricUnitTextField.autocapitalizationType = .none
             metricUnitTextField.autocorrectionType = .no
+            metricUnitTextField.delegate = self
             customShadowBorder(for: metricUnitTextField)
             metricView.addSubview(metricUnitTextField)
             
@@ -554,6 +565,7 @@ class NewViewController: UIViewController {
             metricTextField.keyboardType = UIKeyboardType.decimalPad
             metricTextField.placeholder = "Metrics"
             metricTextField.textAlignment = .center
+            metricTextField.delegate = self
             customShadowBorder(for: metricTextField)
             metricView.addSubview(metricTextField)
             
@@ -623,10 +635,10 @@ class NewViewController: UIViewController {
                 for singleMetricPair in metricDict {
                     let metric = Metric(context: self.context)
                     
-//                    let df = DateFormatter()
-//                    df.dateFormat = "yyyy/MM/dd HH:mm"
-//                    let someDateTime = df.date(from: "2020/09/02 22:31")
-//                    metric.date = someDateTime!
+                    //                    let df = DateFormatter()
+                    //                    df.dateFormat = "yyyy/MM/dd HH:mm"
+                    //                    let someDateTime = df.date(from: "2020/09/02 22:31")
+                    //                    metric.date = someDateTime!
                     metric.date = Date()
                     metric.unit = singleMetricPair.key
                     metric.id = UUID()
@@ -638,9 +650,9 @@ class NewViewController: UIViewController {
                 ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
                 
                 if let popoverController = ac.popoverPresentationController {
-                      popoverController.sourceView = self.view
-                      popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-                      popoverController.permittedArrowDirections = []
+                    popoverController.sourceView = self.view
+                    popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                    popoverController.permittedArrowDirections = []
                 }
                 
                 present(ac, animated: true)
@@ -654,6 +666,11 @@ class NewViewController: UIViewController {
             progress.date = Date()
             let progressId = UUID()
             progress.id = progressId
+            
+            if let longitude = location?.longitude, let latitude = location?.latitude {
+                progress.longitude = NSDecimalNumber(value: longitude)
+                progress.latitude = NSDecimalNumber(value: latitude)
+            }
             
             // Core Spotlight indexing for Progress
             let progressAttributeSet = CSSearchableItemAttributeSet(itemContentType: kUTTypeText as String)
@@ -696,11 +713,6 @@ class NewViewController: UIViewController {
                         for item in metricDict {
                             if case nil = goal.metrics?.append(item.key) {
                                 goal.metrics = [item.key]
-                                
-                                let highestMetric = HighestMetrics(context: self.context)
-                                highestMetric.unit = item.key
-                                highestMetric.value = stringToDecimal(string: item.value)
-                                goal.highestToGoal.insert(highestMetric)
                             }
                         }
                         
@@ -708,21 +720,21 @@ class NewViewController: UIViewController {
                             progress.metric.insert(singleEntry)
                             goal.goalToMetric.insert(singleEntry)
                         }
-
+                        
                         goal.progress.insert(progress)
-                         
+                        
                         // Core Spotlight indexing
                         let attributeSet = CSSearchableItemAttributeSet(itemContentType: kUTTypeText as String)
                         attributeSet.title = goalText
                         attributeSet.contentCreationDate = Date()
                         attributeSet.contentDescription = goalDescTextView.text
                         if let titleKeywords =  goalTextField.text?.components(separatedBy: " ") {
-                             var keywordsArr = ["productivity", "goal setting", "habit"]
-                             for keyword in titleKeywords {
-                                 keywordsArr.append(keyword)
-                             }
-                             progressAttributeSet.keywords = keywordsArr
-                         }
+                            var keywordsArr = ["productivity", "goal setting", "habit"]
+                            for keyword in titleKeywords {
+                                keywordsArr.append(keyword)
+                            }
+                            progressAttributeSet.keywords = keywordsArr
+                        }
                         
                         let item = CSSearchableItem(uniqueIdentifier: "\(goalText)", domainIdentifier: "com.noName.Hundred", attributeSet: attributeSet)
                         item.expirationDate = Date.distantFuture
@@ -730,12 +742,12 @@ class NewViewController: UIViewController {
                             if let error = error {
                                 print("Indexing error: \(error.localizedDescription)")
                             } else {
-                                print("Search item successfully indexed")
+                                print("Search item for Goal successfully indexed")
                             }
                         }
                     }
                 }
-            // Add to an existing goal
+                // Add to an existing goal
             } else if let existingGoalText = goalLabel.text, !existingGoalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 goalRequest.predicate = NSPredicate(format: "title == %@", existingGoalText)
                 if let fetchedGoal = try? self.context.fetch(goalRequest) {
@@ -805,7 +817,7 @@ class NewViewController: UIViewController {
             goalDescTextView.textColor = UIColor.lightGray
             commentTextView.text = "Provide a comment about your first progress"
             commentTextView.textColor = UIColor.lightGray
-
+            
             if self.metricStackView.arrangedSubviews.count > 0 {
                 for subView in self.metricStackView.arrangedSubviews {
                     self.metricStackView.removeArrangedSubview(subView)
@@ -835,9 +847,9 @@ class NewViewController: UIViewController {
             ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
             
             if let popoverController = ac.popoverPresentationController {
-                  popoverController.sourceView = self.view
-                  popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-                  popoverController.permittedArrowDirections = []
+                popoverController.sourceView = self.view
+                popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                popoverController.permittedArrowDirections = []
             }
             
             present(ac, animated: true)
@@ -923,9 +935,9 @@ class NewViewController: UIViewController {
             ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
             
             if let popoverController = ac.popoverPresentationController {
-                  popoverController.sourceView = self.view
-                  popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-                  popoverController.permittedArrowDirections = []
+                popoverController.sourceView = self.view
+                popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                popoverController.permittedArrowDirections = []
             }
             
             present(ac, animated: true)
@@ -967,10 +979,10 @@ class NewViewController: UIViewController {
                                 ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
                                 
                                 if let popoverController = ac.popoverPresentationController {
-                                      popoverController.sourceView = self.view
-                                      popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-                                      popoverController.permittedArrowDirections = []
-                                 }
+                                    popoverController.sourceView = self.view
+                                    popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                                    popoverController.permittedArrowDirections = []
+                                }
                                 
                                 present(ac, animated: true)
                                 return
@@ -997,14 +1009,15 @@ class NewViewController: UIViewController {
             mainVC.goals = mainDataImporter.loadData()
         }
         
-//        let vc = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? DetailTableViewController
+        //        let vc = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? DetailTableViewController
         
     }
-    
 }
 
-extension NewViewController: UITextViewDelegate {
+extension NewViewController: UITextViewDelegate, UITextFieldDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
+        print("textView: \(textView)")
+        contentInset = textView.frame.maxY
         if textView.textColor == UIColor.lightGray {
             textView.text = nil
             textView.textColor = UIColor.black
@@ -1017,6 +1030,12 @@ extension NewViewController: UITextViewDelegate {
             textView.textColor = UIColor.lightGray
         }
     }
+    
+    //    func textFieldDidBeginEditing(_ textField: UITextField) {
+    //        contentInset = textField.frame.maxY
+    //        // frame = (30 191.333; 315 50)
+    //    }
+    
 }
 
 extension NewViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -1040,7 +1059,7 @@ extension NewViewController: UIImagePickerControllerDelegate, UINavigationContro
             cameraButton.imageView?.contentMode = .scaleAspectFill
         }
         cameraButton.imageView?.layer.masksToBounds = true
-//        cameraButton.imageView?.layer.cornerRadius = 50
+        //        cameraButton.imageView?.layer.cornerRadius = 50
         
         dismiss(animated: true, completion: nil)
         
@@ -1067,7 +1086,6 @@ protocol HandleLocation {
 
 extension NewViewController: HandleLocation {
     func fetchPlacemark(placemark: MKPlacemark) {
-        print(placemark)
         locationLabel.text = placemark.title
         location = placemark.coordinate
     }

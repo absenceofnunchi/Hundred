@@ -2,14 +2,13 @@
 //  Progress+CoreDataProperties.swift
 //  Hundred
 //
-//  Created by jc on 2020-08-31.
+//  Created by jc on 2020-09-03.
 //  Copyright © 2020 J. All rights reserved.
 //
 //
 
 import Foundation
 import CoreData
-
 
 extension Progress {
 
@@ -24,6 +23,8 @@ extension Progress {
     @NSManaged public var id: UUID
     @NSManaged public var goal: Goal
     @NSManaged public var metric: Set<Metric>
+    @NSManaged public var longitude: NSDecimalNumber?
+    @NSManaged public var latitude: NSDecimalNumber?
 
     public override func prepareForDeletion() {
         if let image = image {
@@ -38,6 +39,7 @@ extension Progress {
             }
         }
     }
+
 }
 
 // MARK: Generated accessors for metric

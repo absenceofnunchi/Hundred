@@ -41,7 +41,7 @@ class DetailTableViewController: UITableViewController, UIContextMenuInteraction
     
     func configureUI() {
         title = goal.title
-        tabBarController?.tabBar.isHidden = true
+//        tabBarController?.tabBar.isHidden = true
         
         tableView.register(ProgressCell.self, forCellReuseIdentifier: Cells.progressCell)
         tableView.rowHeight = 85
@@ -66,7 +66,6 @@ class DetailTableViewController: UITableViewController, UIContextMenuInteraction
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let vc = storyboard?.instantiateViewController(identifier: "Entry") as? EntryViewController {
             vc.progress = progresses[indexPath.row]
-            vc.metrics = goal.metrics
             vc.indexPathRow = indexPath.row
             vc.indexPath = indexPath
             navigationController?.pushViewController(vc, animated: true)

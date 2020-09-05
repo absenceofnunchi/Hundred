@@ -30,7 +30,7 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        tabBarController?.tabBar.isHidden = false
+//        tabBarController?.tabBar.isHidden = false
         tableView.reloadData()
     }
     

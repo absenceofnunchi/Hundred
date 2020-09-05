@@ -132,7 +132,7 @@ class EditViewController: UIViewController {
         super.viewDidLoad()
         
         title = "Edit Your Goal"
-        
+                
         initializeHideKeyboard()
         configureStackView()
         setConstraints()
@@ -313,12 +313,7 @@ class EditViewController: UIViewController {
                     if goalFromCoreData.metrics == nil {
                         goalFromCoreData.metrics = []
                         goalFromCoreData.metrics = metricArr
-                        //                        for singleMetric in metricArr {
-                        //                            let highestMetric = HighestMetrics()
-                        //                            highestMetric.unit = singleMetric
-                        //                            highestMetric.value = 0
-                        //                            goalFromCoreData.highestToGoal.insert(highestMetric)
-                        //                        }
+      
                     } else {
                         // delete all the metrics from Core Data that are not in the newly updated version
                         if let existingMetrics = goalFromCoreData.metrics {
@@ -361,6 +356,10 @@ class EditViewController: UIViewController {
                         
                         let mainDataImporter = MainDataImporter()
                         mainVC.goals = mainDataImporter.loadData()
+                    }
+                    
+                    if let goalVC = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? GoalsTableViewController {
+                        goalVC.tableView.reloadData()
                     }
                     
                     _ = navigationController?.popViewController(animated: true)

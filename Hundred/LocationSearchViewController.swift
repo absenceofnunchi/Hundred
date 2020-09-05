@@ -19,29 +19,6 @@ class LocationSearchViewController: UITableViewController {
         super.viewDidLoad()
 
     }
-    
-    // MARK:- Helper functions
-    func parseAddress(selectedItem: MKPlacemark) -> String {
-        let firstSpace = (selectedItem.thoroughfare != nil && selectedItem.subThoroughfare != nil) ? " ": ""
-        let comma = (selectedItem.subThoroughfare != nil || selectedItem.thoroughfare != nil) && (selectedItem.subAdministrativeArea != nil || selectedItem.administrativeArea != nil) ? ", ": ""
-        let secondSpace = (selectedItem.subAdministrativeArea != nil && selectedItem.administrativeArea != nil) ? " ": ""
-        let addressLine = String(
-            format: "%@%@%@%@%@%@%@",
-            // street number
-            selectedItem.subThoroughfare ?? "",
-            firstSpace,
-            // street name
-            selectedItem.thoroughfare ?? "",
-            comma,
-            //city
-            selectedItem.locality ?? "",
-            secondSpace,
-            // state or province
-            selectedItem.administrativeArea ?? ""
-            )
-        return addressLine
-    }
-
 }
 
 // MARK:- Location search results
@@ -81,6 +58,7 @@ extension LocationSearchViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedItem = matchingItems[indexPath.row].placemark
+        print(selectedItem)
         handleMapSearchDelegate?.dropPinZoomIn(placemark: selectedItem)
         
         dismiss(animated: true, completion: nil)

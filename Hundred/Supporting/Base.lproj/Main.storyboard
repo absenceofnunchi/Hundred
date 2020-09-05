@@ -38,7 +38,7 @@
         <!--Map-->
         <scene sceneID="tFW-lr-x3c">
             <objects>
-                <viewController storyboardIdentifier="Map" title="Map" hidesBottomBarWhenPushed="YES" id="l8S-yw-Ops" customClass="MapViewController" customModule="Hundred" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Map" title="Map" id="l8S-yw-Ops" customClass="MapViewController" customModule="Hundred" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="msy-yg-Iri">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -314,7 +314,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="VaR-lO-1b4" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2547.826086956522" y="1056.0267857142858"/>
+            <point key="canvasLocation" x="2548" y="1057"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="REL-Qd-Zn3">
@@ -511,7 +511,6 @@
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
                     <connections>
                         <outlet property="scrollView" destination="lN4-w3-zQ3" id="mMQ-Xg-3kC"/>
-                        <segue destination="l8S-yw-Ops" kind="show" id="sbC-Ez-SSH"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="jWJ-i1-sb5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

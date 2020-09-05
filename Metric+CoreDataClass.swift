@@ -2,7 +2,7 @@
 //  Metric+CoreDataClass.swift
 //  Hundred
 //
-//  Created by jc on 2020-08-31.
+//  Created by jc on 2020-09-03.
 //  Copyright © 2020 J. All rights reserved.
 //
 //

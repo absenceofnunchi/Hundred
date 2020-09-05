@@ -8,10 +8,11 @@
 
 import UIKit
 import Charts
+import MapKit
 
 extension UIViewController {
     
-    func addCard<T: UIView>(text: String, subItem: T, stackView: UIStackView, containerHeight: CGFloat? = 20, bottomSpacing: CGFloat? = 60, insert: Int? = nil, tag: Int? = 1) {
+    func addCard<T: UIView>(text: String, subItem: T, stackView: UIStackView, containerHeight: CGFloat? = 20, bottomSpacing: CGFloat? = 60, insert: Int? = nil, tag: Int? = 1, topInset: CGFloat? = 30, bottomInset: CGFloat? = -30, widthMultiplier: CGFloat? = 0.8) {
         let container = UIView()
         if let tag = tag {
             container.tag = tag
@@ -46,9 +47,9 @@ extension UIViewController {
 
         subItem.backgroundColor = .white
         subItem.translatesAutoresizingMaskIntoConstraints = false
-        subItem.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 30).isActive = true
-        subItem.widthAnchor.constraint(equalTo: container.widthAnchor, multiplier: 0.8).isActive = true
-        subItem.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -30).isActive = true
+        subItem.topAnchor.constraint(equalTo: label.bottomAnchor, constant: topInset ?? 30).isActive = true
+        subItem.widthAnchor.constraint(equalTo: container.widthAnchor, multiplier: widthMultiplier ?? 0.8).isActive = true
+        subItem.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: bottomInset ?? -30).isActive = true
         subItem.centerXAnchor.constraint(equalTo: container.centerXAnchor).isActive = true
         
         if let bottomSpacing = bottomSpacing {
@@ -169,6 +170,38 @@ extension UIViewController {
         formatter.generatesDecimalNumbers = true
         return formatter.number(from: string) as? NSDecimalNumber ?? 0
     }
+    
+    
+    func parseAddress<T: MKPlacemark>(selectedItem: T) -> String {
+        let firstSpace = (selectedItem.thoroughfare != nil && selectedItem.subThoroughfare != nil) ? " ": ""
+        let comma = (selectedItem.subThoroughfare != nil || selectedItem.thoroughfare != nil) && (selectedItem.subAdministrativeArea != nil || selectedItem.administrativeArea != nil) ? ", ": ""
+        let secondSpace = (selectedItem.subAdministrativeArea != nil && selectedItem.administrativeArea != nil) ? " ": ""
+        let addressLine = String(
+            format: "%@%@%@%@%@%@%@",
+            // street number
+            selectedItem.subThoroughfare ?? "",
+            firstSpace,
+            // street name
+            selectedItem.thoroughfare ?? "",
+            comma,
+            //city
+            selectedItem.locality ?? "",
+            secondSpace,
+            // state or province
+            selectedItem.administrativeArea ?? ""
+            )
+        return addressLine
+    }
+    
+    // get the previous vc in the nav stack
+//    extension UINavigationController {
+        var previousViewController: UIViewController? {
+            if let vcs = navigationController?.viewControllers {
+                return vcs.count > 1 ? vcs[vcs.count - 2] : nil
+            }
+            return nil
+        }
+//    }
 }
 
 fileprivate var grayBackground: UIView?

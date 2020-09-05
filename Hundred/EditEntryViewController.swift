@@ -7,13 +7,14 @@
 //
 
 import UIKit
+import MapKit
 
 class EditEntryViewController: UIViewController {
     @IBOutlet weak var scrollView: UIScrollView!
     var progress: Progress!
     var imagePathString: String?
     var imageBinary: UIImage?
-    var delegate: CallBackDelegate?
+    var delegate: CallBackDelegate? = nil
     
     lazy var stackView: UIStackView = {
         let stackView = UIStackView()
@@ -72,7 +73,7 @@ class EditEntryViewController: UIViewController {
         textView.isScrollEnabled = true
         textView.text = progress.comment
         textView.font = UIFont.preferredFont(forTextStyle: .body)
-        textView.textColor = UIColor.gray
+//        textView.textColor = UIColor.gray
         textView.layer.cornerRadius = 4
         textView.layer.borderWidth = 1
         textView.layer.masksToBounds = true
@@ -83,6 +84,34 @@ class EditEntryViewController: UIViewController {
         return textView
     }()
     
+    lazy var locationLabel: CustomLabel = {
+        let locationLabel = CustomLabel()
+        locationLabel.textAlignment = .left
+        locationLabel.font = UIFont.preferredFont(forTextStyle: .body)
+        locationLabel.text = "Add a location"
+        customShadowBorder(for: locationLabel)
+        return locationLabel
+    }()
+    
+    var location: CLLocationCoordinate2D? {
+        didSet {
+            if location != nil {
+                UIView.animate(withDuration: 0.5, delay: 0.0, options: [.curveEaseOut], animations: {
+                    self.locationLabel.alpha = 1
+                })
+            } else {
+                UIView.animate(withDuration: 0.5, delay: 0.0, options: [.curveEaseOut], animations: {
+                    self.locationLabel.alpha = 0
+                })
+            }
+            
+        }
+    }
+    
+    var locationPlusButton: UIButton!
+    var locationMinusButton: UIButton!
+    var mapPanel = UIView()
+    
     lazy var metricStackView: UIStackView = {
         let mStackView = UIStackView()
         mStackView.axis = .vertical
@@ -90,58 +119,81 @@ class EditEntryViewController: UIViewController {
         mStackView.distribution = .equalSpacing
         mStackView.spacing = 10
         
-        for metric in progress.metric {
-            let metricView = UIView()
-            let metricLabel = UILabel()
-            metricLabel.text = metric.unit
-            metricLabel.textAlignment = .center
-            metricLabel.font = UIFont.preferredFont(forTextStyle: .body)
-            metricLabel.textColor = UIColor.gray
-            let borderColor = UIColor.gray
-            metricLabel.layer.borderColor = borderColor.withAlphaComponent(0.4).cgColor
-            metricLabel.layer.borderWidth = 1
-            metricLabel.layer.masksToBounds = true
-            metricLabel.layer.cornerRadius = 5
-            metricView.addSubview(metricLabel)
-            
-            let metricTextField = UITextField()
-            metricTextField.keyboardType = UIKeyboardType.decimalPad
-            metricTextField.text = String(describing: metric.value)
-            metricTextField.textAlignment = .center
-            metricTextField.font = UIFont.preferredFont(forTextStyle: .body)
-            metricTextField.textColor = UIColor.gray
-            metricTextField.borderStyle = .roundedRect
-            metricTextField.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
-            metricView.addSubview(metricTextField)
-            
-            mStackView.addArrangedSubview(metricView)
-            
-            metricLabel.translatesAutoresizingMaskIntoConstraints = false
-            metricLabel.leadingAnchor.constraint(equalTo: metricView.leadingAnchor).isActive = true
-            metricLabel.centerYAnchor.constraint(equalTo: metricView.centerYAnchor).isActive = true
-            metricLabel.widthAnchor.constraint(equalTo: metricView.widthAnchor, multiplier: 0.46).isActive = true
-            metricLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
-            
-            metricTextField.translatesAutoresizingMaskIntoConstraints = false
-            metricTextField.trailingAnchor.constraint(equalTo: metricView.trailingAnchor).isActive = true
-            metricTextField.centerYAnchor.constraint(equalTo: metricView.centerYAnchor).isActive = true
-            metricTextField.widthAnchor.constraint(equalTo: metricView.widthAnchor, multiplier: 0.46).isActive = true
-            metricTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
-            
-            metricView.translatesAutoresizingMaskIntoConstraints = false
-            metricView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        if let metrics = progress.goal.metrics {
+            if progress.metric.count > 0 {
+                for metric in progress.metric {
+                    displayMetrics(metricString: nil, metric: metric, mStackView: mStackView)
+                }
+            } else {
+                // this is in case the metrics exist, but no entry was made
+                for metric in metrics {
+                    displayMetrics(metricString: metric, metric: nil, mStackView: mStackView)
+                }
+            }
         }
         
         return mStackView
     }()
     
+    func displayMetrics(metricString: String?, metric: Metric?, mStackView: UIStackView) {
+        let metricView = UIView()
+        let metricLabel = UILabel()
+        
+        metricLabel.textAlignment = .center
+        metricLabel.font = UIFont.preferredFont(forTextStyle: .body)
+        metricLabel.textColor = UIColor.gray
+        let borderColor = UIColor.gray
+        metricLabel.layer.borderColor = borderColor.withAlphaComponent(0.4).cgColor
+        metricLabel.layer.borderWidth = 1
+        metricLabel.layer.masksToBounds = true
+        metricLabel.layer.cornerRadius = 5
+        metricView.addSubview(metricLabel)
+        
+        let metricTextField = UITextField()
+        metricTextField.keyboardType = UIKeyboardType.decimalPad
+        metricTextField.textAlignment = .center
+        metricTextField.font = UIFont.preferredFont(forTextStyle: .body)
+        metricTextField.textColor = UIColor.gray
+        metricTextField.borderStyle = .roundedRect
+        metricTextField.layer.borderColor = borderColor.withAlphaComponent(0.2).cgColor
+        metricView.addSubview(metricTextField)
+        
+        if let metric = metric {
+            metricLabel.text = metric.unit
+            metricTextField.text = String(describing: metric.value)
+        } else if let metricString = metricString {
+            metricLabel.text = metricString
+            metricTextField.text = ""
+        }
+        
+        mStackView.addArrangedSubview(metricView)
+        
+        metricLabel.translatesAutoresizingMaskIntoConstraints = false
+        metricLabel.leadingAnchor.constraint(equalTo: metricView.leadingAnchor).isActive = true
+        metricLabel.centerYAnchor.constraint(equalTo: metricView.centerYAnchor).isActive = true
+        metricLabel.widthAnchor.constraint(equalTo: metricView.widthAnchor, multiplier: 0.46).isActive = true
+        metricLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        metricTextField.translatesAutoresizingMaskIntoConstraints = false
+        metricTextField.trailingAnchor.constraint(equalTo: metricView.trailingAnchor).isActive = true
+        metricTextField.centerYAnchor.constraint(equalTo: metricView.centerYAnchor).isActive = true
+        metricTextField.widthAnchor.constraint(equalTo: metricView.widthAnchor, multiplier: 0.46).isActive = true
+        metricTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        metricView.translatesAutoresizingMaskIntoConstraints = false
+        metricView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+    }
+    
     lazy var doneButton: UIButton = {
         let dButton = UIButton()
         dButton.setTitle("Done", for: .normal)
         dButton.layer.cornerRadius = 0
+
+        if let tabBarHeight = tabBarController?.tabBar.frame.size.height {
+            dButton.frame = CGRect(x: 0, y: view.frame.size.height - CGFloat(tabBarHeight + 50), width: view.frame.size.width, height: 50)
+        }
         dButton.backgroundColor = .systemYellow
         dButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .body)
-        dButton.frame = CGRect(x: 0, y: view.frame.size.height - 50, width: view.frame.size.width, height: 50)
         dButton.tag = 2
         dButton.addTarget(self, action: #selector(buttonPressed) , for: .touchUpInside)
         
@@ -150,13 +202,13 @@ class EditEntryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-                
+        locationPlusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 3)
+        locationMinusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 14)
+        
         initializeHideKeyboard()
         configureView()
         setConstraints()
-        
-        view.addSubview(doneButton)
-        
+                
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
@@ -172,8 +224,17 @@ class EditEntryViewController: UIViewController {
         stackView.addArrangedSubview(commentTextView)
         stackView.setCustomSpacing(50, after: commentTextView)
         
+        addHeader(text: "Location", stackView: stackView)
+        mapPanel.addSubview(locationPlusButton)
+        mapPanel.addSubview(locationMinusButton)
+        stackView.addArrangedSubview(mapPanel)
+        stackView.addArrangedSubview(locationLabel)
+        stackView.setCustomSpacing(50, after: locationLabel)
+        
         stackView.addArrangedSubview(metricStackView)
         stackView.setCustomSpacing(50, after: metricStackView)
+        
+        view.addSubview(doneButton)
     }
     
     func setConstraints() {
@@ -189,6 +250,18 @@ class EditEntryViewController: UIViewController {
         
         commentTextView.translatesAutoresizingMaskIntoConstraints = false
         commentTextView.heightAnchor.constraint(equalToConstant: 200).isActive = true
+        
+        locationLabel.translatesAutoresizingMaskIntoConstraints = false
+        locationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        mapPanel.translatesAutoresizingMaskIntoConstraints = false
+        mapPanel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        
+        locationPlusButton.translatesAutoresizingMaskIntoConstraints = false
+        locationPlusButton.trailingAnchor.constraint(equalTo: locationMinusButton.leadingAnchor, constant: -15).isActive = true
+        
+        locationMinusButton.translatesAutoresizingMaskIntoConstraints = false
+        locationMinusButton.trailingAnchor.constraint(equalTo: mapPanel.trailingAnchor).isActive = true
     }
     
     func initializeHideKeyboard(){
@@ -210,11 +283,22 @@ class EditEntryViewController: UIViewController {
         
         if notification.name == UIResponder.keyboardWillHideNotification {
             scrollView.contentInset = .zero
-            doneButton.frame = CGRect(x: 0, y: view.frame.size.height - 50, width: view.frame.size.width, height: 50)
+            
+            if let tabBarHeight = tabBarController?.tabBar.frame.size.height {
+                doneButton.frame = CGRect(x: 0, y: view.frame.size.height - CGFloat(tabBarHeight + 50), width: view.frame.size.width, height: 50)
+            }
         } else {
             scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom, right: 0)
             doneButton.frame = CGRect(x: 0, y: view.frame.size.height - keyboardViewEndFrame.height - 50, width: view.frame.size.width, height: 50)
         }
+        
+//        if notification.name == UIResponder.keyboardWillHideNotification {
+//            scrollView.contentInset = .zero
+//            doneButton.frame = CGRect(x: 0, y: view.frame.size.height - 50, width: view.frame.size.width, height: 50)
+//        } else {
+//            scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom, right: 0)
+//            doneButton.frame = CGRect(x: 0, y: view.frame.size.height - keyboardViewEndFrame.height - 50, width: view.frame.size.width, height: 50)
+//        }
         scrollView.scrollIndicatorInsets = scrollView.contentInset
     }
     
@@ -251,7 +335,6 @@ class EditEntryViewController: UIViewController {
             let progressPredicate = NSPredicate(format: "id == %@", progress.id as CVarArg)
             progressRequest.predicate = progressPredicate
             if let fetchedProgress = try? self.context.fetch(progressRequest) {
-                print("fetched image: \(fetchedProgress.first?.image ?? "")")
                 if fetchedProgress.count > 0 {
                     progress = fetchedProgress.first
                     
@@ -311,13 +394,21 @@ class EditEntryViewController: UIViewController {
                         mainVC.goals = mainDataImporter.loadData()
                     }
                     
-                    if self.navigationController?.previousViewController is EntryViewController {
-                        delegate?.callBack(value: progress, metricsExist: progress?.metric != nil)
+                    if previousViewController is EntryViewController {
+                        delegate?.callBack(value: progress)
                     }
-
+                    
                     _ = navigationController?.popViewController(animated: true)
                 }
             }
+        case 3:
+            if let vc = storyboard?.instantiateViewController(withIdentifier: "Map") as? MapViewController {
+                vc.editPlacemarkDelegate = self
+                navigationController?.pushViewController(vc, animated: true)
+            }
+        case 4:
+            location = nil
+            locationLabel.text = nil
         default:
             print("default")
         }
@@ -368,6 +459,31 @@ class EditEntryViewController: UIViewController {
         self.dismiss(animated: true, completion: nil)
     }
     
+    func createButton(title: String?, image: String?, cornerRadius: CGFloat, color: UIColor, size: CGFloat?, tag: Int) -> UIButton {
+        let button = UIButton()
+        button.clipsToBounds = true
+        button.layer.cornerRadius = cornerRadius
+        
+        if title != nil {
+            button.setTitle(title, for: .normal)
+        }
+        
+        if let image = image {
+            if let size = size {
+                let largeConfig = UIImage.SymbolConfiguration(pointSize: size, weight: .medium, scale: .large)
+                let uiImage = UIImage(systemName: image, withConfiguration: largeConfig)
+                
+                button.tintColor = color
+                button.setImage(uiImage, for: .normal)
+            }
+        }
+        
+        button.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
+        button.tag = tag
+        
+        return button
+    }
+    
 }
 
 extension EditEntryViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -380,7 +496,7 @@ extension EditEntryViewController: UIImagePickerControllerDelegate, UINavigation
         
         imageButton.alpha = 0
         imageButton.setImage(image, for: .normal)
-
+        
         if image.size.width > image.size.height {
             imageButton.imageView?.contentMode = .scaleAspectFit
         } else {
@@ -399,9 +515,9 @@ extension EditEntryViewController: UIImagePickerControllerDelegate, UINavigation
     }
 }
 
-// get the previous vc in the nav stack
-extension UINavigationController {
-    var previousViewController: UIViewController? {
-       viewControllers.count > 1 ? viewControllers[viewControllers.count - 2] : nil
+extension EditEntryViewController: HandleLocation {
+    func fetchPlacemark(placemark: MKPlacemark) {
+        locationLabel.text = placemark.title
+        location = placemark.coordinate
     }
 }

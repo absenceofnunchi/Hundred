@@ -429,6 +429,15 @@ class ViewController: UIViewController {
             avgExpressionDescription.expression = avgExpression
             avgExpressionDescription.expressionResultType = .decimalAttributeType
             
+            // sum
+            let sumExpression =  NSExpression(forFunction: "sum:", arguments: [keypathExpression])
+            let sumKey = "Sum"
+            
+            let sumExpressionDescription = NSExpressionDescription()
+            sumExpressionDescription.name = sumKey
+            sumExpressionDescription.expression = sumExpression
+            sumExpressionDescription.expressionResultType = .decimalAttributeType
+            
             // median
             let mdnExpression =  NSExpression(forFunction: "median:", arguments: [keypathExpression])
             let mdnKey = "mdnValue"
@@ -447,7 +456,7 @@ class ViewController: UIViewController {
             stdExpressionDescription.expression = stdExpression
             stdExpressionDescription.expressionResultType = .decimalAttributeType
             
-            metricFetchRequest.propertiesToFetch = [maxExpressionDescription, minExpressionDescription, avgExpressionDescription]
+            metricFetchRequest.propertiesToFetch = [maxExpressionDescription, minExpressionDescription, avgExpressionDescription, sumExpressionDescription]
             
             do {
                 if let result = try self.context.fetch(metricFetchRequest) as? [[String: NSDecimalNumber]], let dict = result.first {
@@ -589,7 +598,15 @@ extension ViewController: CalendarHeatmapDelegate {
             let day = dateComponents.day else { return }
         
         if let vc = storyboard?.instantiateViewController(withIdentifier: "CalendarDetail") as? CalendarDetailTableViewController {
-            vc.date = [year, month, day]
+            let date = [year, month, day]
+            let startDate = "\(date[0])-\(date[1])-\(date[2]) 00:00"
+            let endDate = "\(date[0])-\(date[1])-\(date[2]) 23:59"
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+            let formattedStartDate = dateFormatter.date(from: startDate)
+            let formattedEndDate = dateFormatter.date(from: endDate)
+            
+            vc.progressPredicate = NSPredicate(format: "(date >= %@) AND (date <= %@)", formattedStartDate! as CVarArg, formattedEndDate! as CVarArg)
             present(vc, animated: true)
         }
     }

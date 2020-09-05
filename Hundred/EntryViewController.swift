@@ -11,14 +11,23 @@ import Charts
 import UIKit
 import CoreSpotlight
 import MobileCoreServices
+import MapKit
 
-protocol CallBackDelegate {
-    func callBack(value: Progress, metricsExist: Bool)
-}
-
-class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate {
+class EntryViewController: UIViewController, ChartViewDelegate {
     
     @IBOutlet weak var scrollView: UIScrollView!
+    private lazy var stackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.distribution = .fill
+        stackView.alignment = .fill
+        stackView.spacing = 10
+        stackView.isLayoutMarginsRelativeArrangement = true
+        stackView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 5, leading: 25, bottom: 0, trailing: 25)
+        scrollView.addSubview(stackView)
+        return stackView
+    }()
+    
     var uiImage: UIImage!
     var progress: Progress! {
         didSet {
@@ -32,24 +41,13 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
             }
         }
     }
+    
     var metrics: [String]?
     var data: [String: UIColor]!
     var detailTableVCDelegate: DetailTableViewController?
     var indexPathRow: Int!
     var indexPath: IndexPath!
-    
-    private lazy var stackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.distribution = .fill
-        stackView.alignment = .fill
-        stackView.spacing = 10
-        stackView.isLayoutMarginsRelativeArrangement = true
-        stackView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 5, leading: 25, bottom: 0, trailing: 25)
-        scrollView.addSubview(stackView)
-        return stackView
-    }()
-    
+    var addressLine: String = ""
     var imageView = UIImageView()
     
     private lazy var dateLabel: UILabel = {
@@ -136,8 +134,6 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
         
         configureUI()
         setConstraints()
-        
-        displayChart(metrics: metrics)
     }
     
     func configureUI() {
@@ -149,6 +145,12 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
         stackView.setCustomSpacing(30, after: dateLabel)
         addCard(text: "Comment", subItem: commentLabel, stackView: stackView, containerHeight: 40)
         addCard(text: "Calendar", subItem: calendarHeatMap, stackView: stackView, containerHeight: 270)
+        
+        displayChart(metrics: progress.metric)
+        displayMap(progress: progress)
+        
+        stackView.insertArrangedSubview(buttonPanel, at: stackView.arrangedSubviews.count)
+        stackView.setCustomSpacing(100, after: buttonPanel)
     }
     
     func setConstraints() {
@@ -186,12 +188,13 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
     }
     
     
-    func displayChart(metrics: [String]?) {
+    func displayChart(metrics: Set<Metric>?) {
         if let importedMetrics = metrics {
             if importedMetrics.count > 0 {
                 
                 for arrangedSubview in stackView.arrangedSubviews {
                     if arrangedSubview.tag == 5 {
+                        print("arrangedSubview: \(arrangedSubview)")
                         stackView.removeArrangedSubview(arrangedSubview)
                         arrangedSubview.removeFromSuperview()
                     }
@@ -243,23 +246,74 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
                 chartContainer.alignment = .fill
                 
                 addCard(text: "Progress Chart", subItem: lineChartView, stackView: stackView, containerHeight: 270, insert: stackView.arrangedSubviews.count, tag: 5)
-                
-                stackView.addArrangedSubview(buttonPanel)
-                stackView.setCustomSpacing(100, after: buttonPanel)
-            } else {
-                stackView.addArrangedSubview(buttonPanel)
-                stackView.setCustomSpacing(100, after: buttonPanel)
             }
-        } else {
-            stackView.addArrangedSubview(buttonPanel)
-            stackView.setCustomSpacing(100, after: buttonPanel)
         }
     }
     
-    func callBack(value: Progress, metricsExist: Bool) {
-        progress = value
-        if metricsExist {
-            displayChart(metrics: ["yes"])
+    func displayMap(progress: Progress) {
+        if let latitude = progress.latitude, let longitude = progress.longitude, latitude != 0, longitude != 0 {
+            for arrangedSubview in stackView.arrangedSubviews {
+                if arrangedSubview.tag == 6 {
+                    stackView.removeArrangedSubview(arrangedSubview)
+                    arrangedSubview.removeFromSuperview()
+                }
+            }
+            
+            let mapView = MKMapView()
+            mapView.delegate = self
+
+            let location = CLLocationCoordinate2D(latitude: latitude.doubleValue, longitude: longitude.doubleValue)
+            let regionRadius: CLLocationDistance = 10000
+            let coorindateRegion = MKCoordinateRegion.init(center: location, latitudinalMeters: regionRadius, longitudinalMeters: regionRadius)
+            mapView.setRegion(coorindateRegion, animated: true)
+            
+            var annotation: MKAnnotation!
+            let geocoder = CLGeocoder()
+            geocoder.reverseGeocodeLocation(CLLocation(latitude: latitude.doubleValue, longitude: longitude.doubleValue)) { (placemarks, error) in
+                if error == nil {
+                    let placemark = placemarks?[0]
+                    if let placemark = placemark {
+                        let firstSpace = (placemark.thoroughfare != nil && placemark.subThoroughfare != nil) ? " ": ""
+                        let comma = (placemark.subThoroughfare != nil || placemark.thoroughfare != nil) && (placemark.subAdministrativeArea != nil || placemark.administrativeArea != nil) ? ", ": ""
+                        let secondSpace = (placemark.subAdministrativeArea != nil && placemark.administrativeArea != nil) ? " ": ""
+                        self.addressLine = String(
+                        format: "%@%@%@%@%@%@%@",
+                        // street number
+                        placemark.subThoroughfare ?? "",
+                        firstSpace,
+                        // street name
+                        placemark.thoroughfare ?? "",
+                        comma,
+                        //city
+                        placemark.locality ?? "",
+                        secondSpace,
+                        // state or province
+                        placemark.administrativeArea ?? ""
+                        )
+                    }
+                    
+                    annotation = MyAnnotation(title:  self.addressLine, locationName: "hello", discipline: "", coordinate: location)
+                    mapView.addAnnotation(annotation)
+
+                } else {
+                    annotation = MyAnnotation(title:  "", locationName: "location name", discipline: "", coordinate: location)
+                    mapView.addAnnotation(annotation)
+                }
+            }
+            
+            let containerView = UIView()
+            containerView.tag = 6
+            customShadowBorder(for: containerView)
+            containerView.addSubview(mapView)
+            
+            mapView.translatesAutoresizingMaskIntoConstraints = false
+            mapView.pin(to: containerView)
+            
+            stackView.insertArrangedSubview(containerView, at: stackView.arrangedSubviews.count)
+            stackView.setCustomSpacing(60, after: containerView)
+            
+            containerView.translatesAutoresizingMaskIntoConstraints = false
+            containerView.heightAnchor.constraint(greaterThanOrEqualToConstant: 270).isActive = true
         }
     }
     
@@ -271,6 +325,7 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
         metricsRequest.predicate = NSPredicate(format: "metricToGoal.title == %@", progress.goal.title)
         let sort = NSSortDescriptor(key: "date", ascending: true)
         metricsRequest.sortDescriptors = [sort]
+        
         if let fetchedMetrics = try? self.context.fetch(metricsRequest) {
             if fetchedMetrics.count > 0 {
                 metricsArr = fetchedMetrics
@@ -317,6 +372,7 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
             if let vc = self.storyboard?.instantiateViewController(withIdentifier: "EditEntry") as? EditEntryViewController {
                 vc.progress = progress
                 vc.delegate = self
+                vc.locationLabel.text = addressLine
                 self.navigationController?.pushViewController(vc, animated: true)
             }
         case 2:
@@ -332,9 +388,9 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
                     ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
                     
                     if let popoverController = ac.popoverPresentationController {
-                          popoverController.sourceView = self.view
-                          popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-                          popoverController.permittedArrowDirections = []
+                        popoverController.sourceView = self.view
+                        popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                        popoverController.permittedArrowDirections = []
                     }
                     
                     present(ac, animated: true)
@@ -346,9 +402,9 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
                     ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
                     
                     if let popoverController = ac.popoverPresentationController {
-                          popoverController.sourceView = self.view
-                          popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-                          popoverController.permittedArrowDirections = []
+                        popoverController.sourceView = self.view
+                        popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                        popoverController.permittedArrowDirections = []
                     }
                     
                     present(ac, animated: true)
@@ -382,14 +438,14 @@ class EntryViewController: UIViewController, CallBackDelegate, ChartViewDelegate
         }
         
         self.tabBarController?.selectedIndex = 1
-
-//        if let indexPathRow = self.indexPathRow {
-//            if let vc = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? DetailTableViewController {
-//                vc.progresses.remove(at: indexPathRow)
-//                vc.tableView.deleteRows(at: [self.indexPath], with: .fade)
-//                _ = self.navigationController?.popViewController(animated: true)
-//            }
-//        }
+        
+        //        if let indexPathRow = self.indexPathRow {
+        //            if let vc = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? DetailTableViewController {
+        //                vc.progresses.remove(at: indexPathRow)
+        //                vc.tableView.deleteRows(at: [self.indexPath], with: .fade)
+        //                _ = self.navigationController?.popViewController(animated: true)
+        //            }
+        //        }
     }
     
     func deletePlist(progress: Progress) {
@@ -424,7 +480,19 @@ extension EntryViewController: CalendarHeatmapDelegate {
         guard let year = dateComponents.year,
             let month = dateComponents.month,
             let day = dateComponents.day else { return }
-        print(year, month, day)
+        
+        if let vc = storyboard?.instantiateViewController(withIdentifier: "CalendarDetail") as? CalendarDetailTableViewController {
+            let date = [year, month, day]
+            let startDate = "\(date[0])-\(date[1])-\(date[2]) 00:00"
+            let endDate = "\(date[0])-\(date[1])-\(date[2]) 23:59"
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+            let formattedStartDate = dateFormatter.date(from: startDate)
+            let formattedEndDate = dateFormatter.date(from: endDate)
+            
+            vc.progressPredicate = NSPredicate(format: "(date >= %@) AND (date <= %@) AND (goal.title == %@)", formattedStartDate! as CVarArg, formattedEndDate! as CVarArg, progress.goal.title as CVarArg)
+            present(vc, animated: true)
+        }
     }
     
     func colorFor(dateComponents: DateComponents) -> UIColor {
@@ -438,6 +506,37 @@ extension EntryViewController: CalendarHeatmapDelegate {
     
     func finishLoadCalendar() {
         calendarHeatMap.scrollTo(date: progress.date, at: .left, animated: false)
+    }
+}
+
+extension EntryViewController: MKMapViewDelegate {
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        guard let annotation = annotation as? MyAnnotation else { return nil }
+        let identifier = "markerForEntry"
+        var annotationView: MKMarkerAnnotationView
+        if let deqeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView {
+            deqeuedView.annotation = annotation
+            annotationView = deqeuedView
+        } else {
+            annotationView = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            annotationView.isEnabled = true
+            annotationView.canShowCallout = true
+            annotationView.rightCalloutAccessoryView = UIButton(type: .system)
+        }
+
+        return annotationView
+    }
+}
+
+protocol CallBackDelegate {
+    func callBack(value: Progress)
+}
+
+extension EntryViewController: CallBackDelegate {
+    func callBack(value: Progress) {
+        progress = value
+        displayChart(metrics: value.metric)
+        displayMap(progress: value)
     }
 }
 

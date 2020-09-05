@@ -9,18 +9,12 @@
         <attribute name="streak" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="goalToMetric" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Metric" inverseName="metricToGoal" inverseEntity="Metric"/>
-        <relationship name="highestToGoal" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="HighestMetrics" inverseName="highestToGoal" inverseEntity="HighestMetrics"/>
         <relationship name="progress" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Progress" inverseName="goal" inverseEntity="Progress"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="title"/>
             </uniquenessConstraint>
         </uniquenessConstraints>
-    </entity>
-    <entity name="HighestMetrics" representedClassName="HighestMetrics" syncable="YES">
-        <attribute name="unit" optional="YES" attributeType="String"/>
-        <attribute name="value" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
-        <relationship name="highestToGoal" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Goal" inverseName="highestToGoal" inverseEntity="Goal"/>
     </entity>
     <entity name="Metric" representedClassName="Metric" syncable="YES">
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
@@ -35,7 +29,9 @@
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="image" optional="YES" attributeType="String"/>
+        <attribute name="latitude" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="location" optional="YES" attributeType="String"/>
+        <attribute name="longitude" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
         <relationship name="goal" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Goal" inverseName="progress" inverseEntity="Goal"/>
         <relationship name="metric" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Metric" inverseName="progress" inverseEntity="Metric"/>
         <fetchIndex name="byGoalIndex">
@@ -43,9 +39,8 @@
         </fetchIndex>
     </entity>
     <elements>
-        <element name="Goal" positionX="-63" positionY="-18" width="128" height="193"/>
-        <element name="HighestMetrics" positionX="-45" positionY="90" width="128" height="88"/>
+        <element name="Goal" positionX="-63" positionY="-18" width="128" height="178"/>
         <element name="Metric" positionX="-45" positionY="99" width="128" height="133"/>
-        <element name="Progress" positionX="-36" positionY="90" width="128" height="148"/>
+        <element name="Progress" positionX="-36" positionY="90" width="128" height="178"/>
     </elements>
 </model>

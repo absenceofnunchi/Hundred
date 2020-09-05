@@ -89,9 +89,9 @@ struct DataImporter {
 //                return UIColor(red: 240/255, green: 240/255, blue: 240/255, alpha: 1.0)
                 return .darkGray
             case 1:
-                return UIColor(red: 255/255, green: 235/255, blue: 235/255, alpha: 1.0)
+                return UIColor(red: 255/255, green: 235/255, blue: 220/255, alpha: 1.0)
             case 2:
-                return UIColor(red: 255/255, green: 216/255, blue: 216/255, alpha: 1.0)
+                return UIColor(red: 255/255, green: 216/255, blue: 213/255, alpha: 1.0)
             case 3:
                 return UIColor(red: 255/255, green: 196/255, blue: 196/255, alpha: 1.0)
             case 4:
