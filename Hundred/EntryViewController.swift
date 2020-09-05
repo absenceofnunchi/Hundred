@@ -100,6 +100,104 @@ class EntryViewController: UIViewController, ChartViewDelegate {
         }
     }()
     
+    lazy var chartView: LineChartView! = {
+        let lineChartView = LineChartView()
+        if progress.metric.count > 0 {
+            lineChartView.data = loadMetricsData()
+            lineChartView.rightAxis.enabled = false
+            lineChartView.pinchZoomEnabled = true
+            lineChartView.dragEnabled = true
+            lineChartView.setScaleEnabled(true)
+            lineChartView.drawBordersEnabled = false
+            lineChartView.delegate = self
+            
+            let l = lineChartView.legend
+            l.form = .circle
+            l.font = UIFont(name: "HelveticaNeue-Light", size: 11)!
+            l.textColor = .black
+            l.horizontalAlignment = .right
+            l.verticalAlignment = .top
+            l.orientation = .horizontal
+            l.drawInside = false
+            l.xEntrySpace = 7
+            
+            let yAxis = lineChartView.leftAxis
+            yAxis.labelFont = .boldSystemFont(ofSize: 12)
+            yAxis.setLabelCount(6, force: false)
+            yAxis.labelTextColor = .gray
+            yAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
+            yAxis.labelPosition = .outsideChart
+            yAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
+            
+            let xAxis = lineChartView.xAxis
+            xAxis.labelPosition = .bottom
+            xAxis.labelFont = .boldSystemFont(ofSize: 10)
+            xAxis.labelTextColor = .gray
+            xAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
+            xAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
+            xAxis.drawLimitLinesBehindDataEnabled = true
+            xAxis.drawAxisLineEnabled = false
+            xAxis.granularityEnabled = true
+            xAxis.granularity = 86400
+            //                xAxis.valueFormatter = ChartXAxisFormatter(usingMetrics: metricsArr)
+            xAxis.valueFormatter = ChartXAxisFormatter()
+            
+            let chartContainer = UIStackView()
+            chartContainer.axis = .vertical
+            chartContainer.distribution = .fill
+            chartContainer.alignment = .fill
+        }
+        return lineChartView
+    }()
+    
+    lazy var mapView: MKMapView! = {
+        let mapView = MKMapView()
+        
+        if let latitude = progress.latitude, let longitude = progress.longitude, latitude != 0, longitude != 0 {
+            mapView.delegate = self
+            
+            let location = CLLocationCoordinate2D(latitude: latitude.doubleValue, longitude: longitude.doubleValue)
+            let regionRadius: CLLocationDistance = 10000
+            let coorindateRegion = MKCoordinateRegion.init(center: location, latitudinalMeters: regionRadius, longitudinalMeters: regionRadius)
+            mapView.setRegion(coorindateRegion, animated: true)
+            
+            var annotation: MKAnnotation!
+            let geocoder = CLGeocoder()
+            geocoder.reverseGeocodeLocation(CLLocation(latitude: latitude.doubleValue, longitude: longitude.doubleValue)) { (placemarks, error) in
+                if error == nil {
+                    let placemark = placemarks?[0]
+                    if let placemark = placemark {
+                        let firstSpace = (placemark.thoroughfare != nil && placemark.subThoroughfare != nil) ? " ": ""
+                        let comma = (placemark.subThoroughfare != nil || placemark.thoroughfare != nil) && (placemark.subAdministrativeArea != nil || placemark.administrativeArea != nil) ? ", ": ""
+                        let secondSpace = (placemark.subAdministrativeArea != nil && placemark.administrativeArea != nil) ? " ": ""
+                        self.addressLine = String(
+                            format: "%@%@%@%@%@%@%@",
+                            // street number
+                            placemark.subThoroughfare ?? "",
+                            firstSpace,
+                            // street name
+                            placemark.thoroughfare ?? "",
+                            comma,
+                            //city
+                            placemark.locality ?? "",
+                            secondSpace,
+                            // state or province
+                            placemark.administrativeArea ?? ""
+                        )
+                    }
+                    
+                    annotation = MyAnnotation(title:  self.addressLine, locationName: "hello", discipline: "", coordinate: location)
+                    mapView.addAnnotation(annotation)
+                    
+                } else {
+                    annotation = MyAnnotation(title:  "", locationName: "location name", discipline: "", coordinate: location)
+                    mapView.addAnnotation(annotation)
+                }
+            }
+        }
+        return mapView
+    }()
+    
     var buttonPanel = UIView()
     
     private lazy var editButton: UIButton = {
@@ -145,12 +243,14 @@ class EntryViewController: UIViewController, ChartViewDelegate {
         stackView.setCustomSpacing(30, after: dateLabel)
         addCard(text: "Comment", subItem: commentLabel, stackView: stackView, containerHeight: 40)
         addCard(text: "Calendar", subItem: calendarHeatMap, stackView: stackView, containerHeight: 270)
+        addCard(text: "Progress Chart", subItem: chartView, stackView: stackView, containerHeight: 270)
         
-        displayChart(metrics: progress.metric)
-        displayMap(progress: progress)
-        
-        stackView.insertArrangedSubview(buttonPanel, at: stackView.arrangedSubviews.count)
-        stackView.setCustomSpacing(100, after: buttonPanel)
+        let mapContainerView = UIView()
+        customShadowBorder(for: mapContainerView)
+        mapContainerView.addSubview(mapView)
+        mapView.pin(to: mapContainerView)
+        stackView.addArrangedSubview(mapContainerView)
+
     }
     
     func setConstraints() {
@@ -261,7 +361,7 @@ class EntryViewController: UIViewController, ChartViewDelegate {
             
             let mapView = MKMapView()
             mapView.delegate = self
-
+            
             let location = CLLocationCoordinate2D(latitude: latitude.doubleValue, longitude: longitude.doubleValue)
             let regionRadius: CLLocationDistance = 10000
             let coorindateRegion = MKCoordinateRegion.init(center: location, latitudinalMeters: regionRadius, longitudinalMeters: regionRadius)
@@ -277,24 +377,24 @@ class EntryViewController: UIViewController, ChartViewDelegate {
                         let comma = (placemark.subThoroughfare != nil || placemark.thoroughfare != nil) && (placemark.subAdministrativeArea != nil || placemark.administrativeArea != nil) ? ", ": ""
                         let secondSpace = (placemark.subAdministrativeArea != nil && placemark.administrativeArea != nil) ? " ": ""
                         self.addressLine = String(
-                        format: "%@%@%@%@%@%@%@",
-                        // street number
-                        placemark.subThoroughfare ?? "",
-                        firstSpace,
-                        // street name
-                        placemark.thoroughfare ?? "",
-                        comma,
-                        //city
-                        placemark.locality ?? "",
-                        secondSpace,
-                        // state or province
-                        placemark.administrativeArea ?? ""
+                            format: "%@%@%@%@%@%@%@",
+                            // street number
+                            placemark.subThoroughfare ?? "",
+                            firstSpace,
+                            // street name
+                            placemark.thoroughfare ?? "",
+                            comma,
+                            //city
+                            placemark.locality ?? "",
+                            secondSpace,
+                            // state or province
+                            placemark.administrativeArea ?? ""
                         )
                     }
                     
                     annotation = MyAnnotation(title:  self.addressLine, locationName: "hello", discipline: "", coordinate: location)
                     mapView.addAnnotation(annotation)
-
+                    
                 } else {
                     annotation = MyAnnotation(title:  "", locationName: "location name", discipline: "", coordinate: location)
                     mapView.addAnnotation(annotation)
@@ -523,7 +623,7 @@ extension EntryViewController: MKMapViewDelegate {
             annotationView.canShowCallout = true
             annotationView.rightCalloutAccessoryView = UIButton(type: .system)
         }
-
+        
         return annotationView
     }
 }
