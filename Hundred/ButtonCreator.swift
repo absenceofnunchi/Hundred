@@ -76,7 +76,8 @@ struct ButtonCreator {
 // 24. make things background
 // 25. modified the goal from no metrics to some metrics. But since no values are added, they won't appear on modifying the entry
 // 26. done button when coming back from existing goals
-
+// 27. dark mode
+// 28. multiple photos
 
 //Thread 1: Fatal error: Unresolved error Error Domain=NSCocoaErrorDomain Code=134060 "A Core Data error occurred." UserInfo={NSLocalizedFailureReason=CloudKit integration requires that the value transformers for transformable attributes are available via +[NSValueTransformer valueTransformerForName:], return instances of NSData, and allow reverse transformation:
 //Goal: metrics - Claims to return instances of nil}, ["NSLocalizedFailureReason": CloudKit integration requires that the value transformers for transformable

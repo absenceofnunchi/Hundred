@@ -9,6 +9,7 @@
 import UIKit
 import CoreSpotlight
 import MobileCoreServices
+import MapKit
 
 class DetailTableViewController: UITableViewController, UIContextMenuInteractionDelegate {
     var progresses: [Progress]!
@@ -118,6 +119,38 @@ class DetailTableViewController: UITableViewController, UIContextMenuInteraction
     
     func editAction (progress: Progress) {
         if let vc = self.storyboard?.instantiateViewController(withIdentifier: "EditEntry") as? EditEntryViewController {
+            
+            let geocoder = CLGeocoder()
+            
+            if let latitude = progress.latitude?.doubleValue, let longitutde = progress.longitude?.doubleValue {
+                geocoder.reverseGeocodeLocation(CLLocation(latitude: latitude, longitude: longitutde)) { (placemarks, error) in
+                     if error == nil {
+                         let placemark = placemarks?[0]
+                         if let placemark = placemark {
+                             let firstSpace = (placemark.thoroughfare != nil && placemark.subThoroughfare != nil) ? " ": ""
+                             let comma = (placemark.subThoroughfare != nil || placemark.thoroughfare != nil) && (placemark.subAdministrativeArea != nil || placemark.administrativeArea != nil) ? ", ": ""
+                             let secondSpace = (placemark.subAdministrativeArea != nil && placemark.administrativeArea != nil) ? " ": ""
+                             let addressLine = String(
+                                 format: "%@%@%@%@%@%@%@",
+                                 // street number
+                                 placemark.subThoroughfare ?? "",
+                                 firstSpace,
+                                 // street name
+                                 placemark.thoroughfare ?? "",
+                                 comma,
+                                 //city
+                                 placemark.locality ?? "",
+                                 secondSpace,
+                                 // state or province
+                                 placemark.administrativeArea ?? ""
+                             )
+                             
+                             vc.locationText = addressLine
+                         }
+                     }
+                 }
+            }
+            
             vc.progress = progress
             self.navigationController?.pushViewController(vc, animated: true)
         }

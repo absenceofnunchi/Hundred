@@ -12,8 +12,9 @@ import MapKit
 class EditEntryViewController: UIViewController {
     @IBOutlet weak var scrollView: UIScrollView!
     var progress: Progress!
-    var imagePathString: String?
+    var imagePathString: URL?
     var imageBinary: UIImage?
+    var imageName: String!
     var delegate: CallBackDelegate? = nil
     
     lazy var stackView: UIStackView = {
@@ -35,15 +36,23 @@ class EditEntryViewController: UIViewController {
         button.clipsToBounds = true
         
         if let image = progress.image {
-            let imagePath = getDocumentsDirectory().appendingPathComponent(image)
-            if let data = try? Data(contentsOf: imagePath) {
-                if let uiImage = UIImage(data: data) {
-                    button.setImage(uiImage, for: .normal)
-                    if uiImage.size.width > uiImage.size.height {
-                        button.imageView?.contentMode = .scaleAspectFit
-                    } else {
-                        button.imageView?.contentMode = .scaleAspectFill
+            imagePathString = getDocumentsDirectory().appendingPathComponent(image)
+            if imagePathString != nil {
+                if let data = try? Data(contentsOf: imagePathString!) {
+                    if let uiImage = UIImage(data: data) {
+                        button.setImage(uiImage, for: .normal)
+                        if uiImage.size.width > uiImage.size.height {
+                            button.imageView?.contentMode = .scaleAspectFit
+                        } else {
+                            button.imageView?.contentMode = .scaleAspectFill
+                        }
                     }
+                } else {
+                    let largeConfig = UIImage.SymbolConfiguration(pointSize: 60, weight: .medium, scale: .large)
+                    let uiImage = UIImage(systemName: "camera.circle", withConfiguration: largeConfig)
+                    
+                    button.tintColor = UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0)
+                    button.setImage(uiImage, for: .normal)
                 }
             } else {
                 let largeConfig = UIImage.SymbolConfiguration(pointSize: 60, weight: .medium, scale: .large)
@@ -73,7 +82,7 @@ class EditEntryViewController: UIViewController {
         textView.isScrollEnabled = true
         textView.text = progress.comment
         textView.font = UIFont.preferredFont(forTextStyle: .body)
-//        textView.textColor = UIColor.gray
+        //        textView.textColor = UIColor.gray
         textView.layer.cornerRadius = 4
         textView.layer.borderWidth = 1
         textView.layer.masksToBounds = true
@@ -84,29 +93,33 @@ class EditEntryViewController: UIViewController {
         return textView
     }()
     
-    lazy var locationLabel: CustomLabel = {
-        let locationLabel = CustomLabel()
-        locationLabel.textAlignment = .left
-        locationLabel.font = UIFont.preferredFont(forTextStyle: .body)
-        locationLabel.text = "Add a location"
-        customShadowBorder(for: locationLabel)
-        return locationLabel
-    }()
-    
-    var location: CLLocationCoordinate2D? {
+    var locationText: String? {
         didSet {
-            if location != nil {
-                UIView.animate(withDuration: 0.5, delay: 0.0, options: [.curveEaseOut], animations: {
-                    self.locationLabel.alpha = 1
-                })
+            if let locationText = locationText, !locationText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                locationLabel.text = locationText
+                locationLabel.alpha = 1
             } else {
-                UIView.animate(withDuration: 0.5, delay: 0.0, options: [.curveEaseOut], animations: {
-                    self.locationLabel.alpha = 0
-                })
+                locationLabel.alpha = 0
             }
-            
         }
     }
+    var locationLabel = CustomLabel()
+    
+    var location: CLLocationCoordinate2D?
+    //    var location: CLLocationCoordinate2D? {
+    //        didSet {
+    //            if location != nil {
+    //                UIView.animate(withDuration: 0.5, delay: 0.0, options: [.curveEaseOut], animations: {
+    //                    self.locationLabel.alpha = 1
+    //                })
+    //            } else {
+    //                UIView.animate(withDuration: 0.5, delay: 0.0, options: [.curveEaseOut], animations: {
+    //                    self.locationLabel.alpha = 0
+    //                })
+    //            }
+    //
+    //        }
+    //    }
     
     var locationPlusButton: UIButton!
     var locationMinusButton: UIButton!
@@ -188,7 +201,7 @@ class EditEntryViewController: UIViewController {
         let dButton = UIButton()
         dButton.setTitle("Done", for: .normal)
         dButton.layer.cornerRadius = 0
-
+        
         if let tabBarHeight = tabBarController?.tabBar.frame.size.height {
             dButton.frame = CGRect(x: 0, y: view.frame.size.height - CGFloat(tabBarHeight + 50), width: view.frame.size.width, height: 50)
         }
@@ -203,17 +216,19 @@ class EditEntryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         locationPlusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 3)
-        locationMinusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 14)
+        locationMinusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 4)
         
         initializeHideKeyboard()
         configureView()
         setConstraints()
-                
+        
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         
         navigationController?.delegate = self
+        
+        //        locationLabel.text = labelText
     }
     
     func configureView() {
@@ -228,9 +243,14 @@ class EditEntryViewController: UIViewController {
         mapPanel.addSubview(locationPlusButton)
         mapPanel.addSubview(locationMinusButton)
         stackView.addArrangedSubview(mapPanel)
+        
+        locationLabel.textAlignment = .left
+        locationLabel.font = UIFont.preferredFont(forTextStyle: .body)
+        customShadowBorder(for: locationLabel)
         stackView.addArrangedSubview(locationLabel)
         stackView.setCustomSpacing(50, after: locationLabel)
         
+        addHeader(text: "Metrics", stackView: stackView)
         stackView.addArrangedSubview(metricStackView)
         stackView.setCustomSpacing(50, after: metricStackView)
         
@@ -292,13 +312,13 @@ class EditEntryViewController: UIViewController {
             doneButton.frame = CGRect(x: 0, y: view.frame.size.height - keyboardViewEndFrame.height - 50, width: view.frame.size.width, height: 50)
         }
         
-//        if notification.name == UIResponder.keyboardWillHideNotification {
-//            scrollView.contentInset = .zero
-//            doneButton.frame = CGRect(x: 0, y: view.frame.size.height - 50, width: view.frame.size.width, height: 50)
-//        } else {
-//            scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom, right: 0)
-//            doneButton.frame = CGRect(x: 0, y: view.frame.size.height - keyboardViewEndFrame.height - 50, width: view.frame.size.width, height: 50)
-//        }
+        //        if notification.name == UIResponder.keyboardWillHideNotification {
+        //            scrollView.contentInset = .zero
+        //            doneButton.frame = CGRect(x: 0, y: view.frame.size.height - 50, width: view.frame.size.width, height: 50)
+        //        } else {
+        //            scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom, right: 0)
+        //            doneButton.frame = CGRect(x: 0, y: view.frame.size.height - keyboardViewEndFrame.height - 50, width: view.frame.size.width, height: 50)
+        //        }
         scrollView.scrollIndicatorInsets = scrollView.contentInset
     }
     
@@ -308,7 +328,7 @@ class EditEntryViewController: UIViewController {
             let ac = UIAlertController(title: "Pick an image", message: nil, preferredStyle: .actionSheet)
             ac.addAction(UIAlertAction(title: "Photos", style: .default, handler: openPhoto))
             ac.addAction(UIAlertAction(title: "Camera", style: .default, handler: openCamera))
-            if imagePathString != nil || progress.image != nil {
+            if imageName != nil || progress.image != nil {
                 ac.addAction(UIAlertAction(title: "No Image", style: .default, handler: { action in
                     let largeConfig = UIImage.SymbolConfiguration(pointSize: 60, weight: .medium, scale: .large)
                     let uiImage = UIImage(systemName: "camera.circle", withConfiguration: largeConfig)
@@ -316,7 +336,8 @@ class EditEntryViewController: UIViewController {
                     self.imageButton.setImage(uiImage, for: .normal)
                 }))
                 self.imagePathString = nil
-                self.progress.image = nil
+                //                self.progress.image = nilz
+                self.imageName = nil
             }
             
             if let popoverController = ac.popoverPresentationController {
@@ -337,19 +358,18 @@ class EditEntryViewController: UIViewController {
             if let fetchedProgress = try? self.context.fetch(progressRequest) {
                 if fetchedProgress.count > 0 {
                     progress = fetchedProgress.first
-                    
+                    // setting a new image
                     if let imagePathString = imagePathString, let imageBinary = imageBinary {
                         print("imagePathString is not nil: \(imagePathString)")
                         
                         // write the new image to disk
-                        let imagePath = getDocumentsDirectory().appendingPathComponent(imagePathString)
                         if let jpegData = imageBinary.jpegData(compressionQuality: 0.8) {
-                            try? jpegData.write(to: imagePath)
+                            try? jpegData.write(to: imagePathString)
                         }
                         
                         // delete the previous image from the directory
                         if let fetchedImagePath = fetchedProgress.first?.image {
-                            print("fetchedImagePath: \(fetchedImagePath)")
+                            print("fetchedImagePath1: \(fetchedImagePath)")
                             let imagePath = getDocumentsDirectory().appendingPathComponent(fetchedImagePath)
                             do {
                                 print("image deleted: \(imagePath)")
@@ -359,30 +379,91 @@ class EditEntryViewController: UIViewController {
                             }
                         }
                         
-                        progress?.image = imagePathString
+                        progress?.image = imageName!
                         
+                        // if there's no newly selected image && no image pre-existing image
                     } else if imagePathString == nil && progress.image == nil {
                         progress?.image = nil
+                        
+                        // getting rid of the pre-existing image without setting a new image
+                    } else if imagePathString == nil && progress.image != nil {
+                        let imagePath = getDocumentsDirectory().appendingPathComponent(progress.image!)
+                        do {
+                            print("image deleted: \(imagePath)")
+                            try FileManager.default.removeItem(at: imagePath)
+                        } catch {
+                            print("The image could not be deleted from the directory: \(error.localizedDescription)")
+                        }
+                        
+                        progress.image = nil
                     }
                     
                     progress?.comment = commentTextView.text
                     
-                    if let metrics = progress?.metric {
-                        for metric in metrics {
-                            let metricSubview = metricStackView.arrangedSubviews.first { (metricSubview) -> Bool in
-                                let label = metricSubview.subviews[0] as! UILabel
+                    if let location = location {
+                        progress?.longitude = NSDecimalNumber(value: location.longitude)
+                        progress?.latitude = NSDecimalNumber(value: location.latitude)
+                    }
+                    
+                    if let metricsArr = progress.goal.metrics, metricsArr.count > 0 {
+                        // update the existing metric pertaining to this instance of progress
+                        if let metrics = progress?.metric, metrics.count > 0 {
+                            print("metrics: \(metrics)")
+                            
+                            for metric in metrics {
+                                let metricSubview = metricStackView.arrangedSubviews.first { (metricSubview) -> Bool in
+                                    let label = metricSubview.subviews[0] as! UILabel
+                                    
+                                    return label.text! == metric.unit
+                                }
+                                print("metricSubview: \(metricSubview)")
                                 
-                                return label.text! == metric.unit
+                                if let metricSubview = metricSubview {
+                                    let textField = metricSubview.subviews[1] as! UITextField
+                                    let formatter = NumberFormatter()
+                                    formatter.generatesDecimalNumbers = true
+                                    let result = formatter.number(from: textField.text ?? "0") as? NSDecimalNumber ?? 0
+                                    print("results: \(result)")
+                                    metric.value = result
+                                }
+                            }
+                        } else {
+                            // if the metrics have been created, but no instance of Metric has been created
+                            var metricDict: [String: String] = [:]
+                            for metricPair in metricStackView.arrangedSubviews {
+                                print("metricPair: \(metricPair)")
+                                let unitLabel = metricPair.subviews[0] as! UILabel
+                                let valueTextField = metricPair.subviews[1] as! UITextField
+                                if let textContent = unitLabel.text, let valueTextContent = valueTextField.text {
+                                    let trimmedValue = valueTextContent.trimmingCharacters(in: .whitespacesAndNewlines)
+                                    print("trimmedValue: \(trimmedValue)")
+                                    metricDict.updateValue(trimmedValue, forKey: textContent)
+                                }
                             }
                             
-                            if let metricSubview = metricSubview {
-                                let textField = metricSubview.subviews[1] as! UITextField
-                                let formatter = NumberFormatter()
-                                formatter.generatesDecimalNumbers = true
-                                metric.value = formatter.number(from: textField.text ?? "0") as? NSDecimalNumber ?? 0
+                            // create an array of instances of Metric
+                            var metricArr: [Metric] = []
+                            for singleMetricPair in metricDict {
+                                let newMetric = Metric(context: self.context)
+                                newMetric.date = Date()
+                                newMetric.unit = singleMetricPair.key
+                                newMetric.id = UUID()
+                                newMetric.value = stringToDecimal(string: singleMetricPair.value)
+                                print("newMetric: \(newMetric)")
+                                
+                                metricArr.append(newMetric)
+                            }
+                            
+                            // add the new instances to progress before saving
+                            for item in metricArr {
+                                print("item: \(item)")
+                                
+                                progress.metric.insert(item)
+                                progress.goal.goalToMetric.insert(item)
                             }
                         }
                     }
+                    print("final: \(progress)")
                     
                     self.saveContext()
                     
@@ -395,7 +476,7 @@ class EditEntryViewController: UIViewController {
                     }
                     
                     if previousViewController is EntryViewController {
-                        delegate?.callBack(value: progress)
+                        delegate?.callBack(value: progress, location: location, locationLabel: locationLabel.text)
                     }
                     
                     _ = navigationController?.popViewController(animated: true)
@@ -408,7 +489,7 @@ class EditEntryViewController: UIViewController {
             }
         case 4:
             location = nil
-            locationLabel.text = nil
+            locationText = ""
         default:
             print("default")
         }
@@ -483,7 +564,6 @@ class EditEntryViewController: UIViewController {
         
         return button
     }
-    
 }
 
 extension EditEntryViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -492,8 +572,8 @@ extension EditEntryViewController: UIImagePickerControllerDelegate, UINavigation
         guard let image = info[.editedImage] as? UIImage else { return }
         
         imageBinary = image
-        imagePathString = UUID().uuidString
-        
+        imageName = UUID().uuidString
+        imagePathString = getDocumentsDirectory().appendingPathComponent(imageName)
         imageButton.alpha = 0
         imageButton.setImage(image, for: .normal)
         
@@ -517,7 +597,8 @@ extension EditEntryViewController: UIImagePickerControllerDelegate, UINavigation
 
 extension EditEntryViewController: HandleLocation {
     func fetchPlacemark(placemark: MKPlacemark) {
-        locationLabel.text = placemark.title
+        print("placemark \(placemark)")
+        locationText = placemark.title
         location = placemark.coordinate
     }
 }

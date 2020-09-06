@@ -38,6 +38,8 @@ class EntryViewController: UIViewController, ChartViewDelegate {
                     uiImage = UIImage(data: data)
                     imageView.image = uiImage
                 }
+            } else {
+                imageView.image = nil
             }
         }
     }
@@ -100,104 +102,8 @@ class EntryViewController: UIViewController, ChartViewDelegate {
         }
     }()
     
-    lazy var chartView: LineChartView! = {
-        let lineChartView = LineChartView()
-        if progress.metric.count > 0 {
-            lineChartView.data = loadMetricsData()
-            lineChartView.rightAxis.enabled = false
-            lineChartView.pinchZoomEnabled = true
-            lineChartView.dragEnabled = true
-            lineChartView.setScaleEnabled(true)
-            lineChartView.drawBordersEnabled = false
-            lineChartView.delegate = self
-            
-            let l = lineChartView.legend
-            l.form = .circle
-            l.font = UIFont(name: "HelveticaNeue-Light", size: 11)!
-            l.textColor = .black
-            l.horizontalAlignment = .right
-            l.verticalAlignment = .top
-            l.orientation = .horizontal
-            l.drawInside = false
-            l.xEntrySpace = 7
-            
-            let yAxis = lineChartView.leftAxis
-            yAxis.labelFont = .boldSystemFont(ofSize: 12)
-            yAxis.setLabelCount(6, force: false)
-            yAxis.labelTextColor = .gray
-            yAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
-            yAxis.labelPosition = .outsideChart
-            yAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
-            
-            let xAxis = lineChartView.xAxis
-            xAxis.labelPosition = .bottom
-            xAxis.labelFont = .boldSystemFont(ofSize: 10)
-            xAxis.labelTextColor = .gray
-            xAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
-            xAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
-            xAxis.drawLimitLinesBehindDataEnabled = true
-            xAxis.drawAxisLineEnabled = false
-            xAxis.granularityEnabled = true
-            xAxis.granularity = 86400
-            //                xAxis.valueFormatter = ChartXAxisFormatter(usingMetrics: metricsArr)
-            xAxis.valueFormatter = ChartXAxisFormatter()
-            
-            let chartContainer = UIStackView()
-            chartContainer.axis = .vertical
-            chartContainer.distribution = .fill
-            chartContainer.alignment = .fill
-        }
-        return lineChartView
-    }()
-    
-    lazy var mapView: MKMapView! = {
-        let mapView = MKMapView()
-        
-        if let latitude = progress.latitude, let longitude = progress.longitude, latitude != 0, longitude != 0 {
-            mapView.delegate = self
-            
-            let location = CLLocationCoordinate2D(latitude: latitude.doubleValue, longitude: longitude.doubleValue)
-            let regionRadius: CLLocationDistance = 10000
-            let coorindateRegion = MKCoordinateRegion.init(center: location, latitudinalMeters: regionRadius, longitudinalMeters: regionRadius)
-            mapView.setRegion(coorindateRegion, animated: true)
-            
-            var annotation: MKAnnotation!
-            let geocoder = CLGeocoder()
-            geocoder.reverseGeocodeLocation(CLLocation(latitude: latitude.doubleValue, longitude: longitude.doubleValue)) { (placemarks, error) in
-                if error == nil {
-                    let placemark = placemarks?[0]
-                    if let placemark = placemark {
-                        let firstSpace = (placemark.thoroughfare != nil && placemark.subThoroughfare != nil) ? " ": ""
-                        let comma = (placemark.subThoroughfare != nil || placemark.thoroughfare != nil) && (placemark.subAdministrativeArea != nil || placemark.administrativeArea != nil) ? ", ": ""
-                        let secondSpace = (placemark.subAdministrativeArea != nil && placemark.administrativeArea != nil) ? " ": ""
-                        self.addressLine = String(
-                            format: "%@%@%@%@%@%@%@",
-                            // street number
-                            placemark.subThoroughfare ?? "",
-                            firstSpace,
-                            // street name
-                            placemark.thoroughfare ?? "",
-                            comma,
-                            //city
-                            placemark.locality ?? "",
-                            secondSpace,
-                            // state or province
-                            placemark.administrativeArea ?? ""
-                        )
-                    }
-                    
-                    annotation = MyAnnotation(title:  self.addressLine, locationName: "hello", discipline: "", coordinate: location)
-                    mapView.addAnnotation(annotation)
-                    
-                } else {
-                    annotation = MyAnnotation(title:  "", locationName: "location name", discipline: "", coordinate: location)
-                    mapView.addAnnotation(annotation)
-                }
-            }
-        }
-        return mapView
-    }()
-    
+    var lineChartView = LineChartView()
+    var mapView = MKMapView()
     var buttonPanel = UIView()
     
     private lazy var editButton: UIButton = {
@@ -243,123 +149,56 @@ class EntryViewController: UIViewController, ChartViewDelegate {
         stackView.setCustomSpacing(30, after: dateLabel)
         addCard(text: "Comment", subItem: commentLabel, stackView: stackView, containerHeight: 40)
         addCard(text: "Calendar", subItem: calendarHeatMap, stackView: stackView, containerHeight: 270)
-        addCard(text: "Progress Chart", subItem: chartView, stackView: stackView, containerHeight: 270)
         
-        let mapContainerView = UIView()
-        customShadowBorder(for: mapContainerView)
-        mapContainerView.addSubview(mapView)
-        mapView.pin(to: mapContainerView)
-        stackView.addArrangedSubview(mapContainerView)
-
-    }
-    
-    func setConstraints() {
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        if progress.image != nil {
-            imageView.translatesAutoresizingMaskIntoConstraints = false
-            imageView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-            imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
-            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, constant: 9/16).isActive = true
-            stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20).isActive = true
-            if uiImage.size.width > uiImage.size.height {
-                imageView.contentMode = .scaleAspectFit
-            } else {
-                imageView.contentMode = .scaleAspectFill
-            }
-        } else {
-            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-        }
-        
-        stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
-        stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
-        stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
-        stackView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor).isActive = true
-        
-        buttonPanel.translatesAutoresizingMaskIntoConstraints = false
-        buttonPanel.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        
-        editButton.translatesAutoresizingMaskIntoConstraints = false
-        editButton.centerXAnchor.constraint(equalTo: buttonPanel.centerXAnchor, constant: -50).isActive = true
-        editButton.centerYAnchor.constraint(equalTo: buttonPanel.centerYAnchor).isActive = true
-        
-        deleteButton.translatesAutoresizingMaskIntoConstraints = false
-        deleteButton.centerXAnchor.constraint(equalTo: buttonPanel.centerXAnchor, constant: 50).isActive = true
-        deleteButton.centerYAnchor.constraint(equalTo: buttonPanel.centerYAnchor).isActive = true
-    }
-    
-    
-    func displayChart(metrics: Set<Metric>?) {
-        if let importedMetrics = metrics {
-            if importedMetrics.count > 0 {
-                
-                for arrangedSubview in stackView.arrangedSubviews {
-                    if arrangedSubview.tag == 5 {
-                        print("arrangedSubview: \(arrangedSubview)")
-                        stackView.removeArrangedSubview(arrangedSubview)
-                        arrangedSubview.removeFromSuperview()
-                    }
-                }
-                
-                let lineChartView = LineChartView()
-                lineChartView.data = loadMetricsData()
-                lineChartView.rightAxis.enabled = false
-                lineChartView.pinchZoomEnabled = true
-                lineChartView.dragEnabled = true
-                lineChartView.setScaleEnabled(true)
-                lineChartView.drawBordersEnabled = false
-                lineChartView.delegate = self
-                
-                let l = lineChartView.legend
-                l.form = .circle
-                l.font = UIFont(name: "HelveticaNeue-Light", size: 11)!
-                l.textColor = .black
-                l.horizontalAlignment = .right
-                l.verticalAlignment = .top
-                l.orientation = .horizontal
-                l.drawInside = false
-                l.xEntrySpace = 7
-                
-                let yAxis = lineChartView.leftAxis
-                yAxis.labelFont = .boldSystemFont(ofSize: 12)
-                yAxis.setLabelCount(6, force: false)
-                yAxis.labelTextColor = .gray
-                yAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
-                yAxis.labelPosition = .outsideChart
-                yAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
-                
-                let xAxis = lineChartView.xAxis
-                xAxis.labelPosition = .bottom
-                xAxis.labelFont = .boldSystemFont(ofSize: 10)
-                xAxis.labelTextColor = .gray
-                xAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
-                xAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
-                xAxis.drawLimitLinesBehindDataEnabled = true
-                xAxis.drawAxisLineEnabled = false
-                xAxis.granularityEnabled = true
-                xAxis.granularity = 86400
-                //                xAxis.valueFormatter = ChartXAxisFormatter(usingMetrics: metricsArr)
-                xAxis.valueFormatter = ChartXAxisFormatter()
-                
-                let chartContainer = UIStackView()
-                chartContainer.axis = .vertical
-                chartContainer.distribution = .fill
-                chartContainer.alignment = .fill
-                
-                addCard(text: "Progress Chart", subItem: lineChartView, stackView: stackView, containerHeight: 270, insert: stackView.arrangedSubviews.count, tag: 5)
-            }
-        }
-    }
-    
-    func displayMap(progress: Progress) {
-        if let latitude = progress.latitude, let longitude = progress.longitude, latitude != 0, longitude != 0 {
-            for arrangedSubview in stackView.arrangedSubviews {
-                if arrangedSubview.tag == 6 {
-                    stackView.removeArrangedSubview(arrangedSubview)
-                    arrangedSubview.removeFromSuperview()
-                }
-            }
+        if progress.metric.count > 0 {
+            lineChartView.data = loadMetricsData()
+            lineChartView.rightAxis.enabled = false
+            lineChartView.pinchZoomEnabled = true
+            lineChartView.dragEnabled = true
+            lineChartView.setScaleEnabled(true)
+            lineChartView.drawBordersEnabled = false
+            lineChartView.delegate = self
             
-            let mapView = MKMapView()
+            let l = lineChartView.legend
+            l.form = .circle
+            l.font = UIFont(name: "HelveticaNeue-Light", size: 11)!
+            l.textColor = .black
+            l.horizontalAlignment = .right
+            l.verticalAlignment = .top
+            l.orientation = .horizontal
+            l.drawInside = false
+            l.xEntrySpace = 7
+            
+            let yAxis = lineChartView.leftAxis
+            yAxis.labelFont = .boldSystemFont(ofSize: 12)
+            yAxis.setLabelCount(6, force: false)
+            yAxis.labelTextColor = .gray
+            yAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
+            yAxis.labelPosition = .outsideChart
+            yAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
+            
+            let xAxis = lineChartView.xAxis
+            xAxis.labelPosition = .bottom
+            xAxis.labelFont = .boldSystemFont(ofSize: 10)
+            xAxis.labelTextColor = .gray
+            xAxis.axisLineColor = UIColor(white: 0.2, alpha: 0.4)
+            xAxis.gridColor = UIColor(white: 0.8, alpha: 0.4)
+            xAxis.drawLimitLinesBehindDataEnabled = true
+            xAxis.drawAxisLineEnabled = false
+            xAxis.granularityEnabled = true
+            xAxis.granularity = 86400
+            //                xAxis.valueFormatter = ChartXAxisFormatter(usingMetrics: metricsArr)
+            xAxis.valueFormatter = ChartXAxisFormatter()
+            
+            let chartContainer = UIStackView()
+            chartContainer.axis = .vertical
+            chartContainer.distribution = .fill
+            chartContainer.alignment = .fill
+        }
+        
+        addCard(text: "Progress Chart", subItem: lineChartView, stackView: stackView, containerHeight: 270)
+
+        if let latitude = progress.latitude, let longitude = progress.longitude, latitude != 0, longitude != 0 {
             mapView.delegate = self
             
             let location = CLLocationCoordinate2D(latitude: latitude.doubleValue, longitude: longitude.doubleValue)
@@ -393,28 +232,76 @@ class EntryViewController: UIViewController, ChartViewDelegate {
                     }
                     
                     annotation = MyAnnotation(title:  self.addressLine, locationName: "hello", discipline: "", coordinate: location)
-                    mapView.addAnnotation(annotation)
+                    self.mapView.addAnnotation(annotation)
                     
                 } else {
                     annotation = MyAnnotation(title:  "", locationName: "location name", discipline: "", coordinate: location)
-                    mapView.addAnnotation(annotation)
+                    self.mapView.addAnnotation(annotation)
                 }
             }
-            
-            let containerView = UIView()
-            containerView.tag = 6
-            customShadowBorder(for: containerView)
-            containerView.addSubview(mapView)
-            
-            mapView.translatesAutoresizingMaskIntoConstraints = false
-            mapView.pin(to: containerView)
-            
-            stackView.insertArrangedSubview(containerView, at: stackView.arrangedSubviews.count)
-            stackView.setCustomSpacing(60, after: containerView)
-            
-            containerView.translatesAutoresizingMaskIntoConstraints = false
-            containerView.heightAnchor.constraint(greaterThanOrEqualToConstant: 270).isActive = true
         }
+                
+        let mapContainerView = UIView()
+        customShadowBorder(for: mapContainerView)
+        mapContainerView.addSubview(mapView)
+        mapView.pin(to: mapContainerView)
+        stackView.addArrangedSubview(mapContainerView)
+        stackView.setCustomSpacing(70, after: mapContainerView)
+        
+        stackView.addArrangedSubview(buttonPanel)
+    }
+    
+    var imageConstraints: [NSLayoutConstraint]!
+    
+    func setConstraints() {
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        if progress.image != nil {
+            imageConstraints = [
+                imageView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+                imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, constant: 9/16),
+                stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20)
+            ]
+        } else {
+            imageConstraints = [stackView.topAnchor.constraint(equalTo: scrollView.topAnchor)]
+        }
+        
+        NSLayoutConstraint.activate(imageConstraints)
+        
+//        if progress.image != nil {
+//            imageView.translatesAutoresizingMaskIntoConstraints = false
+//            imageView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
+//            imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
+//            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, constant: 9/16).isActive = true
+//            stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20).isActive = true
+//            if uiImage.size.width > uiImage.size.height {
+//                imageView.contentMode = .scaleAspectFit
+//            } else {
+//                imageView.contentMode = .scaleAspectFill
+//            }
+//        } else {
+//            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
+//        }
+        
+        stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
+        stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
+        stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
+        stackView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor).isActive = true
+        
+        mapView.heightAnchor.constraint(equalToConstant: 270).isActive = true
+        
+        buttonPanel.translatesAutoresizingMaskIntoConstraints = false
+        buttonPanel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        editButton.translatesAutoresizingMaskIntoConstraints = false
+        editButton.centerXAnchor.constraint(equalTo: buttonPanel.centerXAnchor, constant: -50).isActive = true
+        editButton.centerYAnchor.constraint(equalTo: buttonPanel.centerYAnchor).isActive = true
+        
+        deleteButton.translatesAutoresizingMaskIntoConstraints = false
+        deleteButton.centerXAnchor.constraint(equalTo: buttonPanel.centerXAnchor, constant: 50).isActive = true
+        deleteButton.centerYAnchor.constraint(equalTo: buttonPanel.centerYAnchor).isActive = true
     }
     
     var metricDict = [String: [ChartDataEntry]]()
@@ -472,7 +359,7 @@ class EntryViewController: UIViewController, ChartViewDelegate {
             if let vc = self.storyboard?.instantiateViewController(withIdentifier: "EditEntry") as? EditEntryViewController {
                 vc.progress = progress
                 vc.delegate = self
-                vc.locationLabel.text = addressLine
+                vc.locationText = addressLine
                 self.navigationController?.pushViewController(vc, animated: true)
             }
         case 2:
@@ -629,14 +516,72 @@ extension EntryViewController: MKMapViewDelegate {
 }
 
 protocol CallBackDelegate {
-    func callBack(value: Progress)
+    func callBack(value: Progress, location: CLLocationCoordinate2D?, locationLabel: String?)
 }
 
 extension EntryViewController: CallBackDelegate {
-    func callBack(value: Progress) {
+    func callBack(value: Progress, location: CLLocationCoordinate2D?, locationLabel: String?) {
         progress = value
-        displayChart(metrics: value.metric)
-        displayMap(progress: value)
+        lineChartView.data = loadMetricsData()
+        
+        if let location = location {
+            mapView.removeAnnotations(mapView.annotations)
+            
+            let annotation = MyAnnotation(title: locationLabel ?? "", locationName: "", discipline: "", coordinate: location)
+            self.mapView.addAnnotation(annotation)
+            
+            let span = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+            let region = MKCoordinateRegion(center: location, span: span)
+            mapView.setRegion(region, animated: true)
+        }
+        
+//        if stackView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive == true {
+//            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = false
+//        } else {
+////            NSLayoutConstraint.deactivate([
+////                imageView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+////                imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+////                imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, constant: 9/16),
+////                stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20)
+////            ])
+//            imageView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = false
+//            imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = false
+//            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, constant: 9/16).isActive = false
+//            stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20).isActive = false
+//        }
+
+        NSLayoutConstraint.deactivate(imageConstraints)
+        
+        if progress.image != nil {
+            imageConstraints = [
+                imageView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+                imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, constant: 9/16),
+                stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20)
+            ]
+        } else {
+            imageConstraints = [stackView.topAnchor.constraint(equalTo: scrollView.topAnchor)]
+        }
+        
+        NSLayoutConstraint.activate(imageConstraints)
+//        if value.image != nil {
+//            imageView.translatesAutoresizingMaskIntoConstraints = false
+//            imageView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
+//            imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
+//            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, constant: 9/16).isActive = true
+//            stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20).isActive = true
+//            if uiImage.size.width > uiImage.size.height {
+//                imageView.contentMode = .scaleAspectFit
+//            } else {
+//                imageView.contentMode = .scaleAspectFill
+//            }
+//        } else {
+//            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
+//        }
+//
+//        scrollView.layoutIfNeeded()
+//        stackView.layoutIfNeeded()
+        
     }
 }
 

@@ -90,9 +90,9 @@ extension GoalsTableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.goalCell, for: indexPath) as! GoalCell
         if let goal = fetchedResultsController?.object(at: indexPath) {
+            print("goalToMetric: \(goal.goalToMetric)")
             cell.set(goal: goal)
         }
-        
         return cell
     }
     
