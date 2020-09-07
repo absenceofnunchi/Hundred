@@ -39,7 +39,6 @@ extension Progress {
             }
         }
     }
-
 }
 
 // MARK: Generated accessors for metric

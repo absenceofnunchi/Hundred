@@ -54,7 +54,8 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
     
     func loadSavedData() {
         if fetchedResultsController == nil {
-            let request = Goal.createFetchRequest()
+            let request = NSFetchRequest<Goal>(entityName: "Goal")
+//            let request = Goal.createFetchRequest()
             let sort = NSSortDescriptor(key: "date", ascending: false)
             request.sortDescriptors = [sort]
             request.fetchBatchSize = 20
@@ -90,7 +91,6 @@ extension GoalsTableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.goalCell, for: indexPath) as! GoalCell
         if let goal = fetchedResultsController?.object(at: indexPath) {
-            print("goalToMetric: \(goal.goalToMetric)")
             cell.set(goal: goal)
         }
         return cell

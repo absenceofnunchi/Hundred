@@ -296,7 +296,8 @@ class EditViewController: UIViewController {
         }
         
         if metricArr.isDistinct() == true {
-            let goalRequest = Goal.createFetchRequest()
+//            let goalRequest = Goal.createFetchRequest()
+            let goalRequest = NSFetchRequest<Goal>(entityName: "Goal")
             goalRequest.predicate = NSPredicate(format: "title == %@", goalDetail.title)
             if let fetchedGoal = try? self.context.fetch(goalRequest) {
                 if fetchedGoal.count > 0 {

@@ -10,6 +10,8 @@ import UIKit
 import CoreSpotlight
 import MobileCoreServices
 import MapKit
+import CoreData
+import CloudKit
 
 class NewViewController: UIViewController {
     var imagePathString: String?
@@ -314,6 +316,9 @@ class NewViewController: UIViewController {
         return textView
     }()
     
+    var switchContainer: UIView!
+    var isPublic: Bool = false
+    
     lazy var locationLabel: CustomLabel = {
         let locationLabel = CustomLabel()
         locationLabel.textAlignment = .left
@@ -377,13 +382,7 @@ class NewViewController: UIViewController {
         commentTextView.delegate = self
         goalDescTextView.delegate = self
         initializeHideKeyboard()
-        
-        plusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 2)
-        minusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 3)
-        
-        locationPlusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 9)
-        locationMinusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 10)
-        
+
         configureUI()
         setConstraints()
         
@@ -402,6 +401,12 @@ class NewViewController: UIViewController {
     func configureUI() {
         navigationController?.title = "New Entry"
         
+        plusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 2)
+        minusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 3)
+        
+        locationPlusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 9)
+        locationMinusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 10)
+                
         stackView.addArrangedSubview(cameraButton)
         stackView.setCustomSpacing(40, after: cameraButton)
         
@@ -415,7 +420,35 @@ class NewViewController: UIViewController {
         
         addHeader(text: "Comment", stackView: stackView)
         stackView.addArrangedSubview(commentTextView)
-        stackView.setCustomSpacing(70, after: commentTextView)
+
+        let switchTitle = UILabel()
+        switchTitle.text = "Make the post public"
+        switchTitle.textColor = .darkGray
+        switchTitle.textAlignment = .right
+        
+        let switchControl = UISwitch(frame: CGRect(origin: CGPoint(x: 0,y :0), size: CGSize(width: 30, height: 30)))
+        switchControl.isOn = true
+        switchControl.tintColor = .lightGray
+        switchControl.onTintColor = .darkGray
+        switchControl.setOn(false, animated: false)
+        switchControl.addTarget(self, action: #selector(switchValueDidChange(sender:)), for: .valueChanged)
+        
+        switchContainer = UIView()
+        switchContainer.addSubview(switchTitle)
+        switchContainer.addSubview(switchControl)
+        
+        switchTitle.translatesAutoresizingMaskIntoConstraints = false
+        switchTitle.leadingAnchor.constraint(equalTo: switchContainer.leadingAnchor, constant: -20).isActive = true
+        switchTitle.widthAnchor.constraint(equalTo: switchContainer.widthAnchor, multiplier: 0.8).isActive = true
+        switchTitle.centerYAnchor.constraint(equalTo: switchContainer.centerYAnchor).isActive = true
+        
+        switchControl.translatesAutoresizingMaskIntoConstraints = false
+        switchControl.trailingAnchor.constraint(equalTo: switchContainer.trailingAnchor).isActive = true
+        switchControl.widthAnchor.constraint(equalTo: switchContainer.widthAnchor, multiplier: 0.2).isActive = true
+        switchControl.centerYAnchor.constraint(equalTo: switchContainer.centerYAnchor).isActive = true
+
+        stackView.addArrangedSubview(switchContainer)
+        stackView.setCustomSpacing(70, after: switchContainer)
         
         addHeader(text: "Location", stackView: stackView)
         mapPanel.addSubview(locationPlusButton)
@@ -458,6 +491,9 @@ class NewViewController: UIViewController {
         commentTextView.translatesAutoresizingMaskIntoConstraints = false
         commentTextView.heightAnchor.constraint(equalToConstant: 200).isActive = true
         
+        switchContainer.translatesAutoresizingMaskIntoConstraints = false
+        switchContainer.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
         locationLabel.translatesAutoresizingMaskIntoConstraints = false
         locationLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
@@ -481,6 +517,14 @@ class NewViewController: UIViewController {
         
         metricStackView.translatesAutoresizingMaskIntoConstraints = false
         metricStackView.heightAnchor.constraint(greaterThanOrEqualToConstant: 50).isActive = true
+    }
+    
+    @objc func switchValueDidChange(sender: UISwitch!) {
+        if sender.isOn {
+            isPublic = true
+        } else{
+            isPublic = false
+        }
     }
     
     func initializeHideKeyboard(){
@@ -690,7 +734,8 @@ class NewViewController: UIViewController {
             }
             
             var goalFromCoreData: Goal!
-            let goalRequest = Goal.createFetchRequest()
+//            let goalRequest = Goal.createFetchRequest()
+            let goalRequest = NSFetchRequest<Goal>(entityName: "Goal")
             
             // create a new goal
             if let goalText = goalTextField.text, !goalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -722,6 +767,30 @@ class NewViewController: UIViewController {
                         }
                         
                         goal.progress.insert(progress)
+                        
+                        // public cloud database
+                        let progressRecord = CKRecord(recordType: "Progress")
+                        progressRecord["goal"] = goal.title as CKRecordValue
+                        progressRecord["comment"] = commentTextView.text as CKRecordValue
+                        
+                        if let longitude = location?.longitude, let latitude = location?.latitude {
+                            progressRecord["longitude"] = NSDecimalNumber(value: longitude)
+                            progressRecord["latitude"] = NSDecimalNumber(value: latitude)
+                        }
+                        try? progressRecord.encode(metricDict, forKey: "metrics")
+                        progressRecord["date"] = Date()
+                        
+                        if let imagePath = imagePath {
+                            progressRecord["image"] = CKAsset(fileURL: imagePath)
+                        }
+                        
+                        CKContainer.default().publicCloudDatabase.save(progressRecord) { [unowned self] record, error in
+                            if let error = error {
+                                print("public cloud database error: \(error.localizedDescription)")
+                            } else {
+                                print("Sucessfully uploaded to Public Cloud DB")
+                            }
+                        }
                         
                         // Core Spotlight indexing
                         let attributeSet = CSSearchableItemAttributeSet(itemContentType: kUTTypeText as String)
@@ -1088,5 +1157,22 @@ extension NewViewController: HandleLocation {
     func fetchPlacemark(placemark: MKPlacemark) {
         locationLabel.text = placemark.title
         location = placemark.coordinate
+    }
+}
+
+private let encoder: JSONEncoder = .init()
+private let decoder: JSONDecoder = .init()
+
+extension CKRecord {
+    func decode<T>(forKey key: FieldKey) throws -> T where T: Decodable {
+        guard let data = self[key] as? Data else {
+            throw CocoaError(.coderValueNotFound)
+        }
+        
+        return try decoder.decode(T.self, from: data)
+    }
+    
+    func encode<T>(_ encodable: T, forKey key: FieldKey) throws where T: Encodable {
+        self[key] = try encoder.encode(encodable)
     }
 }

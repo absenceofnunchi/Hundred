@@ -5,7 +5,7 @@
         <attribute name="detail" optional="YES" attributeType="String"/>
         <attribute name="lastUpdatedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="longestStreak" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="metrics" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="[String]"/>
+        <attribute name="metrics" optional="YES" attributeType="Transformable" valueTransformerName="" customClassName="[String]"/>
         <attribute name="streak" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="goalToMetric" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Metric" inverseName="metricToGoal" inverseEntity="Metric"/>

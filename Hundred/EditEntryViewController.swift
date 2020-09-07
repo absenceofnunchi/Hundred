@@ -8,6 +8,7 @@
 
 import UIKit
 import MapKit
+import CoreData
 
 class EditEntryViewController: UIViewController {
     @IBOutlet weak var scrollView: UIScrollView!
@@ -352,7 +353,8 @@ class EditEntryViewController: UIViewController {
             })
         case 2:
             // completed editing
-            let progressRequest = Progress.createFetchRequest()
+//            let progressRequest = Progress.createFetchRequest()
+            let progressRequest = NSFetchRequest<Progress>(entityName: "Progress")
             let progressPredicate = NSPredicate(format: "id == %@", progress.id as CVarArg)
             progressRequest.predicate = progressPredicate
             if let fetchedProgress = try? self.context.fetch(progressRequest) {

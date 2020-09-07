@@ -94,8 +94,9 @@ class ViewController: UIViewController {
     }
     
     func configureUI() {
-        navigationController?.title = "Home"
-        navigationController?.navigationBar.isHidden = true
+        title = "Dashboard"
+        navigationController?.title = "Dashboard"
+//        navigationController?.navigationBar.isHidden = true
         
         addCard(text: "Contribution Calendar", subItem: calendarHeatMap, stackView: stackView, containerHeight: 270)
         addCard(text: "Composition Pie Chart", subItem: pieChartView, stackView: stackView, containerHeight: 300)
@@ -461,7 +462,7 @@ class ViewController: UIViewController {
             do {
                 if let result = try self.context.fetch(metricFetchRequest) as? [[String: NSDecimalNumber]], let dict = result.first {
                     let metricTitleLabel = UILabel()
-                    metricTitleLabel.text = "sdlkfjdklsjfklsjdlkfjksfjklsjdklfjlsdfsdfds"
+                    metricTitleLabel.text = metric
                     metricTitleLabel.lineBreakMode = .byTruncatingTail
                     metricTitleLabel.textAlignment = .center
                     metricTitleLabel.textAlignment = .left
@@ -469,9 +470,14 @@ class ViewController: UIViewController {
                     metricTitleLabel.font = UIFont.body.with(weight: .bold)
                     
                     let imageView = UIImageView()
-                    imageView.image = UIImage(systemName: "slowmo")
+                    imageView.image = UIImage(systemName: "square.stack.3d.up")
                     imageView.contentMode = .right
-                    imageView.tintColor = .red
+                    imageView.tintColor = .gray
+                    
+                    
+                    let titleContainer = UIView()
+                    titleContainer.addSubview(imageView)
+                    titleContainer.addSubview(metricTitleLabel)
                     
                     let singleMetricContainer = UIView()
                     
@@ -583,8 +589,9 @@ class ViewController: UIViewController {
                     unitContainer.layer.borderWidth = 0.8
                     unitContainer.layer.cornerRadius = 7.0
                     
-                    unitContainer.addSubview(imageView)
-                    unitContainer.addSubview(metricTitleLabel)
+                    unitContainer.addSubview(titleContainer)
+//                    unitContainer.addSubview(imageView)
+//                    unitContainer.addSubview(metricTitleLabel)
                     unitContainer.addSubview(singleMetricContainer)
                     
                     unitContainer.translatesAutoresizingMaskIntoConstraints = false
@@ -596,24 +603,32 @@ class ViewController: UIViewController {
 //                    metricTitleLabel.widthAnchor.constraint(equalTo: unitContainer.widthAnchor, multiplier: 0.8).isActive = true
 //                    metricTitleLabel.centerXAnchor.constraint(equalTo: unitContainer.centerXAnchor).isActive = true
                     
+                    titleContainer.translatesAutoresizingMaskIntoConstraints = false
+                    titleContainer.centerXAnchor.constraint(equalTo: unitContainer.centerXAnchor, constant: -10).isActive = true
+                    titleContainer.topAnchor.constraint(equalTo: unitContainer.topAnchor).isActive = true
+                    titleContainer.heightAnchor.constraint(equalTo: unitContainer.heightAnchor, multiplier: 0.3).isActive = true
+                    titleContainer.widthAnchor.constraint(lessThanOrEqualTo: unitContainer.widthAnchor, multiplier: 0.8).isActive = true
+                    
+                    imageView.translatesAutoresizingMaskIntoConstraints = false
+//                    imageView.heightAnchor.constraint(equalTo: titleContainer.heightAnchor, multiplier: 0.3).isActive = true
+//                    imageView.topAnchor.constraint(equalTo: titleContainer.topAnchor).isActive = true
+                    imageView.widthAnchor.constraint(equalTo: titleContainer.widthAnchor, multiplier: 0.2).isActive = true
+//                    imageView.trailingAnchor.constraint(equalTo: metricTitleLabel.leadingAnchor).isActive = true
+                    imageView.centerYAnchor.constraint(equalTo: titleContainer.centerYAnchor).isActive = true
                     
                     metricTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-                    metricTitleLabel.heightAnchor.constraint(equalTo: unitContainer.heightAnchor, multiplier: 0.3).isActive = true
-                    metricTitleLabel.topAnchor.constraint(equalTo: unitContainer.topAnchor).isActive = true
-                    metricTitleLabel.widthAnchor.constraint(lessThanOrEqualTo: unitContainer.widthAnchor, multiplier: 0.5).isActive = true
-                    metricTitleLabel.trailingAnchor.constraint(equalTo: unitContainer.trailingAnchor).isActive = true
-                    metricTitleLabel.centerXAnchor.constraint(equalTo: unitContainer.centerXAnchor).isActive = true
+//                    metricTitleLabel.heightAnchor.constraint(equalTo: titleContainer.heightAnchor, multiplier: 0.3).isActive = true
+//                    metricTitleLabel.topAnchor.constraint(equalTo: titleContainer.topAnchor).isActive = true
+                    metricTitleLabel.widthAnchor.constraint(greaterThanOrEqualTo: titleContainer.widthAnchor, multiplier: 0.5).isActive = true
+                    metricTitleLabel.widthAnchor.constraint(lessThanOrEqualTo: titleContainer.widthAnchor, multiplier: 0.8).isActive = true
+                    metricTitleLabel.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor).isActive = true
+                    metricTitleLabel.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 5).isActive = true
+                    metricTitleLabel.centerYAnchor.constraint(equalTo: titleContainer.centerYAnchor).isActive = true
                     
-                    imageView.sizeToFit()
-                    imageView.translatesAutoresizingMaskIntoConstraints = false
-                    imageView.heightAnchor.constraint(equalTo: unitContainer.heightAnchor, multiplier: 0.3).isActive = true
-                    imageView.topAnchor.constraint(equalTo: unitContainer.topAnchor).isActive = true
-//                    imageView.widthAnchor.constraint(lessThanOrEqualTo: unitContainer.widthAnchor, multiplier: 0.5).isActive = true
-                    imageView.trailingAnchor.constraint(equalTo: metricTitleLabel.leadingAnchor).isActive = true
 
                     singleMetricContainer.translatesAutoresizingMaskIntoConstraints = false
                     singleMetricContainer.heightAnchor.constraint(equalTo: unitContainer.heightAnchor, multiplier: 0.7).isActive = true
-                    singleMetricContainer.topAnchor.constraint(equalTo: metricTitleLabel.bottomAnchor).isActive = true
+                    singleMetricContainer.topAnchor.constraint(equalTo: titleContainer.bottomAnchor).isActive = true
                     singleMetricContainer.widthAnchor.constraint(equalTo: unitContainer.widthAnchor).isActive = true
                     
                     metricStackView.addArrangedSubview(unitContainer)

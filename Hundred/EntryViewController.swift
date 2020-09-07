@@ -12,6 +12,7 @@ import UIKit
 import CoreSpotlight
 import MobileCoreServices
 import MapKit
+import CoreData
 
 class EntryViewController: UIViewController, ChartViewDelegate {
     
@@ -308,7 +309,8 @@ class EntryViewController: UIViewController, ChartViewDelegate {
     var metricsArr: [Metric] = []
     
     func loadMetricsData() -> LineChartData {
-        let metricsRequest = Metric.createFetchRequest()
+//        let metricsRequest = Metric.createFetchRequest()
+        let metricsRequest = NSFetchRequest<Metric>(entityName: "Metric")
         metricsRequest.predicate = NSPredicate(format: "metricToGoal.title == %@", progress.goal.title)
         let sort = NSSortDescriptor(key: "date", ascending: true)
         metricsRequest.sortDescriptors = [sort]

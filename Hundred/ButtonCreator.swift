@@ -65,7 +65,7 @@ struct ButtonCreator {
 // 13. notification
 // 14. disable a done button  - done
 // 15. fix detail custom cell text alignment
-// 16. map - needs google places
+// 16. map - needs google places - done
 // 17. peek - done
 // 18. only show select plist per entry - done
 // 19. image corner radius
@@ -82,4 +82,4 @@ struct ButtonCreator {
 //Thread 1: Fatal error: Unresolved error Error Domain=NSCocoaErrorDomain Code=134060 "A Core Data error occurred." UserInfo={NSLocalizedFailureReason=CloudKit integration requires that the value transformers for transformable attributes are available via +[NSValueTransformer valueTransformerForName:], return instances of NSData, and allow reverse transformation:
 //Goal: metrics - Claims to return instances of nil}, ["NSLocalizedFailureReason": CloudKit integration requires that the value transformers for transformable
 
-
+// NSSecureUnarchiveFromData
