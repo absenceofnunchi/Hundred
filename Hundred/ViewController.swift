@@ -78,6 +78,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        print("yes")
         var dataImporter = DataImporter(goalTitle: nil)
         data = dataImporter.data
         
