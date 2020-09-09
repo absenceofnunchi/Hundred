@@ -769,29 +769,8 @@ class NewViewController: UIViewController {
                         goal.progress.insert(progress)
                         
                         // public cloud database
-                        let progressRecord = CKRecord(recordType: "Progress")
-                        progressRecord["goal"] = goal.title as CKRecordValue
-                        progressRecord["comment"] = commentTextView.text as CKRecordValue
-                        
-                        if let longitude = location?.longitude, let latitude = location?.latitude {
-                            progressRecord["longitude"] = NSDecimalNumber(value: longitude)
-                            progressRecord["latitude"] = NSDecimalNumber(value: latitude)
-                        }
-                        try? progressRecord.encode(metricDict, forKey: "metrics")
-                        progressRecord["date"] = Date()
-                        
-                        if let imagePath = imagePath {
-                            progressRecord["image"] = CKAsset(fileURL: imagePath)
-                        }
-                        
-                        CKContainer.default().publicCloudDatabase.save(progressRecord) { [unowned self] record, error in
-                            if let error = error {
-                                print("public cloud database error: \(error.localizedDescription)")
-                            } else {
-                                print("Sucessfully uploaded to Public Cloud DB")
-                            }
-                        }
-                        
+                        publicCloudSave(title: goal.title, comment: commentTextView.text, metricDict: metricDict, isNew: true, fetchedGoal: nil)
+
                         // Core Spotlight indexing
                         let attributeSet = CSSearchableItemAttributeSet(itemContentType: kUTTypeText as String)
                         attributeSet.title = goalText
@@ -858,6 +837,10 @@ class NewViewController: UIViewController {
                         }
                         
                         goalFromCoreData.lastUpdatedDate = Date()
+                        
+                        // public cloud database
+                        publicCloudSave(title: goalFromCoreData.title, comment: commentTextView.text, metricDict: metricDict, isNew: false, fetchedGoal: goalFromCoreData)
+                        
                     } else {
                         print("goal's in the existing list, but doesn't fetch")
                         return
@@ -1176,3 +1159,105 @@ extension CKRecord {
         self[key] = try encoder.encode(encodable)
     }
 }
+
+extension NewViewController {
+    func publicCloudSave(title: String, comment: String, metricDict: [String: String], isNew: Bool, fetchedGoal: Goal?) {
+        // public cloud database
+        let progressRecord = CKRecord(recordType: "Progress")
+        progressRecord["goal"] = title as CKRecordValue
+        progressRecord["comment"] = comment as CKRecordValue
+        
+        if let longitude = location?.longitude, let latitude = location?.latitude {
+            progressRecord["longitude"] = NSDecimalNumber(value: longitude)
+            progressRecord["latitude"] = NSDecimalNumber(value: latitude)
+        }
+        try? progressRecord.encode(metricDict, forKey: "metrics")
+        progressRecord["date"] = Date()
+        
+        if let imagePath = imagePath {
+            progressRecord["image"] = CKAsset(fileURL: imagePath)
+        }
+        
+        if isNew {
+            for metricPair in metricDict {
+                progressRecord["max"] = metricPair.value
+                progressRecord["min"] = metricPair.value
+                progressRecord["avg"] = metricPair.value
+                progressRecord["sum"] = metricPair.value
+            }
+            
+            progressRecord["entryCount"] = 1
+        } else {
+            if let metrics = fetchedGoal?.metrics {
+                if let dict = getAnalytics(metrics: metrics) {
+                    if let max = dict["Max"] {
+                        progressRecord["max"] = max
+                    }
+                    
+                    if let min = dict["Min"] {
+                        progressRecord["min"] = min
+                    }
+                    
+                    if let avg = dict["Average"] {
+                        progressRecord["avg"] = avg
+                    }
+                    
+                    if let sum = dict["Sum"] {
+                        progressRecord["sum"] = sum
+                    }
+                }
+            }
+            
+            if let progress = fetchedGoal?.progress {
+                let entryCount = getEntryCount(progress: progress)
+                progressRecord["entryCount"] = entryCount + 1
+            }
+        }
+        
+        progressRecord["longestStreak"] = fetchedGoal?.longestStreak
+        progressRecord["currentStreak"] = fetchedGoal?.streak
+
+        let publicCloudDatabase = CKContainer.default().publicCloudDatabase
+        
+//        let operation = CKModifyRecordsOperation(recordsToSave: [progressRecord], recordIDsToDelete: nil)
+//        let operationConfiguration = CKOperation.Configuration()
+//
+//        operationConfiguration.allowsCellularAccess = true
+//        operationConfiguration.qualityOfService = .userInitiated
+//        operation.configuration = operationConfiguration
+//
+//        operation.perRecordProgressBlock = {(record, progress) in
+//            print("perRecordProgressBlock: \(progress)")
+//        }
+//
+//        operation.perRecordCompletionBlock = {(record, error) in
+//            print("Upload complete")
+//            print("perRecordCompletionBlock error: \(error)")
+//        }
+//
+//        operation.modifyRecordsCompletionBlock = { (savedRecords, deletedRecordIDs, error) in
+//            print("savedRecords: \(savedRecords)")
+//            print("deletedRecordIDs: \(deletedRecordIDs)")
+//            print("modifyRecordsCompletionBlock error: \(error)")
+//        }
+//
+//        publicCloudDatabase.add(operation)
+//        publicCloudDatabase.save(progressRecord) { record, error in
+//            if let error = error {
+//                print("public cloud database error======================================================: \(error)")
+//            } else {
+//                print("Sucessfully uploaded to Public Cloud DB====================================================")
+//            }
+//        }
+
+        publicCloudDatabase.save(progressRecord) { (record, error) in
+                if let error = error {
+                    print("public cloud database error======================================================: \(error)")
+                    return
+                }
+                print("Sucessfully uploaded to Public Cloud DB====================================================")
+        }
+    }
+}
+
+

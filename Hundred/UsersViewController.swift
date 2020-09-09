@@ -1,52 +1,27 @@
 //
-//  AddGoalViewController.swift
+//  UsersViewController.swift
 //  Hundred
 //
-//  Created by jc on 2020-07-31.
+//  Created by J C on 2020-09-09.
 //  Copyright © 2020 J. All rights reserved.
 //
 
 import UIKit
 import CloudKit
+import MapKit
 
-class AddGoalViewController: UIViewController {
-    var scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        return scrollView
-    }()
-    
-    var stackView: UIStackView = {
-        let stackView = UIStackView()
-        return stackView
-    }()
+class UsersViewController: UITableViewController {
+    var users = [CKRecord]()
+    var imageView: UIImageView!
+    var commentLabel = UILabel()
+    var mapView: MKMapView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        test()
+    }
 
-        fetchData()
-        configureUI()
-        setConstraints()
-    }
-    
-    func configureUI() {
-        view.addSubview(scrollView)
-        scrollView.addSubview(stackView)
-        let aView = UIView()
-        aView.backgroundColor = .yellow
-        stackView.addArrangedSubview(aView)
-        
-        aView.translatesAutoresizingMaskIntoConstraints = false
-        aView.heightAnchor.constraint(equalToConstant: 11200).isActive = true
-    }
-    
-    func setConstraints() {
-        scrollView.pin(to: view)
-        stackView.pin(to: scrollView)
-    }
-    
     func fetchData() {
-        print("fetch started")
-        let cloudContainer = CKContainer.default()
         let publicDatabase = CKContainer.default().publicCloudDatabase
         let predicate = NSPredicate(value: true)
         let query =  CKQuery(recordType: "Progress", predicate: predicate)
@@ -61,7 +36,7 @@ class AddGoalViewController: UIViewController {
         queryOperation.configuration = configuration
         queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
             if let record = record {
-                print("fetched record: \(record)")
+                self.users.append(record)
             }
         }
         
@@ -78,5 +53,14 @@ class AddGoalViewController: UIViewController {
         
         publicDatabase.add(queryOperation)
     }
+    
+    // MARK: - Table view data source
 
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return users.count
+    }
+    
+//    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+//        let cell = tableView.dequeueReusableCell(withIdentifier: <#T##String#>)
+//    }
 }

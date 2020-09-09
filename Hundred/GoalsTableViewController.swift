@@ -22,7 +22,7 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
         super.viewDidLoad()
         
         title = "Goals"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addGoals))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(getUsers))
         
         loadSavedData()
         configureTableView()
@@ -30,7 +30,6 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        tabBarController?.tabBar.isHidden = false
         tableView.reloadData()
     }
     
@@ -43,11 +42,8 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
         self.view.addInteraction(inter)
     }
     
-    @objc func addGoals() {
-        if let vc = storyboard?.instantiateViewController(withIdentifier: "AddGoal") as? AddGoalViewController {
-            vc.isDismissed = { [weak self] in
-                self?.loadSavedData()
-            }
+    @objc func getUsers() {
+        if let vc = storyboard?.instantiateViewController(withIdentifier: "Users") as? UsersViewController {
             present(vc, animated: true)
         }
     }
@@ -63,7 +59,6 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
             fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: self.context, sectionNameKeyPath: nil, cacheName: nil)
             fetchedResultsController?.delegate = self
         }
-        
         do {
             try fetchedResultsController?.performFetch()
         } catch {

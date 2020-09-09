@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="16119" systemVersion="19G2021" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17189" systemVersion="20A5364e" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
     <entity name="Goal" representedClassName="Goal" syncable="YES">
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="detail" optional="YES" attributeType="String"/>
@@ -10,11 +10,6 @@
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="goalToMetric" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Metric" inverseName="metricToGoal" inverseEntity="Metric"/>
         <relationship name="progress" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Progress" inverseName="goal" inverseEntity="Progress"/>
-        <uniquenessConstraints>
-            <uniquenessConstraint>
-                <constraint value="title"/>
-            </uniquenessConstraint>
-        </uniquenessConstraints>
     </entity>
     <entity name="Metric" representedClassName="Metric" syncable="YES">
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
@@ -39,7 +34,7 @@
         </fetchIndex>
     </entity>
     <elements>
-        <element name="Goal" positionX="-63" positionY="-18" width="128" height="178"/>
+        <element name="Goal" positionX="-63" positionY="-18" width="128" height="164"/>
         <element name="Metric" positionX="-45" positionY="99" width="128" height="133"/>
         <element name="Progress" positionX="-36" positionY="90" width="128" height="178"/>
     </elements>

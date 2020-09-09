@@ -77,8 +77,7 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        print("yes")
+
         var dataImporter = DataImporter(goalTitle: nil)
         data = dataImporter.data
         
@@ -174,16 +173,10 @@ class ViewController: UIViewController {
         l.font = UIFont(name: "HelveticaNeue-Light", size: 11)!
         l.xEntrySpace = 4
         
-        var dateArr: Set<String> = []
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM/dd"
-        
-        for progressEntry in progress {
-            dateArr.insert(dateFormatter.string(from: progressEntry.date))
-        }
+        let entryCount = getEntryCount(progress: progress)
         
         var denominator: Double = 100
-        switch Double(dateArr.count)/100 {
+        switch Double(entryCount)/100 {
         case 0..<1.1:
             denominator = 100
         case 1.1..<2.1:
@@ -217,8 +210,8 @@ class ViewController: UIViewController {
         default:
             denominator = 100
         }
-        
-        let barChartData = BarChartDataEntry(x: 0, y: Double(dateArr.count)/100)
+                
+        let barChartData = BarChartDataEntry(x: 0, y: Double(entryCount)/100)
         let barChartDataSet = BarChartDataSet(entries: [barChartData], label: "# of contributed days out of \(Int(denominator)) days")
         
         barChartDataSet.colors = [NSUIColor(hex: 0xd1ccc0)]
@@ -398,247 +391,182 @@ class ViewController: UIViewController {
         metricStackView.axis = .vertical
         metricStackView.spacing = 20
         
-        let metricFetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Metric")
-        for metric in metrics {
-            metricFetchRequest.predicate = NSPredicate(format: "unit == %@", metric)
-            metricFetchRequest.resultType = NSFetchRequestResultType.dictionaryResultType
-            
-            // max
-            let keypathExpression = NSExpression(forKeyPath: "value")
-            let maxExpression = NSExpression(forFunction: "max:", arguments: [keypathExpression])
-            let maxKey = "Max"
-            
-            let maxExpressionDescription = NSExpressionDescription()
-            maxExpressionDescription.name = maxKey
-            maxExpressionDescription.expression = maxExpression
-            maxExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            // min
-            let minExpression =  NSExpression(forFunction: "min:", arguments: [keypathExpression])
-            let minKey = "Min"
-            
-            let minExpressionDescription = NSExpressionDescription()
-            minExpressionDescription.name = minKey
-            minExpressionDescription.expression = minExpression
-            minExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            // average
-            let avgExpression =  NSExpression(forFunction: "average:", arguments: [keypathExpression])
-            let avgKey = "Average"
-            
-            let avgExpressionDescription = NSExpressionDescription()
-            avgExpressionDescription.name = avgKey
-            avgExpressionDescription.expression = avgExpression
-            avgExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            // sum
-            let sumExpression =  NSExpression(forFunction: "sum:", arguments: [keypathExpression])
-            let sumKey = "Sum"
-            
-            let sumExpressionDescription = NSExpressionDescription()
-            sumExpressionDescription.name = sumKey
-            sumExpressionDescription.expression = sumExpression
-            sumExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            // median
-            let mdnExpression =  NSExpression(forFunction: "median:", arguments: [keypathExpression])
-            let mdnKey = "mdnValue"
-            
-            let mdnExpressionDescription = NSExpressionDescription()
-            mdnExpressionDescription.name = mdnKey
-            mdnExpressionDescription.expression = mdnExpression
-            mdnExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            // standar deviation
-            let stdExpression =  NSExpression(forFunction: "stddev:", arguments: [keypathExpression])
-            let stdKey = "stdValue"
-            
-            let stdExpressionDescription = NSExpressionDescription()
-            stdExpressionDescription.name = stdKey
-            stdExpressionDescription.expression = stdExpression
-            stdExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            metricFetchRequest.propertiesToFetch = [maxExpressionDescription, minExpressionDescription, avgExpressionDescription, sumExpressionDescription]
-            
-            do {
-                if let result = try self.context.fetch(metricFetchRequest) as? [[String: NSDecimalNumber]], let dict = result.first {
-                    let metricTitleLabel = UILabel()
-                    metricTitleLabel.text = metric
-                    metricTitleLabel.lineBreakMode = .byTruncatingTail
-                    metricTitleLabel.textAlignment = .center
-                    metricTitleLabel.textAlignment = .left
-                    metricTitleLabel.textColor = .lightGray
-                    metricTitleLabel.font = UIFont.body.with(weight: .bold)
-                    
-                    let imageView = UIImageView()
-                    imageView.image = UIImage(systemName: "square.stack.3d.up")
-                    imageView.contentMode = .right
-                    imageView.tintColor = .gray
-                    
-                    
-                    let titleContainer = UIView()
-                    titleContainer.addSubview(imageView)
-                    titleContainer.addSubview(metricTitleLabel)
-                    
-                    let singleMetricContainer = UIView()
-                    
-                    let pairContainer1 = UIView()
-                    let maxValueLabel = createValueLabel(key: "Max", dict: dict)
-                    maxValueLabel.textAlignment = .center
-                    let maxUnitLabel = createUnitLabel(labelText: "Max")
-                    maxUnitLabel.textAlignment = .center
+        if let dict = getAnalytics(metrics: metrics) {
+            for metric in metrics {
+                let metricTitleLabel = UILabel()
+                metricTitleLabel.text = metric
+                metricTitleLabel.lineBreakMode = .byTruncatingTail
+                metricTitleLabel.textAlignment = .center
+                metricTitleLabel.textAlignment = .left
+                metricTitleLabel.textColor = .lightGray
+                metricTitleLabel.font = UIFont.body.with(weight: .bold)
+                
+                let imageView = UIImageView()
+                imageView.image = UIImage(systemName: "square.stack.3d.up")
+                imageView.contentMode = .right
+                imageView.tintColor = .gray
+                
+                
+                let titleContainer = UIView()
+                titleContainer.addSubview(imageView)
+                titleContainer.addSubview(metricTitleLabel)
+                
+                let singleMetricContainer = UIView()
+                
+                let pairContainer1 = UIView()
+                let maxValueLabel = createValueLabel(key: "Max", dict: dict)
+                maxValueLabel.textAlignment = .center
+                let maxUnitLabel = createUnitLabel(labelText: "Max")
+                maxUnitLabel.textAlignment = .center
 
-                    pairContainer1.addSubview(maxValueLabel)
-                    pairContainer1.addSubview(maxUnitLabel)
-                    singleMetricContainer.addSubview(pairContainer1)
+                pairContainer1.addSubview(maxValueLabel)
+                pairContainer1.addSubview(maxUnitLabel)
+                singleMetricContainer.addSubview(pairContainer1)
 
-                    pairContainer1.translatesAutoresizingMaskIntoConstraints = false
-                    pairContainer1.leadingAnchor.constraint(equalTo: singleMetricContainer.leadingAnchor).isActive = true
-                    pairContainer1.widthAnchor.constraint(equalTo: singleMetricContainer.widthAnchor, multiplier: 0.5).isActive = true
-                    pairContainer1.topAnchor.constraint(equalTo: singleMetricContainer.topAnchor).isActive = true
-                    pairContainer1.heightAnchor.constraint(equalTo: singleMetricContainer.heightAnchor, multiplier: 0.5).isActive = true
+                pairContainer1.translatesAutoresizingMaskIntoConstraints = false
+                pairContainer1.leadingAnchor.constraint(equalTo: singleMetricContainer.leadingAnchor).isActive = true
+                pairContainer1.widthAnchor.constraint(equalTo: singleMetricContainer.widthAnchor, multiplier: 0.5).isActive = true
+                pairContainer1.topAnchor.constraint(equalTo: singleMetricContainer.topAnchor).isActive = true
+                pairContainer1.heightAnchor.constraint(equalTo: singleMetricContainer.heightAnchor, multiplier: 0.5).isActive = true
 
-                    maxValueLabel.translatesAutoresizingMaskIntoConstraints = false
-                    maxValueLabel.topAnchor.constraint(equalTo: pairContainer1.topAnchor).isActive = true
-                    maxValueLabel.widthAnchor.constraint(equalTo: pairContainer1.widthAnchor, multiplier: 0.9).isActive = true
-                    maxValueLabel.heightAnchor.constraint(equalTo: pairContainer1.heightAnchor, multiplier: 0.5).isActive = true
+                maxValueLabel.translatesAutoresizingMaskIntoConstraints = false
+                maxValueLabel.topAnchor.constraint(equalTo: pairContainer1.topAnchor).isActive = true
+                maxValueLabel.widthAnchor.constraint(equalTo: pairContainer1.widthAnchor, multiplier: 0.9).isActive = true
+                maxValueLabel.heightAnchor.constraint(equalTo: pairContainer1.heightAnchor, multiplier: 0.5).isActive = true
 
-                    maxUnitLabel.translatesAutoresizingMaskIntoConstraints = false
-                    maxUnitLabel.topAnchor.constraint(equalTo: maxValueLabel.bottomAnchor).isActive = true
-                    maxUnitLabel.widthAnchor.constraint(equalTo: pairContainer1.widthAnchor, multiplier: 0.9).isActive = true
+                maxUnitLabel.translatesAutoresizingMaskIntoConstraints = false
+                maxUnitLabel.topAnchor.constraint(equalTo: maxValueLabel.bottomAnchor).isActive = true
+                maxUnitLabel.widthAnchor.constraint(equalTo: pairContainer1.widthAnchor, multiplier: 0.9).isActive = true
 
-                    let pairContainer2 = UIView()
-                    let minValueLabel = createValueLabel(key: "Min", dict: dict)
-                    minValueLabel.textAlignment = .center
-                    let minUnitLabel = createUnitLabel(labelText: "Min")
-                    minUnitLabel.textAlignment = .center
+                let pairContainer2 = UIView()
+                let minValueLabel = createValueLabel(key: "Min", dict: dict)
+                minValueLabel.textAlignment = .center
+                let minUnitLabel = createUnitLabel(labelText: "Min")
+                minUnitLabel.textAlignment = .center
 
-                    pairContainer2.addSubview(minValueLabel)
-                    pairContainer2.addSubview(minUnitLabel)
-                    singleMetricContainer.addSubview(pairContainer2)
+                pairContainer2.addSubview(minValueLabel)
+                pairContainer2.addSubview(minUnitLabel)
+                singleMetricContainer.addSubview(pairContainer2)
 
-                    pairContainer2.translatesAutoresizingMaskIntoConstraints = false
-                    pairContainer2.trailingAnchor.constraint(equalTo: singleMetricContainer.trailingAnchor).isActive = true
-                    pairContainer2.widthAnchor.constraint(equalTo: singleMetricContainer.widthAnchor, multiplier: 0.5).isActive = true
-                    pairContainer2.topAnchor.constraint(equalTo: singleMetricContainer.topAnchor).isActive = true
-                    pairContainer2.heightAnchor.constraint(equalTo: singleMetricContainer.heightAnchor, multiplier: 0.5).isActive = true
+                pairContainer2.translatesAutoresizingMaskIntoConstraints = false
+                pairContainer2.trailingAnchor.constraint(equalTo: singleMetricContainer.trailingAnchor).isActive = true
+                pairContainer2.widthAnchor.constraint(equalTo: singleMetricContainer.widthAnchor, multiplier: 0.5).isActive = true
+                pairContainer2.topAnchor.constraint(equalTo: singleMetricContainer.topAnchor).isActive = true
+                pairContainer2.heightAnchor.constraint(equalTo: singleMetricContainer.heightAnchor, multiplier: 0.5).isActive = true
 
-                    minValueLabel.translatesAutoresizingMaskIntoConstraints = false
-                    minValueLabel.topAnchor.constraint(equalTo: pairContainer2.topAnchor).isActive = true
-                    minValueLabel.widthAnchor.constraint(equalTo: pairContainer2.widthAnchor, multiplier: 0.9).isActive = true
-                    minValueLabel.heightAnchor.constraint(equalTo: pairContainer2.heightAnchor, multiplier: 0.5).isActive = true
-                    minValueLabel.centerXAnchor.constraint(equalTo: pairContainer2.centerXAnchor).isActive = true
+                minValueLabel.translatesAutoresizingMaskIntoConstraints = false
+                minValueLabel.topAnchor.constraint(equalTo: pairContainer2.topAnchor).isActive = true
+                minValueLabel.widthAnchor.constraint(equalTo: pairContainer2.widthAnchor, multiplier: 0.9).isActive = true
+                minValueLabel.heightAnchor.constraint(equalTo: pairContainer2.heightAnchor, multiplier: 0.5).isActive = true
+                minValueLabel.centerXAnchor.constraint(equalTo: pairContainer2.centerXAnchor).isActive = true
 
-                    minUnitLabel.translatesAutoresizingMaskIntoConstraints = false
-                    minUnitLabel.topAnchor.constraint(equalTo: minValueLabel.bottomAnchor).isActive = true
-                    minUnitLabel.widthAnchor.constraint(equalTo: pairContainer2.widthAnchor, multiplier: 0.9).isActive = true
-                    minUnitLabel.centerXAnchor.constraint(equalTo: pairContainer2.centerXAnchor).isActive = true
+                minUnitLabel.translatesAutoresizingMaskIntoConstraints = false
+                minUnitLabel.topAnchor.constraint(equalTo: minValueLabel.bottomAnchor).isActive = true
+                minUnitLabel.widthAnchor.constraint(equalTo: pairContainer2.widthAnchor, multiplier: 0.9).isActive = true
+                minUnitLabel.centerXAnchor.constraint(equalTo: pairContainer2.centerXAnchor).isActive = true
 
-                    let pairContainer3 = UIView()
-                    let avgValueLabel = createValueLabel(key: "Average", dict: dict)
-                    avgValueLabel.textAlignment = .center
-                    let avgUnitLabel = createUnitLabel(labelText: "Avg")
-                    avgUnitLabel.textAlignment = .center
+                let pairContainer3 = UIView()
+                let avgValueLabel = createValueLabel(key: "Average", dict: dict)
+                avgValueLabel.textAlignment = .center
+                let avgUnitLabel = createUnitLabel(labelText: "Avg")
+                avgUnitLabel.textAlignment = .center
 
-                    pairContainer3.addSubview(avgValueLabel)
-                    pairContainer3.addSubview(avgUnitLabel)
-                    singleMetricContainer.addSubview(pairContainer3)
+                pairContainer3.addSubview(avgValueLabel)
+                pairContainer3.addSubview(avgUnitLabel)
+                singleMetricContainer.addSubview(pairContainer3)
 
-                    pairContainer3.translatesAutoresizingMaskIntoConstraints = false
-                    pairContainer3.leadingAnchor.constraint(equalTo: singleMetricContainer.leadingAnchor).isActive = true
-                    pairContainer3.bottomAnchor.constraint(equalTo: singleMetricContainer.bottomAnchor).isActive = true
-                    pairContainer3.widthAnchor.constraint(equalTo: singleMetricContainer.widthAnchor, multiplier: 0.5).isActive = true
-                    pairContainer3.heightAnchor.constraint(equalTo: singleMetricContainer.heightAnchor, multiplier: 0.5).isActive = true
+                pairContainer3.translatesAutoresizingMaskIntoConstraints = false
+                pairContainer3.leadingAnchor.constraint(equalTo: singleMetricContainer.leadingAnchor).isActive = true
+                pairContainer3.bottomAnchor.constraint(equalTo: singleMetricContainer.bottomAnchor).isActive = true
+                pairContainer3.widthAnchor.constraint(equalTo: singleMetricContainer.widthAnchor, multiplier: 0.5).isActive = true
+                pairContainer3.heightAnchor.constraint(equalTo: singleMetricContainer.heightAnchor, multiplier: 0.5).isActive = true
 
-                    avgValueLabel.translatesAutoresizingMaskIntoConstraints = false
-                    avgValueLabel.topAnchor.constraint(equalTo: pairContainer3.topAnchor).isActive = true
-                    avgValueLabel.widthAnchor.constraint(equalTo: pairContainer3.widthAnchor, multiplier: 0.9).isActive = true
+                avgValueLabel.translatesAutoresizingMaskIntoConstraints = false
+                avgValueLabel.topAnchor.constraint(equalTo: pairContainer3.topAnchor).isActive = true
+                avgValueLabel.widthAnchor.constraint(equalTo: pairContainer3.widthAnchor, multiplier: 0.9).isActive = true
 
-                    avgUnitLabel.translatesAutoresizingMaskIntoConstraints = false
-                    avgUnitLabel.topAnchor.constraint(equalTo: avgValueLabel.bottomAnchor).isActive = true
-                    avgUnitLabel.widthAnchor.constraint(equalTo: pairContainer3.widthAnchor, multiplier: 0.9).isActive = true
+                avgUnitLabel.translatesAutoresizingMaskIntoConstraints = false
+                avgUnitLabel.topAnchor.constraint(equalTo: avgValueLabel.bottomAnchor).isActive = true
+                avgUnitLabel.widthAnchor.constraint(equalTo: pairContainer3.widthAnchor, multiplier: 0.9).isActive = true
 
-                    let pairContainer4 = UIView()
-                    let sumValueLabel = createValueLabel(key: "Sum", dict: dict)
-                    sumValueLabel.textAlignment = .center
-                    let sumUnitLabel = createUnitLabel(labelText: "Sum")
-                    sumUnitLabel.textAlignment = .center
+                let pairContainer4 = UIView()
+                let sumValueLabel = createValueLabel(key: "Sum", dict: dict)
+                sumValueLabel.textAlignment = .center
+                let sumUnitLabel = createUnitLabel(labelText: "Sum")
+                sumUnitLabel.textAlignment = .center
 
-                    pairContainer4.addSubview(sumValueLabel)
-                    pairContainer4.addSubview(sumUnitLabel)
-                    singleMetricContainer.addSubview(pairContainer4)
+                pairContainer4.addSubview(sumValueLabel)
+                pairContainer4.addSubview(sumUnitLabel)
+                singleMetricContainer.addSubview(pairContainer4)
 
-                    pairContainer4.translatesAutoresizingMaskIntoConstraints = false
-                    pairContainer4.trailingAnchor.constraint(equalTo: singleMetricContainer.trailingAnchor).isActive = true
-                    pairContainer4.widthAnchor.constraint(equalTo: singleMetricContainer.widthAnchor, multiplier: 0.5).isActive = true
-                    pairContainer4.topAnchor.constraint(equalTo: pairContainer2.bottomAnchor).isActive = true
-                    pairContainer4.heightAnchor.constraint(equalTo: singleMetricContainer.heightAnchor, multiplier: 0.5).isActive = true
+                pairContainer4.translatesAutoresizingMaskIntoConstraints = false
+                pairContainer4.trailingAnchor.constraint(equalTo: singleMetricContainer.trailingAnchor).isActive = true
+                pairContainer4.widthAnchor.constraint(equalTo: singleMetricContainer.widthAnchor, multiplier: 0.5).isActive = true
+                pairContainer4.topAnchor.constraint(equalTo: pairContainer2.bottomAnchor).isActive = true
+                pairContainer4.heightAnchor.constraint(equalTo: singleMetricContainer.heightAnchor, multiplier: 0.5).isActive = true
 
-                    sumValueLabel.translatesAutoresizingMaskIntoConstraints = false
-                    sumValueLabel.topAnchor.constraint(equalTo: pairContainer4.topAnchor).isActive = true
-                    sumValueLabel.widthAnchor.constraint(equalTo: pairContainer4.widthAnchor, multiplier: 0.9).isActive = true
-                    sumValueLabel.centerXAnchor.constraint(equalTo: pairContainer4.centerXAnchor).isActive = true
+                sumValueLabel.translatesAutoresizingMaskIntoConstraints = false
+                sumValueLabel.topAnchor.constraint(equalTo: pairContainer4.topAnchor).isActive = true
+                sumValueLabel.widthAnchor.constraint(equalTo: pairContainer4.widthAnchor, multiplier: 0.9).isActive = true
+                sumValueLabel.centerXAnchor.constraint(equalTo: pairContainer4.centerXAnchor).isActive = true
 
-                    sumUnitLabel.translatesAutoresizingMaskIntoConstraints = false
-                    sumUnitLabel.topAnchor.constraint(equalTo: sumValueLabel.bottomAnchor).isActive = true
-                    sumUnitLabel.widthAnchor.constraint(equalTo: pairContainer4.widthAnchor, multiplier: 0.9).isActive = true
-                    sumUnitLabel.centerXAnchor.constraint(equalTo: pairContainer4.centerXAnchor).isActive = true
-                    
-                    let unitContainer = UIView()
-                    let borderColor = UIColor.gray
-                    unitContainer.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
-                    unitContainer.layer.borderWidth = 0.8
-                    unitContainer.layer.cornerRadius = 7.0
-                    
-                    unitContainer.addSubview(titleContainer)
-//                    unitContainer.addSubview(imageView)
-//                    unitContainer.addSubview(metricTitleLabel)
-                    unitContainer.addSubview(singleMetricContainer)
-                    
-                    unitContainer.translatesAutoresizingMaskIntoConstraints = false
-                    unitContainer.heightAnchor.constraint(equalToConstant: 180).isActive = true
-                    
-//                    metricTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-//                    metricTitleLabel.heightAnchor.constraint(equalTo: unitContainer.heightAnchor, multiplier: 0.3).isActive = true
-//                    metricTitleLabel.topAnchor.constraint(equalTo: unitContainer.topAnchor).isActive = true
-//                    metricTitleLabel.widthAnchor.constraint(equalTo: unitContainer.widthAnchor, multiplier: 0.8).isActive = true
-//                    metricTitleLabel.centerXAnchor.constraint(equalTo: unitContainer.centerXAnchor).isActive = true
-                    
-                    titleContainer.translatesAutoresizingMaskIntoConstraints = false
-                    titleContainer.centerXAnchor.constraint(equalTo: unitContainer.centerXAnchor, constant: -10).isActive = true
-                    titleContainer.topAnchor.constraint(equalTo: unitContainer.topAnchor).isActive = true
-                    titleContainer.heightAnchor.constraint(equalTo: unitContainer.heightAnchor, multiplier: 0.3).isActive = true
-                    titleContainer.widthAnchor.constraint(lessThanOrEqualTo: unitContainer.widthAnchor, multiplier: 0.8).isActive = true
-                    
-                    imageView.translatesAutoresizingMaskIntoConstraints = false
-//                    imageView.heightAnchor.constraint(equalTo: titleContainer.heightAnchor, multiplier: 0.3).isActive = true
-//                    imageView.topAnchor.constraint(equalTo: titleContainer.topAnchor).isActive = true
-                    imageView.widthAnchor.constraint(equalTo: titleContainer.widthAnchor, multiplier: 0.2).isActive = true
-//                    imageView.trailingAnchor.constraint(equalTo: metricTitleLabel.leadingAnchor).isActive = true
-                    imageView.centerYAnchor.constraint(equalTo: titleContainer.centerYAnchor).isActive = true
-                    
-                    metricTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-//                    metricTitleLabel.heightAnchor.constraint(equalTo: titleContainer.heightAnchor, multiplier: 0.3).isActive = true
-//                    metricTitleLabel.topAnchor.constraint(equalTo: titleContainer.topAnchor).isActive = true
-                    metricTitleLabel.widthAnchor.constraint(greaterThanOrEqualTo: titleContainer.widthAnchor, multiplier: 0.5).isActive = true
-                    metricTitleLabel.widthAnchor.constraint(lessThanOrEqualTo: titleContainer.widthAnchor, multiplier: 0.8).isActive = true
-                    metricTitleLabel.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor).isActive = true
-                    metricTitleLabel.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 5).isActive = true
-                    metricTitleLabel.centerYAnchor.constraint(equalTo: titleContainer.centerYAnchor).isActive = true
-                    
+                sumUnitLabel.translatesAutoresizingMaskIntoConstraints = false
+                sumUnitLabel.topAnchor.constraint(equalTo: sumValueLabel.bottomAnchor).isActive = true
+                sumUnitLabel.widthAnchor.constraint(equalTo: pairContainer4.widthAnchor, multiplier: 0.9).isActive = true
+                sumUnitLabel.centerXAnchor.constraint(equalTo: pairContainer4.centerXAnchor).isActive = true
+                
+                let unitContainer = UIView()
+                let borderColor = UIColor.gray
+                unitContainer.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
+                unitContainer.layer.borderWidth = 0.8
+                unitContainer.layer.cornerRadius = 7.0
+                
+                unitContainer.addSubview(titleContainer)
+    //                    unitContainer.addSubview(imageView)
+    //                    unitContainer.addSubview(metricTitleLabel)
+                unitContainer.addSubview(singleMetricContainer)
+                
+                unitContainer.translatesAutoresizingMaskIntoConstraints = false
+                unitContainer.heightAnchor.constraint(equalToConstant: 180).isActive = true
+                
+    //                    metricTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+    //                    metricTitleLabel.heightAnchor.constraint(equalTo: unitContainer.heightAnchor, multiplier: 0.3).isActive = true
+    //                    metricTitleLabel.topAnchor.constraint(equalTo: unitContainer.topAnchor).isActive = true
+    //                    metricTitleLabel.widthAnchor.constraint(equalTo: unitContainer.widthAnchor, multiplier: 0.8).isActive = true
+    //                    metricTitleLabel.centerXAnchor.constraint(equalTo: unitContainer.centerXAnchor).isActive = true
+                
+                titleContainer.translatesAutoresizingMaskIntoConstraints = false
+                titleContainer.centerXAnchor.constraint(equalTo: unitContainer.centerXAnchor, constant: -10).isActive = true
+                titleContainer.topAnchor.constraint(equalTo: unitContainer.topAnchor).isActive = true
+                titleContainer.heightAnchor.constraint(equalTo: unitContainer.heightAnchor, multiplier: 0.3).isActive = true
+                titleContainer.widthAnchor.constraint(lessThanOrEqualTo: unitContainer.widthAnchor, multiplier: 0.8).isActive = true
+                
+                imageView.translatesAutoresizingMaskIntoConstraints = false
+    //                    imageView.heightAnchor.constraint(equalTo: titleContainer.heightAnchor, multiplier: 0.3).isActive = true
+    //                    imageView.topAnchor.constraint(equalTo: titleContainer.topAnchor).isActive = true
+                imageView.widthAnchor.constraint(equalTo: titleContainer.widthAnchor, multiplier: 0.2).isActive = true
+    //                    imageView.trailingAnchor.constraint(equalTo: metricTitleLabel.leadingAnchor).isActive = true
+                imageView.centerYAnchor.constraint(equalTo: titleContainer.centerYAnchor).isActive = true
+                
+                metricTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+    //                    metricTitleLabel.heightAnchor.constraint(equalTo: titleContainer.heightAnchor, multiplier: 0.3).isActive = true
+    //                    metricTitleLabel.topAnchor.constraint(equalTo: titleContainer.topAnchor).isActive = true
+                metricTitleLabel.widthAnchor.constraint(greaterThanOrEqualTo: titleContainer.widthAnchor, multiplier: 0.5).isActive = true
+                metricTitleLabel.widthAnchor.constraint(lessThanOrEqualTo: titleContainer.widthAnchor, multiplier: 0.8).isActive = true
+                metricTitleLabel.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor).isActive = true
+                metricTitleLabel.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 5).isActive = true
+                metricTitleLabel.centerYAnchor.constraint(equalTo: titleContainer.centerYAnchor).isActive = true
+                
 
-                    singleMetricContainer.translatesAutoresizingMaskIntoConstraints = false
-                    singleMetricContainer.heightAnchor.constraint(equalTo: unitContainer.heightAnchor, multiplier: 0.7).isActive = true
-                    singleMetricContainer.topAnchor.constraint(equalTo: titleContainer.bottomAnchor).isActive = true
-                    singleMetricContainer.widthAnchor.constraint(equalTo: unitContainer.widthAnchor).isActive = true
-                    
-                    metricStackView.addArrangedSubview(unitContainer)
-                    
-                }
-            } catch {
-                print("metric fetch error: \(error.localizedDescription)")
+                singleMetricContainer.translatesAutoresizingMaskIntoConstraints = false
+                singleMetricContainer.heightAnchor.constraint(equalTo: unitContainer.heightAnchor, multiplier: 0.7).isActive = true
+                singleMetricContainer.topAnchor.constraint(equalTo: titleContainer.bottomAnchor).isActive = true
+                singleMetricContainer.widthAnchor.constraint(equalTo: unitContainer.widthAnchor).isActive = true
+                
+                metricStackView.addArrangedSubview(unitContainer)
             }
         }
+        
         return metricStackView
     }
     
@@ -646,9 +574,8 @@ class ViewController: UIViewController {
         let valueLabel = UILabel()
         valueLabel.textAlignment = .center
         valueLabel.lineBreakMode = .byTruncatingTail
-        let behavior = NSDecimalNumberHandler(roundingMode: .plain, scale: 1, raiseOnExactness: false, raiseOnOverflow: false, raiseOnUnderflow: false, raiseOnDivideByZero: true)
         if let max = dict[key] {
-            valueLabel.text = String(describing: max.rounding(accordingToBehavior: behavior))
+            valueLabel.text = decimalToString(decimalNumber: max)
         } else {
             valueLabel.text = "0"
         }

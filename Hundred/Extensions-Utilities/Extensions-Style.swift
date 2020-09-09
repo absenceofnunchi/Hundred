@@ -9,6 +9,7 @@
 import UIKit
 import Charts
 import MapKit
+import CoreData
 
 extension UIViewController {
     
@@ -171,6 +172,10 @@ extension UIViewController {
         return formatter.number(from: string) as? NSDecimalNumber ?? 0
     }
     
+    func decimalToString(decimalNumber: NSDecimalNumber) -> String {
+        let behavior = NSDecimalNumberHandler(roundingMode: .plain, scale: 1, raiseOnExactness: false, raiseOnOverflow: false, raiseOnUnderflow: false, raiseOnDivideByZero: true)
+        return String(describing: decimalNumber.rounding(accordingToBehavior: behavior))
+    }
     
     func parseAddress<T: MKPlacemark>(selectedItem: T) -> String {
         let firstSpace = (selectedItem.thoroughfare != nil && selectedItem.subThoroughfare != nil) ? " ": ""
@@ -194,18 +199,106 @@ extension UIViewController {
     }
     
     // get the previous vc in the nav stack
-//    extension UINavigationController {
-        var previousViewController: UIViewController? {
-            if let vcs = navigationController?.viewControllers {
-                return vcs.count > 1 ? vcs[vcs.count - 2] : nil
-            }
-            return nil
+    var previousViewController: UIViewController? {
+        if let vcs = navigationController?.viewControllers {
+            return vcs.count > 1 ? vcs[vcs.count - 2] : nil
         }
-//    }
+        return nil
+    }
+    
+    func getAnalytics(metrics: [String]) -> [String: NSDecimalNumber]? {
+        let metricFetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Metric")
+        for metric in metrics {
+            metricFetchRequest.predicate = NSPredicate(format: "unit == %@", metric)
+            metricFetchRequest.resultType = NSFetchRequestResultType.dictionaryResultType
+            
+            // max
+            let keypathExpression = NSExpression(forKeyPath: "value")
+            let maxExpression = NSExpression(forFunction: "max:", arguments: [keypathExpression])
+            let maxKey = "Max"
+            
+            let maxExpressionDescription = NSExpressionDescription()
+            maxExpressionDescription.name = maxKey
+            maxExpressionDescription.expression = maxExpression
+            maxExpressionDescription.expressionResultType = .decimalAttributeType
+            
+            // min
+            let minExpression =  NSExpression(forFunction: "min:", arguments: [keypathExpression])
+            let minKey = "Min"
+            
+            let minExpressionDescription = NSExpressionDescription()
+            minExpressionDescription.name = minKey
+            minExpressionDescription.expression = minExpression
+            minExpressionDescription.expressionResultType = .decimalAttributeType
+            
+            // average
+            let avgExpression =  NSExpression(forFunction: "average:", arguments: [keypathExpression])
+            let avgKey = "Average"
+            
+            let avgExpressionDescription = NSExpressionDescription()
+            avgExpressionDescription.name = avgKey
+            avgExpressionDescription.expression = avgExpression
+            avgExpressionDescription.expressionResultType = .decimalAttributeType
+            
+            // sum
+            let sumExpression =  NSExpression(forFunction: "sum:", arguments: [keypathExpression])
+            let sumKey = "Sum"
+            
+            let sumExpressionDescription = NSExpressionDescription()
+            sumExpressionDescription.name = sumKey
+            sumExpressionDescription.expression = sumExpression
+            sumExpressionDescription.expressionResultType = .decimalAttributeType
+            
+            // median
+            let mdnExpression =  NSExpression(forFunction: "median:", arguments: [keypathExpression])
+            let mdnKey = "mdnValue"
+            
+            let mdnExpressionDescription = NSExpressionDescription()
+            mdnExpressionDescription.name = mdnKey
+            mdnExpressionDescription.expression = mdnExpression
+            mdnExpressionDescription.expressionResultType = .decimalAttributeType
+            
+            // standar deviation
+            let stdExpression =  NSExpression(forFunction: "stddev:", arguments: [keypathExpression])
+            let stdKey = "stdValue"
+            
+            let stdExpressionDescription = NSExpressionDescription()
+            stdExpressionDescription.name = stdKey
+            stdExpressionDescription.expression = stdExpression
+            stdExpressionDescription.expressionResultType = .decimalAttributeType
+            
+            metricFetchRequest.propertiesToFetch = [maxExpressionDescription, minExpressionDescription, avgExpressionDescription, sumExpressionDescription]
+            
+            do {
+                if let result = try self.context.fetch(metricFetchRequest) as? [[String: NSDecimalNumber]], let dict = result.first {
+                    return dict
+                }
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+        
+        return nil
+    }
+    
+    func getEntryCount(progress: Set<Progress>) -> Int {
+        var dateArr: Set<String> = []
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM/dd"
+        
+        for progressEntry in progress {
+            dateArr.insert(dateFormatter.string(from: progressEntry.date))
+        }
+        
+        return dateArr.count
+    }
+    
+    func test() {
+        print("test")
+    }
 }
 
 fileprivate var grayBackground: UIView?
-
 
 class CustomTextField: UITextField {
     let insets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 5)
