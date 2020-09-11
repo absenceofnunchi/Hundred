@@ -247,7 +247,7 @@ class EditEntryViewController: UIViewController {
         
         locationLabel.textAlignment = .left
         locationLabel.font = UIFont.preferredFont(forTextStyle: .body)
-        customShadowBorder(for: locationLabel)
+        BorderStyle.customShadowBorder(for: locationLabel)
         stackView.addArrangedSubview(locationLabel)
         stackView.setCustomSpacing(50, after: locationLabel)
         
@@ -450,7 +450,7 @@ class EditEntryViewController: UIViewController {
                                 newMetric.date = Date()
                                 newMetric.unit = singleMetricPair.key
                                 newMetric.id = UUID()
-                                newMetric.value = stringToDecimal(string: singleMetricPair.value)
+                                newMetric.value = UnitConversion.stringToDecimal(string: singleMetricPair.value)
                                 print("newMetric: \(newMetric)")
                                 
                                 metricArr.append(newMetric)

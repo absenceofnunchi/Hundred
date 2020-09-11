@@ -18,7 +18,17 @@ class UsersViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        test()
+        
+        configureUI()
+        fetchData()
+    }
+    
+    func configureUI() {
+        tableView.register(UserCell.self, forCellReuseIdentifier: "UserCell")
+        tableView.separatorStyle = .none
+        
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 250
     }
 
     func fetchData() {
@@ -31,12 +41,16 @@ class UsersViewController: UITableViewController {
         configuration.qualityOfService = .userInitiated
         
         let queryOperation = CKQueryOperation(query: query)
-        queryOperation.desiredKeys = ["comment", "date", "goal", "metrics"]
+        queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak"]
         queryOperation.queuePriority = .veryHigh
         queryOperation.configuration = configuration
         queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
             if let record = record {
                 self.users.append(record)
+                
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
             }
         }
         
@@ -60,7 +74,11 @@ class UsersViewController: UITableViewController {
         return users.count
     }
     
-//    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let cell = tableView.dequeueReusableCell(withIdentifier: <#T##String#>)
-//    }
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "UserCell", for: indexPath) as! UserCell
+        let user: CKRecord! = users[indexPath.row]
+        cell.set(user: user)
+        cell.selectionStyle = .none
+        return cell
+    }
 }

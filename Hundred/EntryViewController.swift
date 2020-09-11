@@ -243,7 +243,7 @@ class EntryViewController: UIViewController, ChartViewDelegate {
         }
                 
         let mapContainerView = UIView()
-        customShadowBorder(for: mapContainerView)
+        BorderStyle.customShadowBorder(for: mapContainerView)
         mapContainerView.addSubview(mapView)
         mapView.pin(to: mapContainerView)
         stackView.addArrangedSubview(mapContainerView)

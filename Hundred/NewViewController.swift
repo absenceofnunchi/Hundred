@@ -41,7 +41,7 @@ class NewViewController: UIViewController {
         let textField = CustomTextField()
         textField.placeholder = "Goal Title"
         textField.font = UIFont.preferredFont(forTextStyle: .body)
-        customShadowBorder(for: textField)
+        BorderStyle.customShadowBorder(for: textField)
         textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         textField.delegate = self
         return textField
@@ -52,7 +52,7 @@ class NewViewController: UIViewController {
         gLabel.textAlignment = .left
         gLabel.font = UIFont.preferredFont(forTextStyle: .body)
         gLabel.alpha = 0
-        customShadowBorder(for: gLabel)
+        BorderStyle.customShadowBorder(for: gLabel)
         return gLabel
     }()
     
@@ -243,7 +243,7 @@ class NewViewController: UIViewController {
                         let metricLabel = UILabel()
                         metricLabel.text = metric
                         metricLabel.textAlignment = .center
-                        customShadowBorder(for: metricLabel)
+                        BorderStyle.customShadowBorder(for: metricLabel)
                         metricView.addSubview(metricLabel)
                         
                         let metricTextField = UITextField()
@@ -251,7 +251,7 @@ class NewViewController: UIViewController {
                         metricTextField.placeholder = "Metrics"
                         metricTextField.textAlignment = .center
                         metricTextField.delegate = self
-                        customShadowBorder(for: metricTextField)
+                        BorderStyle.customShadowBorder(for: metricTextField)
                         metricView.addSubview(metricTextField)
                         
                         metricStackView.addArrangedSubview(metricView)
@@ -298,7 +298,7 @@ class NewViewController: UIViewController {
         textView.textColor = UIColor.lightGray
         addHeader(text: "Goal Description", stackView: self.goalDescContainer)
         self.goalDescContainer.addArrangedSubview(textView)
-        customShadowBorder(for: textView)
+        BorderStyle.customShadowBorder(for: textView)
         
         return textView
     }()
@@ -311,7 +311,7 @@ class NewViewController: UIViewController {
         textView.text = "Provide a comment about your first progress"
         textView.font = UIFont.preferredFont(forTextStyle: .body)
         textView.textColor = UIColor.lightGray
-        customShadowBorder(for: textView)
+        BorderStyle.customShadowBorder(for: textView)
         
         return textView
     }()
@@ -324,7 +324,7 @@ class NewViewController: UIViewController {
         locationLabel.textAlignment = .left
         locationLabel.font = UIFont.preferredFont(forTextStyle: .body)
         locationLabel.alpha = 0
-        customShadowBorder(for: locationLabel)
+        BorderStyle.customShadowBorder(for: locationLabel)
         return locationLabel
     }()
     
@@ -602,7 +602,7 @@ class NewViewController: UIViewController {
             metricUnitTextField.autocapitalizationType = .none
             metricUnitTextField.autocorrectionType = .no
             metricUnitTextField.delegate = self
-            customShadowBorder(for: metricUnitTextField)
+            BorderStyle.customShadowBorder(for: metricUnitTextField)
             metricView.addSubview(metricUnitTextField)
             
             let metricTextField = CustomTextField()
@@ -610,7 +610,7 @@ class NewViewController: UIViewController {
             metricTextField.placeholder = "Metrics"
             metricTextField.textAlignment = .center
             metricTextField.delegate = self
-            customShadowBorder(for: metricTextField)
+            BorderStyle.customShadowBorder(for: metricTextField)
             metricView.addSubview(metricTextField)
             
             metricView.translatesAutoresizingMaskIntoConstraints = false
@@ -686,7 +686,7 @@ class NewViewController: UIViewController {
                     metric.date = Date()
                     metric.unit = singleMetricPair.key
                     metric.id = UUID()
-                    metric.value = stringToDecimal(string: singleMetricPair.value)
+                    metric.value = UnitConversion.stringToDecimal(string: singleMetricPair.value)
                     metricArr.append(metric)
                 }
             } else {
@@ -1177,39 +1177,48 @@ extension NewViewController {
         if let imagePath = imagePath {
             progressRecord["image"] = CKAsset(fileURL: imagePath)
         }
-        
+
+        var metricAnalytics = [String: [String: String]]()
+        var analytics: [String: String] = [:]
+
         if isNew {
             for metricPair in metricDict {
-                progressRecord["max"] = metricPair.value
-                progressRecord["min"] = metricPair.value
-                progressRecord["avg"] = metricPair.value
-                progressRecord["sum"] = metricPair.value
+                analytics.updateValue(metricPair.value, forKey: MetricAnalytics.Min.rawValue)
+                analytics.updateValue(metricPair.value, forKey: MetricAnalytics.Max.rawValue)
+                analytics.updateValue(metricPair.value, forKey: MetricAnalytics.Average.rawValue)
+                analytics.updateValue(metricPair.value, forKey: MetricAnalytics.Sum.rawValue)
+                metricAnalytics.updateValue(analytics, forKey: metricPair.key)
             }
             
-            progressRecord["entryCount"] = 1
+            try? progressRecord.encode(analytics, forKey: MetricAnalytics.analytics.rawValue)
+            progressRecord[MetricAnalytics.entryCount.rawValue] = 1
         } else {
             if let metrics = fetchedGoal?.metrics {
-                if let dict = getAnalytics(metrics: metrics) {
-                    if let max = dict["Max"] {
-                        progressRecord["max"] = max
+                if let dict = MetricCard.getAnalytics(metrics: metrics) {
+                    for pair in dict {
+                        if let max = dict[MetricAnalytics.Max.rawValue] {
+                            analytics.updateValue(UnitConversion.decimalToString(decimalNumber: max), forKey: MetricAnalytics.Max.rawValue)
+                        }
+                        
+                        if let min = dict[MetricAnalytics.Min.rawValue] {
+                            analytics.updateValue(UnitConversion.decimalToString(decimalNumber: min), forKey:  MetricAnalytics.Min.rawValue)
+                        }
+                        
+                        if let avg = dict[MetricAnalytics.Average.rawValue] {
+                            analytics.updateValue(UnitConversion.decimalToString(decimalNumber: avg), forKey:  MetricAnalytics.Average.rawValue)
+                        }
+                        
+                        if let sum = dict[MetricAnalytics.Sum.rawValue] {
+                            analytics.updateValue(UnitConversion.decimalToString(decimalNumber: sum), forKey:  MetricAnalytics.Sum.rawValue)
+                        }
+                        metricAnalytics.updateValue(analytics, forKey: pair.key)
                     }
-                    
-                    if let min = dict["Min"] {
-                        progressRecord["min"] = min
-                    }
-                    
-                    if let avg = dict["Average"] {
-                        progressRecord["avg"] = avg
-                    }
-                    
-                    if let sum = dict["Sum"] {
-                        progressRecord["sum"] = sum
-                    }
+
                 }
             }
             
             if let progress = fetchedGoal?.progress {
-                let entryCount = getEntryCount(progress: progress)
+                let entryCount = MetricCard.getEntryCount(progress: progress)
                 progressRecord["entryCount"] = entryCount + 1
             }
         }

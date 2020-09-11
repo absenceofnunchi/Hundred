@@ -7,9 +7,7 @@
 //
 
 import UIKit
-import Charts
 import MapKit
-import CoreData
 
 extension UIViewController {
     
@@ -18,7 +16,7 @@ extension UIViewController {
         if let tag = tag {
             container.tag = tag
         }
-        customShadowBorder(for: container)
+        BorderStyle.customShadowBorder(for: container)
 
         if let insert = insert {
             stackView.insertArrangedSubview(container, at: insert)
@@ -105,19 +103,6 @@ extension UIViewController {
            let day = calendar.component(.day, from: date)
            return "\(year).\(month).\(day)"
     }
-    
-    func customShadowBorder<T: UIView>(for object: T) {
-        let borderColor = UIColor.gray
-        object.layer.borderWidth = 1
-        object.layer.masksToBounds = false
-        object.layer.cornerRadius = 7.0;
-        object.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
-        object.layer.shadowColor = UIColor.black.cgColor
-        object.layer.shadowOffset = CGSize(width: 0, height: 0)
-        object.layer.shadowOpacity = 0.2
-        object.layer.shadowRadius = 4.0
-        object.layer.backgroundColor = UIColor.white.cgColor
-    }
 
     func dayVariance(date: Date, value: Int) -> Date {
         let calendar = Calendar.current
@@ -166,17 +151,6 @@ extension UIViewController {
         grayBackground = nil
     }
     
-    func stringToDecimal(string: String) -> NSDecimalNumber {
-       let formatter = NumberFormatter()
-        formatter.generatesDecimalNumbers = true
-        return formatter.number(from: string) as? NSDecimalNumber ?? 0
-    }
-    
-    func decimalToString(decimalNumber: NSDecimalNumber) -> String {
-        let behavior = NSDecimalNumberHandler(roundingMode: .plain, scale: 1, raiseOnExactness: false, raiseOnOverflow: false, raiseOnUnderflow: false, raiseOnDivideByZero: true)
-        return String(describing: decimalNumber.rounding(accordingToBehavior: behavior))
-    }
-    
     func parseAddress<T: MKPlacemark>(selectedItem: T) -> String {
         let firstSpace = (selectedItem.thoroughfare != nil && selectedItem.subThoroughfare != nil) ? " ": ""
         let comma = (selectedItem.subThoroughfare != nil || selectedItem.thoroughfare != nil) && (selectedItem.subAdministrativeArea != nil || selectedItem.administrativeArea != nil) ? ", ": ""
@@ -205,96 +179,52 @@ extension UIViewController {
         }
         return nil
     }
-    
-    func getAnalytics(metrics: [String]) -> [String: NSDecimalNumber]? {
-        let metricFetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Metric")
-        for metric in metrics {
-            metricFetchRequest.predicate = NSPredicate(format: "unit == %@", metric)
-            metricFetchRequest.resultType = NSFetchRequestResultType.dictionaryResultType
-            
-            // max
-            let keypathExpression = NSExpression(forKeyPath: "value")
-            let maxExpression = NSExpression(forFunction: "max:", arguments: [keypathExpression])
-            let maxKey = "Max"
-            
-            let maxExpressionDescription = NSExpressionDescription()
-            maxExpressionDescription.name = maxKey
-            maxExpressionDescription.expression = maxExpression
-            maxExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            // min
-            let minExpression =  NSExpression(forFunction: "min:", arguments: [keypathExpression])
-            let minKey = "Min"
-            
-            let minExpressionDescription = NSExpressionDescription()
-            minExpressionDescription.name = minKey
-            minExpressionDescription.expression = minExpression
-            minExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            // average
-            let avgExpression =  NSExpression(forFunction: "average:", arguments: [keypathExpression])
-            let avgKey = "Average"
-            
-            let avgExpressionDescription = NSExpressionDescription()
-            avgExpressionDescription.name = avgKey
-            avgExpressionDescription.expression = avgExpression
-            avgExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            // sum
-            let sumExpression =  NSExpression(forFunction: "sum:", arguments: [keypathExpression])
-            let sumKey = "Sum"
-            
-            let sumExpressionDescription = NSExpressionDescription()
-            sumExpressionDescription.name = sumKey
-            sumExpressionDescription.expression = sumExpression
-            sumExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            // median
-            let mdnExpression =  NSExpression(forFunction: "median:", arguments: [keypathExpression])
-            let mdnKey = "mdnValue"
-            
-            let mdnExpressionDescription = NSExpressionDescription()
-            mdnExpressionDescription.name = mdnKey
-            mdnExpressionDescription.expression = mdnExpression
-            mdnExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            // standar deviation
-            let stdExpression =  NSExpression(forFunction: "stddev:", arguments: [keypathExpression])
-            let stdKey = "stdValue"
-            
-            let stdExpressionDescription = NSExpressionDescription()
-            stdExpressionDescription.name = stdKey
-            stdExpressionDescription.expression = stdExpression
-            stdExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            metricFetchRequest.propertiesToFetch = [maxExpressionDescription, minExpressionDescription, avgExpressionDescription, sumExpressionDescription]
-            
-            do {
-                if let result = try self.context.fetch(metricFetchRequest) as? [[String: NSDecimalNumber]], let dict = result.first {
-                    return dict
-                }
-            } catch {
-                print(error.localizedDescription)
-            }
-        }
-        
-        return nil
+
+}
+
+struct UILabelTheme {
+    var font: UIFont?
+    var color: UIColor?
+    var lineBreakMode: NSLineBreakMode?
+    var textAlignment: NSTextAlignment = .left
+}
+
+extension UILabel {
+    convenience init(theme: UILabelTheme, text: String) {
+        self.init()
+        self.font = theme.font
+        self.textColor = theme.color
+        self.lineBreakMode = theme.lineBreakMode ?? .byTruncatingTail
+        self.textAlignment = theme.textAlignment
+        self.text = text
+    }
+}
+
+struct UnitConversion {
+    static func decimalToString(decimalNumber: NSDecimalNumber) -> String {
+        let behavior = NSDecimalNumberHandler(roundingMode: .plain, scale: 1, raiseOnExactness: false, raiseOnOverflow: false, raiseOnUnderflow: false, raiseOnDivideByZero: true)
+        return String(describing: decimalNumber.rounding(accordingToBehavior: behavior))
     }
     
-    func getEntryCount(progress: Set<Progress>) -> Int {
-        var dateArr: Set<String> = []
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM/dd"
-        
-        for progressEntry in progress {
-            dateArr.insert(dateFormatter.string(from: progressEntry.date))
-        }
-        
-        return dateArr.count
+    static func stringToDecimal(string: String) -> NSDecimalNumber {
+       let formatter = NumberFormatter()
+        formatter.generatesDecimalNumbers = true
+        return formatter.number(from: string) as? NSDecimalNumber ?? 0
     }
-    
-    func test() {
-        print("test")
+}
+
+struct BorderStyle {
+    static func customShadowBorder<T: UIView>(for object: T) {
+        let borderColor = UIColor.gray
+        object.layer.borderWidth = 1
+        object.layer.masksToBounds = false
+        object.layer.cornerRadius = 7.0;
+        object.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
+        object.layer.shadowColor = UIColor.black.cgColor
+        object.layer.shadowOffset = CGSize(width: 0, height: 0)
+        object.layer.shadowOpacity = 0.2
+        object.layer.shadowRadius = 4.0
+        object.layer.backgroundColor = UIColor.white.cgColor
     }
 }
 
@@ -367,21 +297,4 @@ extension UIFont {
 
 }
 
-extension NSUIColor {
-    
-    convenience init(red: Int, green: Int, blue: Int) {
-        assert(red >= 0 && red <= 255, "Invalid red cmoponent")
-        assert(green >= 0 && green <= 255, "Invalid green cmoponent")
-        assert(blue >= 0 && blue <= 255, "Invalid blue cmoponent")
-        
-        self.init(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: 1.0)
-    }
-    
-    convenience init(hex: Int) {
-        self.init(
-            red: (hex >> 16) & 0xFF,
-            green: (hex >> 8) & 0xFF,
-            blue: hex & 0xFF
-        )
-    }
-}
+
