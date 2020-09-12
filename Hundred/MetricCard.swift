@@ -9,18 +9,27 @@
 import Foundation
 import Charts
 import CoreData
+import CloudKit
 
 enum MetricAnalytics: String {
+    case Progress
+    case goal
+    case comment
+    case metrics
+    case image
+    case longitude, latitude
+    case date
     case Min, Max, Average, Sum
     case analytics
     case entryCount
+    case longestStreak, currentStreak
 }
 
 struct MetricCard {
-    func createMetricCard(entryCount: Int?, goal: Goal?, metricsDict: [String: String]?, currentStreak: Int?, longestStreak: Int?) -> (UIView, CGFloat) {
+    func createMetricCard(entryCount: Int?, goal: Goal?, metricsDict: [String: String]?, fetchedAnalytics: [[String: [String: String]]]?, currentStreak: Int?, longestStreak: Int?) -> (UIView, CGFloat) {
         let containerView = UIView()
         let currentStreakTitle  = self.createStreakCard(containerView: containerView, goal: goal, currentStreak: nil, longestStreak: nil)
-
+        
         var barChart = BarChartView()
         if let entryCount = entryCount {
             barChart = self.setupBarChart(entryCount: entryCount)
@@ -42,7 +51,7 @@ struct MetricCard {
                 metricsArr.append(singleMetric.key)
             }
             
-            let metricsStackView = self.calculateMetrics(metrics: nil, metricsDict: metricsDict)
+            let metricsStackView = self.calculateMetrics(metrics: nil, metricDict: metricsDict)
             containerView.addSubview(metricsStackView)
             metricsStackView.translatesAutoresizingMaskIntoConstraints = false
             metricsStackView.widthAnchor.constraint(equalTo: containerView.widthAnchor).isActive = true
@@ -53,7 +62,7 @@ struct MetricCard {
             return (containerView, metricsStackView.frame.size.height + barChart.frame.size.height + 200)
             
         } else if let metrics = goal?.metrics {
-            let metricsStackView = self.calculateMetrics(metrics: metrics, metricsDict: nil)
+            let metricsStackView = self.calculateMetrics(metrics: metrics, metricDict: nil)
             containerView.addSubview(metricsStackView)
             metricsStackView.translatesAutoresizingMaskIntoConstraints = false
             metricsStackView.widthAnchor.constraint(equalTo: containerView.widthAnchor).isActive = true
@@ -62,13 +71,201 @@ struct MetricCard {
             containerView.layoutIfNeeded()
             
             return (containerView, metricsStackView.frame.size.height + barChart.frame.size.height + 200)
-//            addCard(text: goal.title, subItem: containerView, stackView: stackView, containerHeight: metricsStackView.frame.size.height + barChart.frame.size.height + 200, bottomSpacing: 30, tag: 5)
+            //            addCard(text: goal.title, subItem: containerView, stackView: stackView, containerHeight: metricsStackView.frame.size.height + barChart.frame.size.height + 200, bottomSpacing: 30, tag: 5)
         } else {
             containerView.layoutIfNeeded()
             
             return (containerView, barChart.frame.size.height + 150)
-//            addCard(text: goal.title, subItem: containerView, stackView: stackView, containerHeight: barChart.frame.size.height + 150 , bottomSpacing: 30, tag: 5)
+            //            addCard(text: goal.title, subItem: containerView, stackView: stackView, containerHeight: barChart.frame.size.height + 150 , bottomSpacing: 30, tag: 5)
         }
+    }
+    
+    func createPublicMetricCard(user: CKRecord, cell: UITableViewCell) {
+        let imageAsset = user.object(forKey: MetricAnalytics.image.rawValue) as? CKAsset
+//        let imageAsset = user[MetricAnalytics.image.rawValue] as? CKAsset
+        let title = user.object(forKey: MetricAnalytics.goal.rawValue) as? String
+//        let comment = user.object(forKey: "comment") as? String
+        let entryCount = user.object(forKey: MetricAnalytics.entryCount.rawValue) as? Int
+        
+        // today's metric/value pair, not the analytics
+        let metricsDict = try? user.decode(forKey: MetricAnalytics.metrics.rawValue) as [String: String]
+        let currentStreak = user.object(forKey: MetricAnalytics.currentStreak.rawValue) as? Int
+        let longestStreak = user.object(forKey: MetricAnalytics.longestStreak.rawValue) as? Int
+
+//        var metricAnalytics = [String: [String: String]]()
+        let fetchedAnalytics = try? user.decode(forKey: MetricAnalytics.analytics.rawValue) as [String : [String : String]]
+        
+        
+        let outerContainerView = UIView()
+        BorderStyle.customShadowBorder(for: outerContainerView)
+        
+        let imageView = UIImageView()
+        if let imageAsset = imageAsset {
+            loadCoverPhoto(imageAsset: imageAsset) { (image) in
+                if let image = image {
+                    imageView.image = image
+                }
+            }
+            
+            outerContainerView.addSubview(imageView)
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            imageView.topAnchor.constraint(equalTo: outerContainerView.topAnchor).isActive = true
+            imageView.widthAnchor.constraint(equalTo: outerContainerView.widthAnchor).isActive = true
+            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 9/16).isActive = true
+        }
+
+
+        let containerView = UIView()
+        outerContainerView.addSubview(containerView)
+
+        let titleLabelTheme = UILabelTheme(font: UIFont.body.with(weight: .bold), color: UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0), lineBreakMode: .byTruncatingTail, textAlignment: .left)
+        let titleLabel = UILabel(theme: titleLabelTheme, text: title ?? "")
+//        let titleLabel = UILabel()
+//        titleLabel.text = title
+//        titleLabel.font = UIFont.title1.with(weight: .bold)
+//        titleLabel.textColor = UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0)
+//        titleLabel.font = UIFont.preferredFont(forTextStyle: .caption1)
+//        titleLabel.textAlignment = .left
+        
+        containerView.addSubview(titleLabel)
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor).isActive = true
+        
+        if imageAsset != nil {
+            containerView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20).isActive = true
+        } else {
+            containerView.topAnchor.constraint(equalTo: outerContainerView.topAnchor).isActive = true
+        }
+        
+//        let currentStreakTitle  = self.createStreakCard(containerView: containerView, goal: nil, currentStreak: currentStreak ?? 0, longestStreak: longestStreak ?? 0)
+        
+        let unitLabelTheme = UILabelTheme(font: UIFont.caption.with(weight: .bold), color: .lightGray, lineBreakMode: .byTruncatingTail)
+        let currentStreakTitle = UILabel(theme: unitLabelTheme, text: "Current Streak")
+        let longestStreakTitle = UILabel(theme: unitLabelTheme, text: "Longest Streak")
+        
+        let currentStreakLabel = UILabel()
+//        if let currentStreak = currentStreak {
+            currentStreakLabel.text = String(currentStreak ?? 0)
+//        }
+        
+        let longestStreakLabel = UILabel()
+//        if let lstreak = longestStreak {
+            longestStreakLabel.text = String(longestStreak ?? 0)
+//        }
+        
+        containerView.addSubview(currentStreakLabel)
+        containerView.addSubview(longestStreakLabel)
+        containerView.addSubview(currentStreakTitle)
+        containerView.addSubview(longestStreakTitle)
+        
+        currentStreakLabel.translatesAutoresizingMaskIntoConstraints = false
+        currentStreakLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 30).isActive = true
+        currentStreakLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
+        currentStreakLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor).isActive = true
+        
+        longestStreakLabel.translatesAutoresizingMaskIntoConstraints = false
+        longestStreakLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20).isActive = true
+        longestStreakLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
+        longestStreakLabel.leadingAnchor.constraint(equalTo: currentStreakLabel.trailingAnchor).isActive = true
+        
+        currentStreakTitle.translatesAutoresizingMaskIntoConstraints = false
+        currentStreakTitle.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
+        currentStreakTitle.topAnchor.constraint(equalTo: currentStreakLabel.bottomAnchor).isActive = true
+        
+        longestStreakTitle.translatesAutoresizingMaskIntoConstraints = false
+        longestStreakTitle.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
+        longestStreakTitle.leadingAnchor.constraint(equalTo: currentStreakTitle.trailingAnchor).isActive = true
+        longestStreakTitle.topAnchor.constraint(equalTo: longestStreakLabel.bottomAnchor).isActive = true
+        
+        var barChart = BarChartView()
+        barChart = self.setupBarChart(entryCount: entryCount ?? 0)
+        containerView.addSubview(barChart)
+        barChart.translatesAutoresizingMaskIntoConstraints = false
+        barChart.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: -10).isActive = true
+        barChart.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: 10).isActive = true
+        barChart.topAnchor.constraint(equalTo: currentStreakTitle.bottomAnchor, constant: 20).isActive = true
+        barChart.heightAnchor.constraint(equalToConstant: 100).isActive = true
+                
+        let metricsStackView = UIStackView()
+        
+        if let fetchedAnalytics = fetchedAnalytics {
+            metricsStackView.axis = .vertical
+            metricsStackView.spacing = 20
+            
+            for analytics in fetchedAnalytics {
+                
+                let converetdAnalytics = analytics.value.mapValues { UnitConversion.stringToDecimal(string: $0)}
+                displayMetrics(metricStackView: metricsStackView, metric: analytics.key, dict: converetdAnalytics)
+            }
+            
+            containerView.addSubview(metricsStackView)
+            metricsStackView.translatesAutoresizingMaskIntoConstraints = false
+            metricsStackView.widthAnchor.constraint(equalTo: containerView.widthAnchor).isActive = true
+            metricsStackView.topAnchor.constraint(equalTo: barChart.bottomAnchor, constant: 40).isActive = true
+        }
+
+        containerView.layoutIfNeeded()
+
+        cell.addSubview(outerContainerView)
+
+        containerView.backgroundColor = .white
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        if imageAsset != nil {
+            containerView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 30).isActive = true
+        } else {
+            containerView.topAnchor.constraint(equalTo: outerContainerView.bottomAnchor, constant: 30).isActive = true
+        }
+        
+        containerView.widthAnchor.constraint(equalTo: outerContainerView.widthAnchor, multiplier: 0.8).isActive = true
+        containerView.bottomAnchor.constraint(equalTo: outerContainerView.bottomAnchor, constant: -30).isActive = true
+        containerView.centerXAnchor.constraint(equalTo: outerContainerView.centerXAnchor).isActive = true
+        
+        inset(view: outerContainerView, insets: UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20))
+        
+        if imageAsset != nil {
+            imageView.layoutIfNeeded()
+            outerContainerView.heightAnchor.constraint(greaterThanOrEqualToConstant: imageView.frame.height + metricsStackView.frame.size.height + barChart.frame.size.height + 150).isActive = true
+        } else {
+            outerContainerView.heightAnchor.constraint(greaterThanOrEqualToConstant: metricsStackView.frame.size.height + barChart.frame.size.height + 150).isActive = true
+        }
+    }
+    
+    func loadCoverPhoto(imageAsset: CKAsset, completion: @escaping (_ photo: UIImage?) -> ()) {
+      // 1.
+      DispatchQueue.global(qos: .utility).async {
+        var image: UIImage?
+        // 5.
+        defer {
+          DispatchQueue.main.async {
+            completion(image)
+          }
+        }
+        // 2.
+        guard
+          let fileURL = imageAsset.fileURL
+          else {
+            return
+        }
+        let imageData: Data
+        do {
+          // 3.
+          imageData = try Data(contentsOf: fileURL)
+        } catch {
+          return
+        }
+        // 4.
+        image = UIImage(data: imageData)
+      }
+    }
+    
+    func inset(view: UIView, insets: UIEdgeInsets) {
+      if let superview = view.superview {
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.leftAnchor.constraint(equalTo: superview.leftAnchor, constant: insets.left).isActive = true
+        view.rightAnchor.constraint(equalTo: superview.rightAnchor, constant: -insets.right).isActive = true
+        view.topAnchor.constraint(equalTo: superview.topAnchor, constant: insets.top).isActive = true
+        view.bottomAnchor.constraint(equalTo: superview.bottomAnchor, constant: -insets.bottom).isActive = true
+      }
     }
     
     func setupBarChart(entryCount: Int) -> BarChartView {
@@ -150,7 +347,7 @@ struct MetricCard {
         default:
             denominator = 100
         }
-                
+        
         let barChartData = BarChartDataEntry(x: 0, y: Double(entryCount)/100)
         let barChartDataSet = BarChartDataSet(entries: [barChartData], label: "# of contributed days out of \(Int(denominator)) days")
         
@@ -195,6 +392,14 @@ struct MetricCard {
         containerView.addSubview(currentStreakTitle)
         containerView.addSubview(longestStreakTitle)
         
+        currentStreakLabel.translatesAutoresizingMaskIntoConstraints = false
+        currentStreakLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
+        currentStreakLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor).isActive = true
+        
+        longestStreakLabel.translatesAutoresizingMaskIntoConstraints = false
+        longestStreakLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
+        longestStreakLabel.leadingAnchor.constraint(equalTo: currentStreakLabel.trailingAnchor).isActive = true
+        
         currentStreakTitle.translatesAutoresizingMaskIntoConstraints = false
         currentStreakTitle.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
         currentStreakTitle.topAnchor.constraint(equalTo: currentStreakLabel.bottomAnchor).isActive = true
@@ -203,14 +408,6 @@ struct MetricCard {
         longestStreakTitle.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
         longestStreakTitle.leadingAnchor.constraint(equalTo: currentStreakTitle.trailingAnchor).isActive = true
         longestStreakTitle.topAnchor.constraint(equalTo: longestStreakLabel.bottomAnchor).isActive = true
-        
-        currentStreakLabel.translatesAutoresizingMaskIntoConstraints = false
-        currentStreakLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
-        currentStreakLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor).isActive = true
-        
-        longestStreakLabel.translatesAutoresizingMaskIntoConstraints = false
-        longestStreakLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
-        longestStreakLabel.leadingAnchor.constraint(equalTo: currentStreakLabel.trailingAnchor).isActive = true
         
         return currentStreakTitle
     }
@@ -238,7 +435,7 @@ struct MetricCard {
         maxPairContainer.widthAnchor.constraint(equalTo: singleMetricContainer.widthAnchor, multiplier: 0.5).isActive = true
         maxPairContainer.topAnchor.constraint(equalTo: singleMetricContainer.topAnchor).isActive = true
         maxPairContainer.heightAnchor.constraint(equalTo: singleMetricContainer.heightAnchor, multiplier: 0.5).isActive = true
-
+        
         // min label
         let minPairContainer = createMetricPair(text: "Min", dict: dict)
         singleMetricContainer.addSubview(minPairContainer)
@@ -247,7 +444,7 @@ struct MetricCard {
         minPairContainer.widthAnchor.constraint(equalTo: singleMetricContainer.widthAnchor, multiplier: 0.5).isActive = true
         minPairContainer.topAnchor.constraint(equalTo: singleMetricContainer.topAnchor).isActive = true
         minPairContainer.heightAnchor.constraint(equalTo: singleMetricContainer.heightAnchor, multiplier: 0.5).isActive = true
-
+        
         // avg label
         let avgPairContainer = createMetricPair(text: "Average", dict: dict)
         singleMetricContainer.addSubview(avgPairContainer)
@@ -264,7 +461,7 @@ struct MetricCard {
         sumPairContainer.widthAnchor.constraint(equalTo: singleMetricContainer.widthAnchor, multiplier: 0.5).isActive = true
         sumPairContainer.topAnchor.constraint(equalTo: minPairContainer.bottomAnchor).isActive = true
         sumPairContainer.heightAnchor.constraint(equalTo: singleMetricContainer.heightAnchor, multiplier: 0.5).isActive = true
-
+        
         let unitContainer = UIView()
         let borderColor = UIColor.gray
         unitContainer.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
@@ -275,7 +472,7 @@ struct MetricCard {
         unitContainer.addSubview(singleMetricContainer)
         unitContainer.translatesAutoresizingMaskIntoConstraints = false
         unitContainer.heightAnchor.constraint(equalToConstant: 180).isActive = true
-
+        
         titleContainer.translatesAutoresizingMaskIntoConstraints = false
         titleContainer.centerXAnchor.constraint(equalTo: unitContainer.centerXAnchor, constant: -10).isActive = true
         titleContainer.topAnchor.constraint(equalTo: unitContainer.topAnchor).isActive = true
@@ -292,7 +489,7 @@ struct MetricCard {
         metricTitleLabel.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor).isActive = true
         metricTitleLabel.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 5).isActive = true
         metricTitleLabel.centerYAnchor.constraint(equalTo: titleContainer.centerYAnchor).isActive = true
-
+        
         singleMetricContainer.translatesAutoresizingMaskIntoConstraints = false
         singleMetricContainer.heightAnchor.constraint(equalTo: unitContainer.heightAnchor, multiplier: 0.7).isActive = true
         singleMetricContainer.topAnchor.constraint(equalTo: titleContainer.bottomAnchor).isActive = true
@@ -301,25 +498,28 @@ struct MetricCard {
         metricStackView.addArrangedSubview(unitContainer)
     }
     
-    func calculateMetrics(metrics: [String]?, metricsDict: [String: String]?) -> UIStackView {
+    func calculateMetrics(metrics: [String]?, metricDict: [String: String]?) -> UIStackView {
         let metricStackView = UIStackView()
         metricStackView.axis = .vertical
         metricStackView.spacing = 20
         
         if let metrics = metrics {
             for metric in metrics {
-                if let dict = MetricCard.getAnalytics(metrics: metrics) {
+                if let dict = MetricCard.getAnalytics(metric: metric) {
+                    print("from getAnalytics: \(dict)")
                     displayMetrics(metricStackView: metricStackView, metric: metric, dict: dict)
                 }
             }
-        } else if let metricsDict = metricsDict {
-            let convertedDict = metricsDict.mapValues { (value) in
-                return UnitConversion.stringToDecimal(string: value)
-            }
-            
-            for (key, _) in convertedDict {
-                displayMetrics(metricStackView: metricStackView, metric: key, dict: convertedDict)
-            }
+        } else if let metricDict = metricDict {
+            //            for (key, value) in fetchedAnalytics {
+            //                let convertedDict = value.mapValues { (value) in
+            //                    return UnitConversion.stringToDecimal(string: value)
+            //                }
+            //
+            //                for (key, _) in convertedDict {
+            //                    displayMetrics(metricStackView: metricStackView, metric: key, dict: convertedDict)
+            //                }
+            //            }
         }
         
         return metricStackView
@@ -331,8 +531,8 @@ struct MetricCard {
         let unitLabel = UILabel(theme: unitLabelTheme, text: text)
         let metricValueTheme = UILabelTheme(font: nil, color: nil, lineBreakMode: .byTruncatingTail, textAlignment: .center)
         var valueLabel: UILabel!
-        if let max = dict[text] {
-            valueLabel = UILabel(theme: metricValueTheme, text: UnitConversion.decimalToString(decimalNumber: max))
+        if let metricValue = dict[text] {
+            valueLabel = UILabel(theme: metricValueTheme, text: UnitConversion.decimalToString(decimalNumber: metricValue))
         } else {
             valueLabel = UILabel(theme: metricValueTheme, text: "0")
         }
@@ -344,7 +544,7 @@ struct MetricCard {
         valueLabel.widthAnchor.constraint(equalTo: pairContainer.widthAnchor, multiplier: 0.9).isActive = true
         valueLabel.heightAnchor.constraint(equalTo: pairContainer.heightAnchor, multiplier: 0.5).isActive = true
         valueLabel.centerXAnchor.constraint(equalTo: pairContainer.centerXAnchor).isActive = true
-
+        
         unitLabel.translatesAutoresizingMaskIntoConstraints = false
         unitLabel.topAnchor.constraint(equalTo: valueLabel.bottomAnchor).isActive = true
         unitLabel.widthAnchor.constraint(equalTo: pairContainer.widthAnchor, multiplier: 0.9).isActive = true
@@ -353,80 +553,79 @@ struct MetricCard {
         return pairContainer
     }
     
-    static func getAnalytics(metrics: [String]) -> [String: NSDecimalNumber]? {
+    static func getAnalytics(metric: String) -> [String: NSDecimalNumber]? {
         let metricFetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Metric")
-        for metric in metrics {
-            metricFetchRequest.predicate = NSPredicate(format: "unit == %@", metric)
-            metricFetchRequest.resultType = NSFetchRequestResultType.dictionaryResultType
-            
-            // max
-            let keypathExpression = NSExpression(forKeyPath: "value")
-            let maxExpression = NSExpression(forFunction: "max:", arguments: [keypathExpression])
-            let maxKey = "Max"
-            
-            let maxExpressionDescription = NSExpressionDescription()
-            maxExpressionDescription.name = maxKey
-            maxExpressionDescription.expression = maxExpression
-            maxExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            // min
-            let minExpression =  NSExpression(forFunction: "min:", arguments: [keypathExpression])
-            let minKey = "Min"
-            
-            let minExpressionDescription = NSExpressionDescription()
-            minExpressionDescription.name = minKey
-            minExpressionDescription.expression = minExpression
-            minExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            // average
-            let avgExpression =  NSExpression(forFunction: "average:", arguments: [keypathExpression])
-            let avgKey = "Average"
-            
-            let avgExpressionDescription = NSExpressionDescription()
-            avgExpressionDescription.name = avgKey
-            avgExpressionDescription.expression = avgExpression
-            avgExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            // sum
-            let sumExpression =  NSExpression(forFunction: "sum:", arguments: [keypathExpression])
-            let sumKey = "Sum"
-            
-            let sumExpressionDescription = NSExpressionDescription()
-            sumExpressionDescription.name = sumKey
-            sumExpressionDescription.expression = sumExpression
-            sumExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            // median
-            let mdnExpression =  NSExpression(forFunction: "median:", arguments: [keypathExpression])
-            let mdnKey = "mdnValue"
-            
-            let mdnExpressionDescription = NSExpressionDescription()
-            mdnExpressionDescription.name = mdnKey
-            mdnExpressionDescription.expression = mdnExpression
-            mdnExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            // standar deviation
-            let stdExpression =  NSExpression(forFunction: "stddev:", arguments: [keypathExpression])
-            let stdKey = "stdValue"
-            
-            let stdExpressionDescription = NSExpressionDescription()
-            stdExpressionDescription.name = stdKey
-            stdExpressionDescription.expression = stdExpression
-            stdExpressionDescription.expressionResultType = .decimalAttributeType
-            
-            metricFetchRequest.propertiesToFetch = [maxExpressionDescription, minExpressionDescription, avgExpressionDescription, sumExpressionDescription]
-            
-            do {
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                let context = appDelegate.persistentCloudKitContainer.viewContext
-                context.automaticallyMergesChangesFromParent = true
-                if let result = try context.fetch(metricFetchRequest) as? [[String: NSDecimalNumber]], let dict = result.first {
-                    return dict
-                }
-            } catch {
-                print(error.localizedDescription)
+        metricFetchRequest.predicate = NSPredicate(format: "unit == %@", metric)
+        metricFetchRequest.resultType = NSFetchRequestResultType.dictionaryResultType
+        
+        // max
+        let keypathExpression = NSExpression(forKeyPath: "value")
+        let maxExpression = NSExpression(forFunction: "max:", arguments: [keypathExpression])
+        let maxKey = "Max"
+        
+        let maxExpressionDescription = NSExpressionDescription()
+        maxExpressionDescription.name = maxKey
+        maxExpressionDescription.expression = maxExpression
+        maxExpressionDescription.expressionResultType = .decimalAttributeType
+        
+        // min
+        let minExpression =  NSExpression(forFunction: "min:", arguments: [keypathExpression])
+        let minKey = "Min"
+        
+        let minExpressionDescription = NSExpressionDescription()
+        minExpressionDescription.name = minKey
+        minExpressionDescription.expression = minExpression
+        minExpressionDescription.expressionResultType = .decimalAttributeType
+        
+        // average
+        let avgExpression =  NSExpression(forFunction: "average:", arguments: [keypathExpression])
+        let avgKey = "Average"
+        
+        let avgExpressionDescription = NSExpressionDescription()
+        avgExpressionDescription.name = avgKey
+        avgExpressionDescription.expression = avgExpression
+        avgExpressionDescription.expressionResultType = .decimalAttributeType
+        
+        // sum
+        let sumExpression =  NSExpression(forFunction: "sum:", arguments: [keypathExpression])
+        let sumKey = "Sum"
+        
+        let sumExpressionDescription = NSExpressionDescription()
+        sumExpressionDescription.name = sumKey
+        sumExpressionDescription.expression = sumExpression
+        sumExpressionDescription.expressionResultType = .decimalAttributeType
+        
+        // median
+        let mdnExpression =  NSExpression(forFunction: "median:", arguments: [keypathExpression])
+        let mdnKey = "mdnValue"
+        
+        let mdnExpressionDescription = NSExpressionDescription()
+        mdnExpressionDescription.name = mdnKey
+        mdnExpressionDescription.expression = mdnExpression
+        mdnExpressionDescription.expressionResultType = .decimalAttributeType
+        
+        // standar deviation
+        let stdExpression =  NSExpression(forFunction: "stddev:", arguments: [keypathExpression])
+        let stdKey = "stdValue"
+        
+        let stdExpressionDescription = NSExpressionDescription()
+        stdExpressionDescription.name = stdKey
+        stdExpressionDescription.expression = stdExpression
+        stdExpressionDescription.expressionResultType = .decimalAttributeType
+        
+        metricFetchRequest.propertiesToFetch = [maxExpressionDescription, minExpressionDescription, avgExpressionDescription, sumExpressionDescription]
+        
+        do {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let context = appDelegate.persistentCloudKitContainer.viewContext
+            context.automaticallyMergesChangesFromParent = true
+            if let result = try context.fetch(metricFetchRequest) as? [[String: NSDecimalNumber]], let dict = result.first {
+                return dict
             }
+        } catch {
+            print(error.localizedDescription)
         }
+        
         
         return nil
     }

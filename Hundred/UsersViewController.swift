@@ -23,14 +23,23 @@ class UsersViewController: UITableViewController {
         fetchData()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        UIView.performWithoutAnimation {
+            tableView.beginUpdates()
+            tableView.endUpdates()
+        }
+    }
+    
     func configureUI() {
         tableView.register(UserCell.self, forCellReuseIdentifier: "UserCell")
         tableView.separatorStyle = .none
         
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 250
+        
     }
-
+    
     func fetchData() {
         let publicDatabase = CKContainer.default().publicCloudDatabase
         let predicate = NSPredicate(value: true)
@@ -41,15 +50,17 @@ class UsersViewController: UITableViewController {
         configuration.qualityOfService = .userInitiated
         
         let queryOperation = CKQueryOperation(query: query)
-        queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak"]
+        queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image"]
         queryOperation.queuePriority = .veryHigh
         queryOperation.configuration = configuration
         queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
             if let record = record {
-                self.users.append(record)
-                
                 DispatchQueue.main.async {
+                    self.users.append(record)
                     self.tableView.reloadData()
+//                    self.tableView.layoutIfNeeded()
+//                    self.tableView.beginUpdates()
+//                    self.tableView.endUpdates()
                 }
             }
         }

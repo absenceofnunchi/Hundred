@@ -219,7 +219,7 @@ class ViewController: UIViewController {
   
         for goal in goals {
             let metricCard = MetricCard()
-            let (containerView, cardHeight) = metricCard.createMetricCard(entryCount: goal.progress.count, goal: goal, metricsDict: nil, currentStreak: nil, longestStreak: nil)
+            let (containerView, cardHeight) = metricCard.createMetricCard(entryCount: goal.progress.count, goal: goal, metricsDict: nil, fetchedAnalytics: nil, currentStreak: nil, longestStreak: nil)
             addCard(text: goal.title, subItem: containerView, stackView: stackView, containerHeight: cardHeight, bottomSpacing: 30, tag: 5)
         }
     }

@@ -1143,39 +1143,23 @@ extension NewViewController: HandleLocation {
     }
 }
 
-private let encoder: JSONEncoder = .init()
-private let decoder: JSONDecoder = .init()
-
-extension CKRecord {
-    func decode<T>(forKey key: FieldKey) throws -> T where T: Decodable {
-        guard let data = self[key] as? Data else {
-            throw CocoaError(.coderValueNotFound)
-        }
-        
-        return try decoder.decode(T.self, from: data)
-    }
-    
-    func encode<T>(_ encodable: T, forKey key: FieldKey) throws where T: Encodable {
-        self[key] = try encoder.encode(encodable)
-    }
-}
 
 extension NewViewController {
     func publicCloudSave(title: String, comment: String, metricDict: [String: String], isNew: Bool, fetchedGoal: Goal?) {
         // public cloud database
-        let progressRecord = CKRecord(recordType: "Progress")
-        progressRecord["goal"] = title as CKRecordValue
-        progressRecord["comment"] = comment as CKRecordValue
+        let progressRecord = CKRecord(recordType: MetricAnalytics.Progress.rawValue)
+        progressRecord[MetricAnalytics.goal.rawValue] = title as CKRecordValue
+        progressRecord[MetricAnalytics.comment.rawValue] = comment as CKRecordValue
         
         if let longitude = location?.longitude, let latitude = location?.latitude {
-            progressRecord["longitude"] = NSDecimalNumber(value: longitude)
-            progressRecord["latitude"] = NSDecimalNumber(value: latitude)
+            progressRecord[MetricAnalytics.longitude.rawValue] = NSDecimalNumber(value: longitude)
+            progressRecord[MetricAnalytics.latitude.rawValue] = NSDecimalNumber(value: latitude)
         }
-        try? progressRecord.encode(metricDict, forKey: "metrics")
-        progressRecord["date"] = Date()
+        try? progressRecord.encode(metricDict, forKey: MetricAnalytics.metrics.rawValue)
+        progressRecord[MetricAnalytics.date.rawValue] = Date()
         
         if let imagePath = imagePath {
-            progressRecord["image"] = CKAsset(fileURL: imagePath)
+            progressRecord[MetricAnalytics.image.rawValue] = CKAsset(fileURL: imagePath)
         }
 
         var metricAnalytics = [String: [String: String]]()
@@ -1194,37 +1178,24 @@ extension NewViewController {
             progressRecord[MetricAnalytics.entryCount.rawValue] = 1
         } else {
             if let metrics = fetchedGoal?.metrics {
-                if let dict = MetricCard.getAnalytics(metrics: metrics) {
-                    for pair in dict {
-                        if let max = dict[MetricAnalytics.Max.rawValue] {
-                            analytics.updateValue(UnitConversion.decimalToString(decimalNumber: max), forKey: MetricAnalytics.Max.rawValue)
-                        }
-                        
-                        if let min = dict[MetricAnalytics.Min.rawValue] {
-                            analytics.updateValue(UnitConversion.decimalToString(decimalNumber: min), forKey:  MetricAnalytics.Min.rawValue)
-                        }
-                        
-                        if let avg = dict[MetricAnalytics.Average.rawValue] {
-                            analytics.updateValue(UnitConversion.decimalToString(decimalNumber: avg), forKey:  MetricAnalytics.Average.rawValue)
-                        }
-                        
-                        if let sum = dict[MetricAnalytics.Sum.rawValue] {
-                            analytics.updateValue(UnitConversion.decimalToString(decimalNumber: sum), forKey:  MetricAnalytics.Sum.rawValue)
-                        }
-                        metricAnalytics.updateValue(analytics, forKey: pair.key)
+                for metric in metrics {
+                    if let dict = MetricCard.getAnalytics(metric: metric) {
+                        let convertedDict = dict.mapValues { UnitConversion.decimalToString(decimalNumber: $0)}
+                        metricAnalytics.updateValue(convertedDict, forKey: metric)
                     }
-
                 }
+                
+                try? progressRecord.encode(metricAnalytics, forKey: MetricAnalytics.analytics.rawValue)
             }
             
             if let progress = fetchedGoal?.progress {
                 let entryCount = MetricCard.getEntryCount(progress: progress)
-                progressRecord["entryCount"] = entryCount + 1
+                progressRecord[MetricAnalytics.entryCount.rawValue] = entryCount + 1
             }
         }
         
-        progressRecord["longestStreak"] = fetchedGoal?.longestStreak
-        progressRecord["currentStreak"] = fetchedGoal?.streak
+        progressRecord[MetricAnalytics.longestStreak.rawValue] = fetchedGoal?.longestStreak
+        progressRecord[MetricAnalytics.currentStreak.rawValue] = fetchedGoal?.streak
 
         let publicCloudDatabase = CKContainer.default().publicCloudDatabase
         
@@ -1264,9 +1235,24 @@ extension NewViewController {
                     print("public cloud database error======================================================: \(error)")
                     return
                 }
-                print("Sucessfully uploaded to Public Cloud DB====================================================")
+                print("Sucessfully uploaded to Public Cloud DB==================================================== \(record)")
         }
     }
 }
 
+private let encoder: JSONEncoder = .init()
+private let decoder: JSONDecoder = .init()
 
+extension CKRecord {
+    func decode<T>(forKey key: FieldKey) throws -> T where T: Decodable {
+        guard let data = self[key] as? Data else {
+            throw CocoaError(.coderValueNotFound)
+        }
+        
+        return try decoder.decode(T.self, from: data)
+    }
+    
+    func encode<T>(_ encodable: T, forKey key: FieldKey) throws where T: Encodable {
+        self[key] = try encoder.encode(encodable)
+    }
+}
