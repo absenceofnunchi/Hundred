@@ -81,8 +81,8 @@ struct MetricCard {
     }
     
     func createPublicMetricCard(user: CKRecord, cell: UITableViewCell) {
-        let imageAsset = user.object(forKey: MetricAnalytics.image.rawValue) as? CKAsset
-//        let imageAsset = user[MetricAnalytics.image.rawValue] as? CKAsset
+//        let imageAsset = user.object(forKey: MetricAnalytics.image.rawValue) as? CKAsset
+        let imageAsset = user.object(forKey: "") as? CKAsset
         let title = user.object(forKey: MetricAnalytics.goal.rawValue) as? String
 //        let comment = user.object(forKey: "comment") as? String
         let entryCount = user.object(forKey: MetricAnalytics.entryCount.rawValue) as? Int
@@ -92,142 +92,165 @@ struct MetricCard {
         let currentStreak = user.object(forKey: MetricAnalytics.currentStreak.rawValue) as? Int
         let longestStreak = user.object(forKey: MetricAnalytics.longestStreak.rawValue) as? Int
 
-//        var metricAnalytics = [String: [String: String]]()
         let fetchedAnalytics = try? user.decode(forKey: MetricAnalytics.analytics.rawValue) as [String : [String : String]]
         
         
+        
+        
+        
+        
+        
         let outerContainerView = UIView()
-        BorderStyle.customShadowBorder(for: outerContainerView)
-        
-        let imageView = UIImageView()
-        if let imageAsset = imageAsset {
-            loadCoverPhoto(imageAsset: imageAsset) { (image) in
-                if let image = image {
-                    imageView.image = image
-                }
-            }
-            
-            outerContainerView.addSubview(imageView)
-            imageView.translatesAutoresizingMaskIntoConstraints = false
-            imageView.topAnchor.constraint(equalTo: outerContainerView.topAnchor).isActive = true
-            imageView.widthAnchor.constraint(equalTo: outerContainerView.widthAnchor).isActive = true
-            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 9/16).isActive = true
-        }
-
-
-        let containerView = UIView()
-        outerContainerView.addSubview(containerView)
-
-        let titleLabelTheme = UILabelTheme(font: UIFont.body.with(weight: .bold), color: UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0), lineBreakMode: .byTruncatingTail, textAlignment: .left)
-        let titleLabel = UILabel(theme: titleLabelTheme, text: title ?? "")
-//        let titleLabel = UILabel()
-//        titleLabel.text = title
-//        titleLabel.font = UIFont.title1.with(weight: .bold)
-//        titleLabel.textColor = UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0)
-//        titleLabel.font = UIFont.preferredFont(forTextStyle: .caption1)
-//        titleLabel.textAlignment = .left
-        
-        containerView.addSubview(titleLabel)
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor).isActive = true
-        
-        if imageAsset != nil {
-            containerView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20).isActive = true
-        } else {
-            containerView.topAnchor.constraint(equalTo: outerContainerView.topAnchor).isActive = true
-        }
-        
-//        let currentStreakTitle  = self.createStreakCard(containerView: containerView, goal: nil, currentStreak: currentStreak ?? 0, longestStreak: longestStreak ?? 0)
-        
-        let unitLabelTheme = UILabelTheme(font: UIFont.caption.with(weight: .bold), color: .lightGray, lineBreakMode: .byTruncatingTail)
-        let currentStreakTitle = UILabel(theme: unitLabelTheme, text: "Current Streak")
-        let longestStreakTitle = UILabel(theme: unitLabelTheme, text: "Longest Streak")
-        
-        let currentStreakLabel = UILabel()
-//        if let currentStreak = currentStreak {
-            currentStreakLabel.text = String(currentStreak ?? 0)
-//        }
-        
-        let longestStreakLabel = UILabel()
-//        if let lstreak = longestStreak {
-            longestStreakLabel.text = String(longestStreak ?? 0)
-//        }
-        
-        containerView.addSubview(currentStreakLabel)
-        containerView.addSubview(longestStreakLabel)
-        containerView.addSubview(currentStreakTitle)
-        containerView.addSubview(longestStreakTitle)
-        
-        currentStreakLabel.translatesAutoresizingMaskIntoConstraints = false
-        currentStreakLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 30).isActive = true
-        currentStreakLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
-        currentStreakLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor).isActive = true
-        
-        longestStreakLabel.translatesAutoresizingMaskIntoConstraints = false
-        longestStreakLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20).isActive = true
-        longestStreakLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
-        longestStreakLabel.leadingAnchor.constraint(equalTo: currentStreakLabel.trailingAnchor).isActive = true
-        
-        currentStreakTitle.translatesAutoresizingMaskIntoConstraints = false
-        currentStreakTitle.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
-        currentStreakTitle.topAnchor.constraint(equalTo: currentStreakLabel.bottomAnchor).isActive = true
-        
-        longestStreakTitle.translatesAutoresizingMaskIntoConstraints = false
-        longestStreakTitle.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
-        longestStreakTitle.leadingAnchor.constraint(equalTo: currentStreakTitle.trailingAnchor).isActive = true
-        longestStreakTitle.topAnchor.constraint(equalTo: longestStreakLabel.bottomAnchor).isActive = true
-        
-        var barChart = BarChartView()
-        barChart = self.setupBarChart(entryCount: entryCount ?? 0)
-        containerView.addSubview(barChart)
-        barChart.translatesAutoresizingMaskIntoConstraints = false
-        barChart.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: -10).isActive = true
-        barChart.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: 10).isActive = true
-        barChart.topAnchor.constraint(equalTo: currentStreakTitle.bottomAnchor, constant: 20).isActive = true
-        barChart.heightAnchor.constraint(equalToConstant: 100).isActive = true
-                
-        let metricsStackView = UIStackView()
-        
-        if let fetchedAnalytics = fetchedAnalytics {
-            metricsStackView.axis = .vertical
-            metricsStackView.spacing = 20
-            
-            for analytics in fetchedAnalytics {
-                
-                let converetdAnalytics = analytics.value.mapValues { UnitConversion.stringToDecimal(string: $0)}
-                displayMetrics(metricStackView: metricsStackView, metric: analytics.key, dict: converetdAnalytics)
-            }
-            
-            containerView.addSubview(metricsStackView)
-            metricsStackView.translatesAutoresizingMaskIntoConstraints = false
-            metricsStackView.widthAnchor.constraint(equalTo: containerView.widthAnchor).isActive = true
-            metricsStackView.topAnchor.constraint(equalTo: barChart.bottomAnchor, constant: 40).isActive = true
-        }
-
-        containerView.layoutIfNeeded()
-
         cell.addSubview(outerContainerView)
-
-        containerView.backgroundColor = .white
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        if imageAsset != nil {
-            containerView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 30).isActive = true
-        } else {
-            containerView.topAnchor.constraint(equalTo: outerContainerView.bottomAnchor, constant: 30).isActive = true
-        }
-        
-        containerView.widthAnchor.constraint(equalTo: outerContainerView.widthAnchor, multiplier: 0.8).isActive = true
-        containerView.bottomAnchor.constraint(equalTo: outerContainerView.bottomAnchor, constant: -30).isActive = true
-        containerView.centerXAnchor.constraint(equalTo: outerContainerView.centerXAnchor).isActive = true
-        
         inset(view: outerContainerView, insets: UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20))
+        BorderStyle.customShadowBorder(for: outerContainerView)
+
         
-        if imageAsset != nil {
-            imageView.layoutIfNeeded()
-            outerContainerView.heightAnchor.constraint(greaterThanOrEqualToConstant: imageView.frame.height + metricsStackView.frame.size.height + barChart.frame.size.height + 150).isActive = true
-        } else {
-            outerContainerView.heightAnchor.constraint(greaterThanOrEqualToConstant: metricsStackView.frame.size.height + barChart.frame.size.height + 150).isActive = true
-        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+//        // outer container so that the image can span the entire width
+//        // and the inner container with metrics can have paddings
+//        let outerContainerView = UIView()
+//        BorderStyle.customShadowBorder(for: outerContainerView)
+//        cell.addSubview(outerContainerView)
+//
+//        let imageView = UIImageView()
+//        if let imageAsset = imageAsset {
+//            loadCoverPhoto(imageAsset: imageAsset) { (image) in
+//                if let image = image {
+//                    imageView.image = image
+//                }
+//            }
+//
+//            outerContainerView.addSubview(imageView)
+//            imageView.translatesAutoresizingMaskIntoConstraints = false
+//            imageView.topAnchor.constraint(equalTo: outerContainerView.topAnchor).isActive = true
+//            imageView.widthAnchor.constraint(equalTo: outerContainerView.widthAnchor).isActive = true
+//            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 9/16).isActive = true
+//        }
+//
+//        let containerView = UIView()
+//        outerContainerView.addSubview(containerView)
+//
+//        let titleLabelTheme = UILabelTheme(font: UIFont.body.with(weight: .bold), color: UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0), lineBreakMode: .byTruncatingTail, textAlignment: .left)
+//        let titleLabel = UILabel(theme: titleLabelTheme, text: title ?? "")
+//
+//        containerView.addSubview(titleLabel)
+//        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+//        titleLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor).isActive = true
+//
+//        if imageAsset != nil {
+//            containerView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20).isActive = true
+//        } else {
+//            containerView.topAnchor.constraint(equalTo: outerContainerView.topAnchor).isActive = true
+//        }
+//
+////        let currentStreakTitle  = self.createStreakCard(containerView: containerView, goal: nil, currentStreak: currentStreak ?? 0, longestStreak: longestStreak ?? 0)
+//
+//        let unitLabelTheme = UILabelTheme(font: UIFont.caption.with(weight: .bold), color: .lightGray, lineBreakMode: .byTruncatingTail)
+//        let currentStreakTitle = UILabel(theme: unitLabelTheme, text: "Current Streak")
+//        let longestStreakTitle = UILabel(theme: unitLabelTheme, text: "Longest Streak")
+//
+//        let currentStreakLabel = UILabel()
+//        currentStreakLabel.text = String(currentStreak ?? 0)
+//
+//        let longestStreakLabel = UILabel()
+//        longestStreakLabel.text = String(longestStreak ?? 0)
+//
+//        containerView.addSubview(currentStreakLabel)
+//        containerView.addSubview(longestStreakLabel)
+//        containerView.addSubview(currentStreakTitle)
+//        containerView.addSubview(longestStreakTitle)
+//
+//        currentStreakLabel.translatesAutoresizingMaskIntoConstraints = false
+//        currentStreakLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 30).isActive = true
+//        currentStreakLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
+//        currentStreakLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor).isActive = true
+//
+//        longestStreakLabel.translatesAutoresizingMaskIntoConstraints = false
+//        longestStreakLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20).isActive = true
+//        longestStreakLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
+//        longestStreakLabel.leadingAnchor.constraint(equalTo: currentStreakLabel.trailingAnchor).isActive = true
+//
+//        currentStreakTitle.translatesAutoresizingMaskIntoConstraints = false
+//        currentStreakTitle.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
+//        currentStreakTitle.topAnchor.constraint(equalTo: currentStreakLabel.bottomAnchor).isActive = true
+//
+//        longestStreakTitle.translatesAutoresizingMaskIntoConstraints = false
+//        longestStreakTitle.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
+//        longestStreakTitle.leadingAnchor.constraint(equalTo: currentStreakTitle.trailingAnchor).isActive = true
+//        longestStreakTitle.topAnchor.constraint(equalTo: longestStreakLabel.bottomAnchor).isActive = true
+//
+//        var barChart = BarChartView()
+//        barChart = self.setupBarChart(entryCount: entryCount ?? 0)
+//        containerView.addSubview(barChart)
+//        barChart.translatesAutoresizingMaskIntoConstraints = false
+//        barChart.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: -10).isActive = true
+//        barChart.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: 10).isActive = true
+//        barChart.topAnchor.constraint(equalTo: currentStreakTitle.bottomAnchor, constant: 20).isActive = true
+//        barChart.heightAnchor.constraint(equalToConstant: 100).isActive = true
+//
+//        let metricsStackView = UIStackView()
+//
+//        if let fetchedAnalytics = fetchedAnalytics {
+//            metricsStackView.axis = .vertical
+//            metricsStackView.spacing = 20
+//
+//            for analytics in fetchedAnalytics {
+//
+//                let converetdAnalytics = analytics.value.mapValues { UnitConversion.stringToDecimal(string: $0)}
+//                displayMetrics(metricStackView: metricsStackView, metric: analytics.key, dict: converetdAnalytics)
+//            }
+//
+//            containerView.addSubview(metricsStackView)
+//            metricsStackView.translatesAutoresizingMaskIntoConstraints = false
+//            metricsStackView.widthAnchor.constraint(equalTo: containerView.widthAnchor).isActive = true
+//            metricsStackView.topAnchor.constraint(equalTo: barChart.bottomAnchor, constant: 40).isActive = true
+//        }
+//
+//        containerView.backgroundColor = .white
+//        containerView.translatesAutoresizingMaskIntoConstraints = false
+//        if imageAsset != nil {
+//            containerView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 30).isActive = true
+//        } else {
+//            containerView.topAnchor.constraint(equalTo: outerContainerView.bottomAnchor, constant: 30).isActive = true
+//        }
+//
+//        containerView.widthAnchor.constraint(equalTo: outerContainerView.widthAnchor, multiplier: 0.8).isActive = true
+//        containerView.bottomAnchor.constraint(equalTo: outerContainerView.bottomAnchor, constant: -30).isActive = true
+//        containerView.centerXAnchor.constraint(equalTo: outerContainerView.centerXAnchor).isActive = true
+//        containerView.layoutIfNeeded()
+//
+//        inset(view: outerContainerView, insets: UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20))
+//
+//
+//        print("metricsStackView.frame.size.height: \(metricsStackView.frame.size.height)")
+//        print("barChart.frame.size.height: \(barChart.frame.size.height)")
+//
+//        if imageAsset != nil {
+//            imageView.layoutIfNeeded()
+//            outerContainerView.heightAnchor.constraint(greaterThanOrEqualToConstant: imageView.frame.height + metricsStackView.frame.size.height + barChart.frame.size.height + 150).isActive = true
+//        } else {
+//            outerContainerView.heightAnchor.constraint(greaterThanOrEqualToConstant: metricsStackView.frame.size.height + barChart.frame.size.height + 150).isActive = true
+//        }
+//
+
     }
     
     func loadCoverPhoto(imageAsset: CKAsset, completion: @escaping (_ photo: UIImage?) -> ()) {

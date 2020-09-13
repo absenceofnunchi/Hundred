@@ -21,23 +21,22 @@ class UsersViewController: UITableViewController {
         
         configureUI()
         fetchData()
+        
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        UIView.performWithoutAnimation {
-            tableView.beginUpdates()
-            tableView.endUpdates()
-        }
-    }
-    
+
     func configureUI() {
         tableView.register(UserCell.self, forCellReuseIdentifier: "UserCell")
         tableView.separatorStyle = .none
-        
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 250
         
+        let inter = UIContextMenuInteraction(delegate: self)
+        self.view.addInteraction(inter)
+        
+//        tableView.reloadData()
+//        tableView.setNeedsLayout()
+//        tableView.layoutIfNeeded()
+//        tableView.reloadData()
     }
     
     func fetchData() {
@@ -56,6 +55,7 @@ class UsersViewController: UITableViewController {
         queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
             if let record = record {
                 DispatchQueue.main.async {
+                    print("---------record: \(record)")
                     self.users.append(record)
                     self.tableView.reloadData()
 //                    self.tableView.layoutIfNeeded()
@@ -79,8 +79,11 @@ class UsersViewController: UITableViewController {
         publicDatabase.add(queryOperation)
     }
     
-    // MARK: - Table view data source
 
+}
+
+// MARK: - Table view data source
+extension UsersViewController: UIContextMenuInteractionDelegate {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return users.count
     }
@@ -90,6 +93,47 @@ class UsersViewController: UITableViewController {
         let user: CKRecord! = users[indexPath.row]
         cell.set(user: user)
         cell.selectionStyle = .none
+
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let user = users[indexPath.row]
+            
+            if let index = users.firstIndex(of: user) {
+                users.remove(at: index)
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+            }
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let user = self.users[indexPath.row]
+        
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { (contextualAction, view, boolValue) in
+            self.deleteAction(user: user)
+        }
+        deleteAction.backgroundColor = .red
+        
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
+        return configuration
+    }
+    
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        return nil
+    }
+    
+    func deleteAction(user: CKRecord) {
+        let publicDatabase = CKContainer.default().publicCloudDatabase
+        publicDatabase.delete(withRecordID: user.recordID) { (id, error) in
+            if error != nil {
+                print("delete error: \(error.debugDescription)")
+            } else {
+                print("delete completed: \(id)")
+            }
+        }
     }
 }

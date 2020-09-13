@@ -248,7 +248,7 @@ class CustomTextField: UITextField {
 
 class CustomLabel: UILabel {
     override func drawText(in rect: CGRect) {
-        let insets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 5)
+        let insets = UIEdgeInsets(top: 10, left: 15, bottom: 10, right: 15)
         super.drawText(in: rect.inset(by: insets))
     }
 }

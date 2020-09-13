@@ -11,7 +11,7 @@ import CoreData
 import CoreSpotlight
 import MobileCoreServices
 
-class GoalsTableViewController: UITableViewController, NSFetchedResultsControllerDelegate, UIContextMenuInteractionDelegate {
+class GoalsTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
     struct Cells {
         static let goalCell = "GoalCell"
     }
@@ -229,7 +229,7 @@ extension UIViewController {
     }
 }
 
-extension GoalsTableViewController {
+extension GoalsTableViewController: UIContextMenuInteractionDelegate {
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
         return nil
     }
