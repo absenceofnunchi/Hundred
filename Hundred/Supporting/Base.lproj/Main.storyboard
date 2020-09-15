@@ -76,13 +76,27 @@
                     <view key="view" contentMode="scaleToFill" id="FCP-b5-Pof">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eOh-bz-qJZ">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                            </scrollView>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="Cx5-If-I0Z"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="eOh-bz-qJZ" firstAttribute="top" secondItem="FCP-b5-Pof" secondAttribute="top" id="BGv-Vu-uEb"/>
+                            <constraint firstItem="eOh-bz-qJZ" firstAttribute="leading" secondItem="Cx5-If-I0Z" secondAttribute="leading" id="CKO-Lm-D2n"/>
+                            <constraint firstAttribute="bottom" secondItem="eOh-bz-qJZ" secondAttribute="bottom" id="H7k-Lv-3da"/>
+                            <constraint firstItem="eOh-bz-qJZ" firstAttribute="trailing" secondItem="Cx5-If-I0Z" secondAttribute="trailing" id="VlW-IJ-kQT"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="scrollView" destination="eOh-bz-qJZ" id="wVu-ty-JUq"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ww8-HG-CQP" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1800" y="-2394"/>
+            <point key="canvasLocation" x="1800.0000000000002" y="-2394.6428571428569"/>
         </scene>
         <!--Edit View Controller-->
         <scene sceneID="aVo-CA-v3O">

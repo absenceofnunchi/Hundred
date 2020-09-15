@@ -526,6 +526,7 @@ class NewViewController: UIViewController {
     
     @objc func getProfileVC() {
         if let vc = storyboard?.instantiateViewController(identifier: "Profile") as? ProfileViewController {
+            vc.isAuthenticated = isPublic
             DispatchQueue.main.async {
                 self.navigationController?.pushViewController(vc, animated: true)
             }
@@ -535,12 +536,12 @@ class NewViewController: UIViewController {
     @objc func switchValueDidChange(sender: UISwitch!) {
         if sender.isOn {
             isPublic = true
-            if isICloudContainerAvailable() {
-                print("logged in")
-            } else {
-                isPublic = false
-                switchControl.setOn(false, animated: false)
-            }
+//            if isICloudContainerAvailable() {
+//                print("logged in")
+//            } else {
+//                isPublic = false
+//                switchControl.setOn(false, animated: false)
+//            }
         } else{
             isPublic = false
         }
@@ -1014,9 +1015,7 @@ class NewViewController: UIViewController {
             present(ac, animated: true)
         }
     }
-    
-
-    
+  
     func savePList() {
         let dateString = dateForPlist(date: Date())
         
@@ -1079,7 +1078,6 @@ class NewViewController: UIViewController {
         }
         
         //        let vc = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? DetailTableViewController
-        
     }
 }
 

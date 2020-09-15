@@ -83,48 +83,23 @@ struct MetricCard {
     
     func createPublicMetricCard(user: CKRecord, cell: UITableViewCell) {
 //        let imageAsset = user.object(forKey: MetricAnalytics.image.rawValue) as? CKAsset
-        let imageAsset = user.object(forKey: "") as? CKAsset
-        let title = user.object(forKey: MetricAnalytics.goal.rawValue) as? String
-//        let comment = user.object(forKey: "comment") as? String
-        let entryCount = user.object(forKey: MetricAnalytics.entryCount.rawValue) as? Int
-        
-        // today's metric/value pair, not the analytics
-        let metricsDict = try? user.decode(forKey: MetricAnalytics.metrics.rawValue) as [String: String]
-        let currentStreak = user.object(forKey: MetricAnalytics.currentStreak.rawValue) as? Int
-        let longestStreak = user.object(forKey: MetricAnalytics.longestStreak.rawValue) as? Int
-
-        let fetchedAnalytics = try? user.decode(forKey: MetricAnalytics.analytics.rawValue) as [String : [String : String]]
-        
-        
-        
-        
-        
-        
-        
-        let outerContainerView = UIView()
-        cell.addSubview(outerContainerView)
-        inset(view: outerContainerView, insets: UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20))
-        BorderStyle.customShadowBorder(for: outerContainerView)
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+//        let imageAsset = user.object(forKey: "") as? CKAsset
+//        let title = user.object(forKey: MetricAnalytics.goal.rawValue) as? String
+////        let comment = user.object(forKey: "comment") as? String
+//        let entryCount = user.object(forKey: MetricAnalytics.entryCount.rawValue) as? Int
+//        
+//        // today's metric/value pair, not the analytics
+//        let metricsDict = try? user.decode(forKey: MetricAnalytics.metrics.rawValue) as [String: String]
+//        let currentStreak = user.object(forKey: MetricAnalytics.currentStreak.rawValue) as? Int
+//        let longestStreak = user.object(forKey: MetricAnalytics.longestStreak.rawValue) as? Int
+//
+//        let fetchedAnalytics = try? user.decode(forKey: MetricAnalytics.analytics.rawValue) as [String : [String : String]]
+// 
+//        let outerContainerView = UIView()
+//        cell.addSubview(outerContainerView)
+//        inset(view: outerContainerView, insets: UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20))
+//        BorderStyle.customShadowBorder(for: outerContainerView)
+//        
 //        // outer container so that the image can span the entire width
 //        // and the inner container with metrics can have paddings
 //        let outerContainerView = UIView()
@@ -536,16 +511,6 @@ struct MetricCard {
                     displayMetrics(metricStackView: metricStackView, metric: metric, dict: dict)
                 }
             }
-        } else if let metricDict = metricDict {
-            //            for (key, value) in fetchedAnalytics {
-            //                let convertedDict = value.mapValues { (value) in
-            //                    return UnitConversion.stringToDecimal(string: value)
-            //                }
-            //
-            //                for (key, _) in convertedDict {
-            //                    displayMetrics(metricStackView: metricStackView, metric: key, dict: convertedDict)
-            //                }
-            //            }
         }
         
         return metricStackView

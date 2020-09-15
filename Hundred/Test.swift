@@ -35,10 +35,7 @@ class UserDetailViewController1: UIViewController {
         
     override func viewDidLoad() {
         super.viewDidLoad()
-                
-        
-        print("user--------------------------------------------: \(user)")
-        
+
         configureUI()
         setConstraints()
     }
@@ -145,7 +142,6 @@ class UserDetailViewController1: UIViewController {
         subTitleLabel.textAlignment = .left
         currentMetricsContainer.addArrangedSubview(subTitleLabel)
         
-        print("metricsDict: \(metricsDict)")
         if let metricsDict = metricsDict {
 //            let metricsDictt = ["lbs": "23", "km": "223", "kg": "30", "jik": "209", "dkj": "2090"]
             for currentMetricPair in metricsDict {
