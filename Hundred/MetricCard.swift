@@ -23,6 +23,7 @@ enum MetricAnalytics: String {
     case analytics
     case entryCount
     case longestStreak, currentStreak
+    case metricTitle
 }
 
 struct MetricCard {
@@ -417,19 +418,22 @@ struct MetricCard {
         
         currentStreakLabel.translatesAutoresizingMaskIntoConstraints = false
         currentStreakLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
-        currentStreakLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor).isActive = true
+        currentStreakLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 0).isActive = true
+        currentStreakLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20).isActive = true
         
         longestStreakLabel.translatesAutoresizingMaskIntoConstraints = false
         longestStreakLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
-        longestStreakLabel.leadingAnchor.constraint(equalTo: currentStreakLabel.trailingAnchor).isActive = true
+        longestStreakLabel.leadingAnchor.constraint(equalTo: currentStreakLabel.trailingAnchor, constant: 5).isActive = true
+        longestStreakLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20).isActive = true
         
         currentStreakTitle.translatesAutoresizingMaskIntoConstraints = false
         currentStreakTitle.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
         currentStreakTitle.topAnchor.constraint(equalTo: currentStreakLabel.bottomAnchor).isActive = true
+        currentStreakTitle.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 0).isActive = true
         
         longestStreakTitle.translatesAutoresizingMaskIntoConstraints = false
         longestStreakTitle.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
-        longestStreakTitle.leadingAnchor.constraint(equalTo: currentStreakTitle.trailingAnchor).isActive = true
+        longestStreakTitle.leadingAnchor.constraint(equalTo: currentStreakTitle.trailingAnchor, constant: 5).isActive = true
         longestStreakTitle.topAnchor.constraint(equalTo: longestStreakLabel.bottomAnchor).isActive = true
         
         return currentStreakTitle
@@ -529,7 +533,6 @@ struct MetricCard {
         if let metrics = metrics {
             for metric in metrics {
                 if let dict = MetricCard.getAnalytics(metric: metric) {
-                    print("from getAnalytics: \(dict)")
                     displayMetrics(metricStackView: metricStackView, metric: metric, dict: dict)
                 }
             }

@@ -15,16 +15,18 @@ class UsersViewController: UITableViewController {
     var imageView: UIImageView!
     var commentLabel = UILabel()
     var mapView: MKMapView!
-    
+        
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureUI()
         fetchData()
-        
     }
 
     func configureUI() {
+        title = "Public Feed"
+        navigationItem.title = "Public Feed"
+        
         tableView.register(UserCell.self, forCellReuseIdentifier: "UserCell")
         tableView.separatorStyle = .none
         tableView.rowHeight = UITableView.automaticDimension
@@ -55,7 +57,6 @@ class UsersViewController: UITableViewController {
         queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
             if let record = record {
                 DispatchQueue.main.async {
-                    print("---------record: \(record)")
                     self.users.append(record)
                     self.tableView.reloadData()
 //                    self.tableView.layoutIfNeeded()
@@ -78,8 +79,6 @@ class UsersViewController: UITableViewController {
         
         publicDatabase.add(queryOperation)
     }
-    
-
 }
 
 // MARK: - Table view data source
@@ -132,8 +131,54 @@ extension UsersViewController: UIContextMenuInteractionDelegate {
             if error != nil {
                 print("delete error: \(error.debugDescription)")
             } else {
-                print("delete completed: \(id)")
+                print("delete completed: \(id!)")
             }
         }
+    }
+    
+//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+//        guard let selectedPath = tableView.indexPathForSelectedRow else { return }
+//        if let target = segue.destination as? UserDetailViewController {
+//            let user = users[selectedPath.row]
+//            target.user = user
+//        }
+//    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        DispatchQueue.main.async {
+//            self.performSegue(withIdentifier: "UserDetailSegue", sender: self)
+//        }
+
+        let vc = storyboard?.instantiateViewController(withIdentifier: "UserDetail") as! UserDetailViewController
+        let user = users[indexPath.row]
+        vc.user = user
+        navigationController?.pushViewController(vc, animated: true)
+        
+
+        
+        // fetch analytics record using the user's reference
+//        let user = users[indexPath.row]
+//        vc.user = user
+//        self.present(vc,animated:true)
+        
+//        let reference = CKRecord.Reference(recordID: user.recordID, action: .deleteSelf)
+//        let pred = NSPredicate(format: "owningProgress == %@", reference)
+//        let query = CKQuery(recordType: MetricAnalytics.analytics.rawValue, predicate: pred)
+//        CKContainer.default().publicCloudDatabase.perform(query, inZoneWith: nil) { results, error in
+//            if let error = error {
+//                print("error fetching the Analytics record: \(error.localizedDescription)")
+//            } else {
+//                if let results = results {
+//                    DispatchQueue.main.async {
+//                        vc.analytics = results
+//                        self.present(vc,animated:true)
+//                    }
+//                } else {
+//                    DispatchQueue.main.async {
+//                        self.present(vc,animated:true)
+//                    }
+//                }
+//            }
+//        }
     }
 }

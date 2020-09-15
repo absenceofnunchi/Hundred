@@ -15,7 +15,10 @@ class DetailTableViewController: UITableViewController, UIContextMenuInteraction
     var progresses: [Progress]!
     var goal: Goal! {
         didSet {
-            progresses = goal.progress.sorted {$0.date > $1.date}
+//            print("goal in progress: \(goal)")
+////            progresses = goal.progress.sorted {$0.date > $1.date}
+//            progresses = Array(goal.progress)
+//            print("progresses after: \(progresses)")
         }
     }
     
@@ -25,9 +28,7 @@ class DetailTableViewController: UITableViewController, UIContextMenuInteraction
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
  
-        
         configureUI()
     }
     
@@ -54,12 +55,14 @@ class DetailTableViewController: UITableViewController, UIContextMenuInteraction
     // MARK: - Table view data source
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return progresses.count
+//        return progresses.count
+        return goal.progress.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.progressCell, for: indexPath) as! ProgressCell
-        let progress = progresses[indexPath.row]
+        let progress = goal.progress[indexPath.row]
+        print("progress in progress: \(progress)")
         cell.set(progress: progress)
         return cell
     }

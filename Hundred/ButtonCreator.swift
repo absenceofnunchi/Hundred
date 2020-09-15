@@ -78,6 +78,9 @@ struct ButtonCreator {
 // 26. done button when coming back from existing goals
 // 27. dark mode
 // 28. multiple photos
+// 29. cascade delete for public cloud
+
+
 
 //Thread 1: Fatal error: Unresolved error Error Domain=NSCocoaErrorDomain Code=134060 "A Core Data error occurred." UserInfo={NSLocalizedFailureReason=CloudKit integration requires that the value transformers for transformable attributes are available via +[NSValueTransformer valueTransformerForName:], return instances of NSData, and allow reverse transformation:
 //Goal: metrics - Claims to return instances of nil}, ["NSLocalizedFailureReason": CloudKit integration requires that the value transformers for transformable

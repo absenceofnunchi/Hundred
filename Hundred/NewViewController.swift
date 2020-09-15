@@ -382,7 +382,7 @@ class NewViewController: UIViewController {
         commentTextView.delegate = self
         goalDescTextView.delegate = self
         initializeHideKeyboard()
-
+        
         configureUI()
         setConstraints()
         
@@ -406,7 +406,7 @@ class NewViewController: UIViewController {
         
         locationPlusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 9)
         locationMinusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 10)
-                
+        
         stackView.addArrangedSubview(cameraButton)
         stackView.setCustomSpacing(40, after: cameraButton)
         
@@ -420,7 +420,7 @@ class NewViewController: UIViewController {
         
         addHeader(text: "Comment", stackView: stackView)
         stackView.addArrangedSubview(commentTextView)
-
+        
         let switchTitle = UILabel()
         switchTitle.text = "Make the post public"
         switchTitle.textColor = .darkGray
@@ -446,7 +446,7 @@ class NewViewController: UIViewController {
         switchControl.trailingAnchor.constraint(equalTo: switchContainer.trailingAnchor).isActive = true
         switchControl.widthAnchor.constraint(equalTo: switchContainer.widthAnchor, multiplier: 0.2).isActive = true
         switchControl.centerYAnchor.constraint(equalTo: switchContainer.centerYAnchor).isActive = true
-
+        
         stackView.addArrangedSubview(switchContainer)
         stackView.setCustomSpacing(70, after: switchContainer)
         
@@ -734,7 +734,7 @@ class NewViewController: UIViewController {
             }
             
             var goalFromCoreData: Goal!
-//            let goalRequest = Goal.createFetchRequest()
+            //            let goalRequest = Goal.createFetchRequest()
             let goalRequest = NSFetchRequest<Goal>(entityName: "Goal")
             
             // create a new goal
@@ -770,7 +770,7 @@ class NewViewController: UIViewController {
                         
                         // public cloud database
                         publicCloudSave(title: goal.title, comment: commentTextView.text, metricDict: metricDict, isNew: true, fetchedGoal: nil)
-
+                        
                         // Core Spotlight indexing
                         let attributeSet = CSSearchableItemAttributeSet(itemContentType: kUTTypeText as String)
                         attributeSet.title = goalText
@@ -1151,42 +1151,40 @@ extension NewViewController {
         progressRecord[MetricAnalytics.goal.rawValue] = title as CKRecordValue
         progressRecord[MetricAnalytics.comment.rawValue] = comment as CKRecordValue
         
-        if let longitude = location?.longitude, let latitude = location?.latitude {
-            progressRecord[MetricAnalytics.longitude.rawValue] = NSDecimalNumber(value: longitude)
-            progressRecord[MetricAnalytics.latitude.rawValue] = NSDecimalNumber(value: latitude)
-        }
+        progressRecord[MetricAnalytics.longitude.rawValue] = NSDecimalNumber(value: location?.longitude ?? 0)
+        progressRecord[MetricAnalytics.latitude.rawValue] = NSDecimalNumber(value: location?.latitude ?? 0)
+        
         try? progressRecord.encode(metricDict, forKey: MetricAnalytics.metrics.rawValue)
         progressRecord[MetricAnalytics.date.rawValue] = Date()
         
         if let imagePath = imagePath {
             progressRecord[MetricAnalytics.image.rawValue] = CKAsset(fileURL: imagePath)
         }
-
-        var metricAnalytics = [String: [String: String]]()
-        var analytics: [String: String] = [:]
-
+        
+//        var metricAnalytics = [String: [String: String]]()
+//        var analytics: [String: String] = [:]
+        
         if isNew {
-            for metricPair in metricDict {
-                analytics.updateValue(metricPair.value, forKey: MetricAnalytics.Min.rawValue)
-                analytics.updateValue(metricPair.value, forKey: MetricAnalytics.Max.rawValue)
-                analytics.updateValue(metricPair.value, forKey: MetricAnalytics.Average.rawValue)
-                analytics.updateValue(metricPair.value, forKey: MetricAnalytics.Sum.rawValue)
-                metricAnalytics.updateValue(analytics, forKey: metricPair.key)
-            }
-            
-            try? progressRecord.encode(analytics, forKey: MetricAnalytics.analytics.rawValue)
+//            for metricPair in metricDict {
+//                analytics.updateValue(metricPair.value, forKey: MetricAnalytics.Min.rawValue)
+//                analytics.updateValue(metricPair.value, forKey: MetricAnalytics.Max.rawValue)
+//                analytics.updateValue(metricPair.value, forKey: MetricAnalytics.Average.rawValue)
+//                analytics.updateValue(metricPair.value, forKey: MetricAnalytics.Sum.rawValue)
+//                metricAnalytics.updateValue(analytics, forKey: metricPair.key)
+//            }
+//            try? progressRecord.encode(metricAnalytics, forKey: MetricAnalytics.analytics.rawValue)
             progressRecord[MetricAnalytics.entryCount.rawValue] = 1
         } else {
-            if let metrics = fetchedGoal?.metrics {
-                for metric in metrics {
-                    if let dict = MetricCard.getAnalytics(metric: metric) {
-                        let convertedDict = dict.mapValues { UnitConversion.decimalToString(decimalNumber: $0)}
-                        metricAnalytics.updateValue(convertedDict, forKey: metric)
-                    }
-                }
-                
-                try? progressRecord.encode(metricAnalytics, forKey: MetricAnalytics.analytics.rawValue)
-            }
+//            if let metrics = fetchedGoal?.metrics {
+//                for metric in metrics {
+//                    if let dict = MetricCard.getAnalytics(metric: metric) {
+//                        let convertedDict = dict.mapValues { UnitConversion.decimalToString(decimalNumber: $0)}
+//                        metricAnalytics.updateValue(convertedDict, forKey: metric)
+//                    }
+//                }
+//
+//                try? progressRecord.encode(metricAnalytics, forKey: MetricAnalytics.analytics.rawValue)
+//            }
             
             if let progress = fetchedGoal?.progress {
                 let entryCount = MetricCard.getEntryCount(progress: progress)
@@ -1196,46 +1194,88 @@ extension NewViewController {
         
         progressRecord[MetricAnalytics.longestStreak.rawValue] = fetchedGoal?.longestStreak
         progressRecord[MetricAnalytics.currentStreak.rawValue] = fetchedGoal?.streak
-
-        let publicCloudDatabase = CKContainer.default().publicCloudDatabase
         
-//        let operation = CKModifyRecordsOperation(recordsToSave: [progressRecord], recordIDsToDelete: nil)
-//        let operationConfiguration = CKOperation.Configuration()
-//
-//        operationConfiguration.allowsCellularAccess = true
-//        operationConfiguration.qualityOfService = .userInitiated
-//        operation.configuration = operationConfiguration
-//
-//        operation.perRecordProgressBlock = {(record, progress) in
-//            print("perRecordProgressBlock: \(progress)")
-//        }
-//
-//        operation.perRecordCompletionBlock = {(record, error) in
-//            print("Upload complete")
-//            print("perRecordCompletionBlock error: \(error)")
-//        }
-//
-//        operation.modifyRecordsCompletionBlock = { (savedRecords, deletedRecordIDs, error) in
-//            print("savedRecords: \(savedRecords)")
-//            print("deletedRecordIDs: \(deletedRecordIDs)")
-//            print("modifyRecordsCompletionBlock error: \(error)")
-//        }
-//
-//        publicCloudDatabase.add(operation)
-//        publicCloudDatabase.save(progressRecord) { record, error in
-//            if let error = error {
-//                print("public cloud database error======================================================: \(error)")
-//            } else {
-//                print("Sucessfully uploaded to Public Cloud DB====================================================")
-//            }
-//        }
-
+        let publicCloudDatabase = CKContainer.default().publicCloudDatabase
         publicCloudDatabase.save(progressRecord) { (record, error) in
-                if let error = error {
-                    print("public cloud database error======================================================: \(error)")
-                    return
+            if let error = error {
+                print("public cloud database error======================================================: \(error)")
+                return
+            }
+            print("Sucessfully uploaded to Public Cloud DB==================================================== \(record)")
+            if let record = record {
+                var recordsArr: [CKRecord] = []
+                
+                if isNew {
+                    for metricPair in metricDict {
+                        let analyticsRecord = CKRecord(recordType: MetricAnalytics.analytics.rawValue)
+                        let reference = CKRecord.Reference(recordID: record.recordID, action: .deleteSelf)
+                        analyticsRecord["owningProgress"] = reference as CKRecordValue
+                        analyticsRecord[MetricAnalytics.metricTitle.rawValue] = metricPair.key
+                        analyticsRecord[MetricAnalytics.Min.rawValue] = metricPair.value
+                        analyticsRecord[MetricAnalytics.Max.rawValue] = metricPair.value
+                        analyticsRecord[MetricAnalytics.Average.rawValue] = metricPair.value
+                        analyticsRecord[MetricAnalytics.Sum.rawValue] = metricPair.value
+                        recordsArr.append(analyticsRecord)
+                    }
+                } else {
+                    if let metrics = fetchedGoal?.metrics {
+                        for metric in metrics {
+                            if let dict = MetricCard.getAnalytics(metric: metric) {
+                                let convertedDict = dict.mapValues { UnitConversion.decimalToString(decimalNumber: $0)}
+                                let analyticsRecord = CKRecord(recordType: MetricAnalytics.analytics.rawValue)
+                                let reference = CKRecord.Reference(recordID: record.recordID, action: .deleteSelf)
+                                analyticsRecord["owningProgress"] = reference as CKRecordValue
+                                analyticsRecord[MetricAnalytics.metricTitle.rawValue] = metric
+                                analyticsRecord[MetricAnalytics.Min.rawValue] = convertedDict[MetricAnalytics.Min.rawValue]
+                                analyticsRecord[MetricAnalytics.Max.rawValue] = convertedDict[MetricAnalytics.Max.rawValue]
+                                analyticsRecord[MetricAnalytics.Average.rawValue] = convertedDict[MetricAnalytics.Average.rawValue]
+                                analyticsRecord[MetricAnalytics.Sum.rawValue] = convertedDict[MetricAnalytics.Sum.rawValue]
+                                recordsArr.append(analyticsRecord)
+                            }
+                        }
+                    }
                 }
-                print("Sucessfully uploaded to Public Cloud DB==================================================== \(record)")
+                
+                print("recordsArr: \(recordsArr)")
+                let operation = CKModifyRecordsOperation(recordsToSave: recordsArr, recordIDsToDelete: nil)
+                let operationConfiguration = CKOperation.Configuration()
+        
+                operationConfiguration.allowsCellularAccess = true
+                operationConfiguration.qualityOfService = .userInitiated
+                operation.configuration = operationConfiguration
+        
+                operation.perRecordProgressBlock = {(record, progress) in
+                    print("perRecordProgressBlock: \(progress)")
+                }
+        
+                operation.perRecordCompletionBlock = {(record, error) in
+                    print("Upload complete")
+                    print("perRecordCompletionBlock error: \(error)")
+                }
+        
+                operation.modifyRecordsCompletionBlock = { (savedRecords, deletedRecordIDs, error) in
+                    print("savedRecords: \(savedRecords)")
+                    print("deletedRecordIDs: \(deletedRecordIDs)")
+                    print("modifyRecordsCompletionBlock error: \(error)")
+                }
+        
+                publicCloudDatabase.add(operation)
+//                publicCloudDatabase.save(progressRecord) { record, error in
+//                    if let error = error {
+//                        print("analytics save error======================================================: \(error)")
+//                    } else {
+//                        print("Sucessfully uploaded the analytics record====================================================")
+//                    }
+//                }
+//                publicCloudDatabase.save(analyticsRecord) { (record, error) in
+//                    if let error = error {
+//                        print("saving analytics record error: \(error)")
+//                        return
+//                    }
+//
+//                    print("Successfully uploaded to analytics record")
+//                }
+            }
         }
     }
 }
@@ -1256,3 +1296,6 @@ extension CKRecord {
         self[key] = try encoder.encode(encodable)
     }
 }
+
+
+

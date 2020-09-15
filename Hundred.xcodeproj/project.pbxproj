@@ -53,6 +53,7 @@
 		49E9631224FC8FA10041239B /* SpinnerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E9631124FC8FA10041239B /* SpinnerViewController.swift */; };
 		49F1B1EA24FB21B8006D6887 /* CalendarDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F1B1E924FB21B8006D6887 /* CalendarDetailTableViewController.swift */; };
 		49F1B1EC24FB34BA006D6887 /* CalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F1B1EB24FB34BA006D6887 /* CalendarCell.swift */; };
+		49FD8FFF250EF7B100B60360 /* UserDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49FD8FFE250EF7B100B60360 /* UserDetailViewController.swift */; };
 		959BBA5D7FE2D6CC34668FE7 /* Pods_Hundred.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E151965057E79A8338541A10 /* Pods_Hundred.framework */; };
 /* End PBXBuildFile section */
 
@@ -106,6 +107,7 @@
 		49E9631124FC8FA10041239B /* SpinnerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerViewController.swift; sourceTree = "<group>"; };
 		49F1B1E924FB21B8006D6887 /* CalendarDetailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDetailTableViewController.swift; sourceTree = "<group>"; };
 		49F1B1EB24FB34BA006D6887 /* CalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCell.swift; sourceTree = "<group>"; };
+		49FD8FFE250EF7B100B60360 /* UserDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDetailViewController.swift; sourceTree = "<group>"; };
 		A27ACB2AB86EC0276A9D5E1C /* Pods-Hundred.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hundred.debug.xcconfig"; path = "Target Support Files/Pods-Hundred/Pods-Hundred.debug.xcconfig"; sourceTree = "<group>"; };
 		E151965057E79A8338541A10 /* Pods_Hundred.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Hundred.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF20E996A044CC08C66516E8 /* Pods-Hundred.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hundred.release.xcconfig"; path = "Target Support Files/Pods-Hundred/Pods-Hundred.release.xcconfig"; sourceTree = "<group>"; };
@@ -190,6 +192,7 @@
 				49F1B1E924FB21B8006D6887 /* CalendarDetailTableViewController.swift */,
 				4996BD5D24D4910600E301B4 /* AddGoalViewController.swift */,
 				491A661F2509947300B659CB /* UsersViewController.swift */,
+				49FD8FFE250EF7B100B60360 /* UserDetailViewController.swift */,
 				4996BD5B24D48B0700E301B4 /* GoalsTableViewController.swift */,
 				491F5A7B24E458FA0075EDCD /* DetailTableViewController.swift */,
 				497DC78324EA15A800446178 /* NewViewController.swift */,
@@ -360,6 +363,7 @@
 				49C70D8D2501E018000BC383 /* Metric+CoreDataProperties.swift in Sources */,
 				4906B77524F2FEA700417574 /* EditEntryViewController.swift in Sources */,
 				498AC32924FD524C003FDBF2 /* PieChartViewController.swift in Sources */,
+				49FD8FFF250EF7B100B60360 /* UserDetailViewController.swift in Sources */,
 				499E8B2F24F0CC1700C829C8 /* EditViewController.swift in Sources */,
 				49F1B1EC24FB34BA006D6887 /* CalendarCell.swift in Sources */,
 				49F1B1EA24FB21B8006D6887 /* CalendarDetailTableViewController.swift in Sources */,

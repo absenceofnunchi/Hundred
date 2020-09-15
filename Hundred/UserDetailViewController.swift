@@ -10,7 +10,7 @@ import UIKit
 import CloudKit
 import Charts
 
-class UserDetailViewController1: UIViewController {
+class UserDetailViewController: UIViewController {
     @IBOutlet weak var scrollView: UIScrollView!
     var stackView: UIStackView!
     var user: CKRecord?
@@ -18,7 +18,8 @@ class UserDetailViewController1: UIViewController {
     var coverImageView = UIImageView()
     var imageConstraints: [NSLayoutConstraint] = []
     let metricCard = MetricCard()
-    var titleLabel: UILabel!
+//    var titleLabel: UILabel!
+    var commentLabel: CustomLabel!
     var streakContainer: UIView!
     var currentStreakLabel: UILabel!
     var longestStreakLabel: UILabel!
@@ -32,15 +33,14 @@ class UserDetailViewController1: UIViewController {
     var currentStreak: Int?
     var longestStreak: Int?
     var currentMetricsContainer: UIStackView!
-        
+    var barChart: BarChartView!
+    var commentContainer = UIView()
+
     override func viewDidLoad() {
         super.viewDidLoad()
-                
         
-        print("user--------------------------------------------: \(user)")
-        
-        configureUI()
-        setConstraints()
+         configureUI()
+         setConstraints()
     }
     
     func configureUI() {
@@ -66,7 +66,7 @@ class UserDetailViewController1: UIViewController {
         }
         
         if let user = user {
-            goalTitle = user.object(forKey: MetricAnalytics.goal.rawValue) as? String
+            self.title = user.object(forKey: MetricAnalytics.goal.rawValue) as? String
             comment = user.object(forKey: "comment") as? String
             entryCount = user.object(forKey: MetricAnalytics.entryCount.rawValue) as? Int
             // today's metric/value pair, not the analytics
@@ -76,26 +76,31 @@ class UserDetailViewController1: UIViewController {
         }
         
         // title
-        let titleLabelTheme = UILabelTheme(font: UIFont.body.with(weight: .bold), color: UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0), lineBreakMode: .byTruncatingTail, textAlignment: .left)
-
-        titleLabel = UILabel(theme: titleLabelTheme, text: goalTitle ?? "")
-        stackView.addArrangedSubview(titleLabel)
+//        let titleLabelTheme = UILabelTheme(font: UIFont.body.with(weight: .bold), color: UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0), lineBreakMode: .byTruncatingTail, textAlignment: .left)
+//        titleLabel = UILabel(theme: titleLabelTheme, text: goalTitle ?? "")
+//        stackView.addArrangedSubview(titleLabel)
+        
         
         // comment
-        let commentLabel = CustomLabel()
-        commentLabel.adjustsFontSizeToFitWidth = true
+        commentLabel = CustomLabel()
+        let borderColor = UIColor.gray
+        commentLabel.adjustsFontSizeToFitWidth = false
         commentLabel.sizeToFit()
         commentLabel.textColor = .darkGray
         commentLabel.numberOfLines = 0
-        commentLabel.text = comment ?? ""
-        
-        let borderColor = UIColor.gray
+        commentLabel.lineBreakMode = .byWordWrapping
         commentLabel.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
         commentLabel.layer.borderWidth = 0.8
         commentLabel.layer.cornerRadius = 7.0
-        stackView.addArrangedSubview(commentLabel)
-        commentLabel.layoutIfNeeded()
+        commentLabel.text = comment ?? " "
         
+        stackView.addArrangedSubview(commentContainer)
+        commentContainer.addSubview(commentLabel)
+        commentLabel.translatesAutoresizingMaskIntoConstraints = false
+        commentLabel.widthAnchor.constraint(equalTo: commentContainer.widthAnchor).isActive = true
+        commentLabel.centerXAnchor.constraint(equalTo: commentContainer.centerXAnchor).isActive = true
+        commentLabel.topAnchor.constraint(equalTo: commentContainer.topAnchor, constant: 10).isActive = true
+                
         streakContainer = UIView()
         streakContainer.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
         streakContainer.layer.borderWidth = 0.8
@@ -121,11 +126,9 @@ class UserDetailViewController1: UIViewController {
         streakContainer.addSubview(longestStreakTitle)
         
         // bar chart
-        var barChart = BarChartView()
+        barChart = BarChartView()
         barChart = metricCard.setupBarChart(entryCount: entryCount ?? 0)
-        
         stackView.addArrangedSubview(barChart)
-        barChart.heightAnchor.constraint(equalToConstant: 100).isActive = true
         
         // current metrics
         currentMetricsContainer = UIStackView()
@@ -145,7 +148,7 @@ class UserDetailViewController1: UIViewController {
         subTitleLabel.textAlignment = .left
         currentMetricsContainer.addArrangedSubview(subTitleLabel)
         
-        print("metricsDict: \(metricsDict)")
+//        print("metricsDict: \(metricsDict)")
         if let metricsDict = metricsDict {
 //            let metricsDictt = ["lbs": "23", "km": "223", "kg": "30", "jik": "209", "dkj": "2090"]
             for currentMetricPair in metricsDict {
@@ -228,33 +231,38 @@ class UserDetailViewController1: UIViewController {
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 30).isActive = true
         }
 
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+//        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+//        titleLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
+        commentContainer.translatesAutoresizingMaskIntoConstraints = false
+        commentContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: commentLabel.frame.size.height).isActive = true
+        
+        barChart.translatesAutoresizingMaskIntoConstraints = false
+        barChart.heightAnchor.constraint(equalToConstant: 100).isActive = true
+
         currentStreakLabel.translatesAutoresizingMaskIntoConstraints = false
         currentStreakLabel.widthAnchor.constraint(equalTo: streakContainer.widthAnchor, multiplier: 0.5).isActive = true
         currentStreakLabel.leadingAnchor.constraint(equalTo: streakContainer.leadingAnchor, constant: 15).isActive = true
         currentStreakLabel.topAnchor.constraint(equalTo: streakContainer.topAnchor, constant: 10).isActive = true
-        
+
         longestStreakLabel.translatesAutoresizingMaskIntoConstraints = false
         longestStreakLabel.widthAnchor.constraint(equalTo: streakContainer.widthAnchor, multiplier: 0.5).isActive = true
         longestStreakLabel.leadingAnchor.constraint(equalTo: currentStreakLabel.trailingAnchor, constant: 5).isActive = true
         longestStreakLabel.topAnchor.constraint(equalTo: streakContainer.topAnchor, constant: 10).isActive = true
-        
+
         currentStreakTitle.translatesAutoresizingMaskIntoConstraints = false
         currentStreakTitle.widthAnchor.constraint(equalTo: streakContainer.widthAnchor, multiplier: 0.5).isActive = true
         currentStreakTitle.topAnchor.constraint(equalTo: currentStreakLabel.bottomAnchor).isActive = true
         currentStreakTitle.leadingAnchor.constraint(equalTo: streakContainer.leadingAnchor, constant: 15).isActive = true
         currentStreakTitle.bottomAnchor.constraint(greaterThanOrEqualTo: streakContainer.bottomAnchor, constant: -10).isActive = true
-        
+
         longestStreakTitle.translatesAutoresizingMaskIntoConstraints = false
         longestStreakTitle.widthAnchor.constraint(equalTo: streakContainer.widthAnchor, multiplier: 0.5).isActive = true
         longestStreakTitle.leadingAnchor.constraint(equalTo: currentStreakTitle.trailingAnchor, constant: 5).isActive = true
         longestStreakTitle.topAnchor.constraint(equalTo: longestStreakLabel.bottomAnchor).isActive = true
         longestStreakTitle.bottomAnchor.constraint(greaterThanOrEqualTo: streakContainer.bottomAnchor, constant: -10).isActive = true
         
-//        subTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-//        subTitleLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
-
+        subTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        subTitleLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
 }
