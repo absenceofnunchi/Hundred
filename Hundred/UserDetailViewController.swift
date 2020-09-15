@@ -9,6 +9,7 @@
 import UIKit
 import CloudKit
 import Charts
+import MapKit
 
 class UserDetailViewController: UIViewController {
     @IBOutlet weak var scrollView: UIScrollView!
@@ -18,8 +19,7 @@ class UserDetailViewController: UIViewController {
     var coverImageView = UIImageView()
     var imageConstraints: [NSLayoutConstraint] = []
     let metricCard = MetricCard()
-//    var titleLabel: UILabel!
-    var commentLabel: CustomLabel!
+    var commentLabel: UILabel!
     var streakContainer: UIView!
     var currentStreakLabel: UILabel!
     var longestStreakLabel: UILabel!
@@ -34,26 +34,32 @@ class UserDetailViewController: UIViewController {
     var longestStreak: Int?
     var currentMetricsContainer: UIStackView!
     var barChart: BarChartView!
+    let borderColor = UIColor.gray
     var commentContainer = UIView()
-
+    var longitude: Double?
+    var latitude: Double?
+    var mapView: MKMapView!
+    var addressLine: String!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-         configureUI()
-         setConstraints()
+        configureUI()
+        setConstraints()
     }
     
     func configureUI() {
         scrollView.addSubview(coverImageView)
+        
         stackView = UIStackView()
         stackView.axis = .vertical
         stackView.distribution = .fill
         stackView.alignment = .fill
-        stackView.spacing = 20
+        stackView.spacing = 30
         stackView.isLayoutMarginsRelativeArrangement = true
         stackView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 5, leading: 25, bottom: 0, trailing: 25)
         scrollView.addSubview(stackView)
-
+        
         // image
         if let user = user, let imageAsset = user.object(forKey: MetricAnalytics.image.rawValue) as? CKAsset {
             metricCard.loadCoverPhoto(imageAsset: imageAsset) { (image) in
@@ -73,34 +79,25 @@ class UserDetailViewController: UIViewController {
             metricsDict = try? user.decode(forKey: MetricAnalytics.metrics.rawValue) as [String: String]
             currentStreak = user.object(forKey: MetricAnalytics.currentStreak.rawValue) as? Int
             longestStreak = user.object(forKey: MetricAnalytics.longestStreak.rawValue) as? Int
+            longitude = user.object(forKey: MetricAnalytics.longitude.rawValue) as? Double
+            latitude = user.object(forKey: MetricAnalytics.latitude.rawValue) as? Double
         }
         
-        // title
-//        let titleLabelTheme = UILabelTheme(font: UIFont.body.with(weight: .bold), color: UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0), lineBreakMode: .byTruncatingTail, textAlignment: .left)
-//        titleLabel = UILabel(theme: titleLabelTheme, text: goalTitle ?? "")
-//        stackView.addArrangedSubview(titleLabel)
-        
+        stackView.addArrangedSubview(commentContainer)
+        commentContainer.translatesAutoresizingMaskIntoConstraints = false
+        commentContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: 50).isActive = true
         
         // comment
-        commentLabel = CustomLabel()
-        let borderColor = UIColor.gray
-        commentLabel.adjustsFontSizeToFitWidth = false
-        commentLabel.sizeToFit()
-        commentLabel.textColor = .darkGray
+        commentLabel = UILabel()
         commentLabel.numberOfLines = 0
-        commentLabel.lineBreakMode = .byWordWrapping
-        commentLabel.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
-        commentLabel.layer.borderWidth = 0.8
-        commentLabel.layer.cornerRadius = 7.0
+        commentLabel.adjustsFontSizeToFitWidth = false
+        commentLabel.lineBreakMode = .byTruncatingTail
+        commentLabel.font = UIFont.preferredFont(forTextStyle: .body)
         commentLabel.text = comment ?? " "
         
-        stackView.addArrangedSubview(commentContainer)
-        commentContainer.addSubview(commentLabel)
-        commentLabel.translatesAutoresizingMaskIntoConstraints = false
-        commentLabel.widthAnchor.constraint(equalTo: commentContainer.widthAnchor).isActive = true
-        commentLabel.centerXAnchor.constraint(equalTo: commentContainer.centerXAnchor).isActive = true
-        commentLabel.topAnchor.constraint(equalTo: commentContainer.topAnchor, constant: 10).isActive = true
-                
+        //        addCard(text: "Comment", subItem: commentLabel, stackView: stackView, containerHeight: 40)
+        addCard(text: "Comment", subItem: commentLabel, stackView: stackView, containerHeight: 40, bottomSpacing: nil, insert: nil, tag: nil, topInset: nil, bottomInset: nil, widthMultiplier: nil, isShadowBorder: false)
+        
         streakContainer = UIView()
         streakContainer.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
         streakContainer.layer.borderWidth = 0.8
@@ -128,7 +125,7 @@ class UserDetailViewController: UIViewController {
         // bar chart
         barChart = BarChartView()
         barChart = metricCard.setupBarChart(entryCount: entryCount ?? 0)
-        stackView.addArrangedSubview(barChart)
+        addCard(text: "Progress Chart", subItem: barChart, stackView: stackView, containerHeight: 100, bottomSpacing: nil, insert: nil, tag: nil, topInset: nil, bottomInset: nil, widthMultiplier: nil, isShadowBorder: false)
         
         // current metrics
         currentMetricsContainer = UIStackView()
@@ -138,19 +135,13 @@ class UserDetailViewController: UIViewController {
         currentMetricsContainer.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
         currentMetricsContainer.layer.borderWidth = 0.8
         currentMetricsContainer.layer.cornerRadius = 7.0
+        currentMetricsContainer.isLayoutMarginsRelativeArrangement = true
+        currentMetricsContainer.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 15, leading: 0, bottom: 0, trailing: 0)
         currentMetricsContainer.translatesAutoresizingMaskIntoConstraints = false
-        currentMetricsContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: 150).isActive = true
+        currentMetricsContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: 60).isActive = true
         
-        subTitleLabel = CustomLabel()
-        subTitleLabel.text = "Today's Metrics"
-        subTitleLabel.textColor = UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0)
-        subTitleLabel.font = UIFont.preferredFont(forTextStyle: .caption1)
-        subTitleLabel.textAlignment = .left
-        currentMetricsContainer.addArrangedSubview(subTitleLabel)
-        
-//        print("metricsDict: \(metricsDict)")
         if let metricsDict = metricsDict {
-//            let metricsDictt = ["lbs": "23", "km": "223", "kg": "30", "jik": "209", "dkj": "2090"]
+            //            let metricsDictt = ["lbs": "23", "km": "223", "kg": "30", "jik": "209", "dkj": "2090"]
             for currentMetricPair in metricsDict {
                 let pairContainer = UIView()
                 
@@ -191,7 +182,7 @@ class UserDetailViewController: UIViewController {
             }
         }
         
-        stackView.addArrangedSubview(currentMetricsContainer)
+        addCard(text: "Today's Metrics", subItem: currentMetricsContainer, stackView: stackView, containerHeight: 60, bottomSpacing: nil, insert: nil, tag: nil, topInset: nil, bottomInset: nil, widthMultiplier: nil, isShadowBorder: false)
         
         if let analytics = analytics {
             for result in analytics {
@@ -212,6 +203,62 @@ class UserDetailViewController: UIViewController {
                 }
             }
         }
+        
+        if let latitude = latitude, let longitude = longitude {
+            mapView = MKMapView()
+            mapView.delegate = self
+            
+            let location = CLLocationCoordinate2D(latitude: Double(latitude), longitude: Double(longitude))
+            let regionRadius: CLLocationDistance = 10000
+            let coorindateRegion = MKCoordinateRegion.init(center: location, latitudinalMeters: regionRadius, longitudinalMeters: regionRadius)
+            mapView.setRegion(coorindateRegion, animated: true)
+            
+            var annotation: MKAnnotation!
+            let geocoder = CLGeocoder()
+            geocoder.reverseGeocodeLocation(CLLocation(latitude: latitude, longitude: longitude)) { (placemarks, error) in
+                if error == nil {
+                    let placemark = placemarks?[0]
+                    if let placemark = placemark {
+                        let firstSpace = (placemark.thoroughfare != nil && placemark.subThoroughfare != nil) ? " ": ""
+                        let comma = (placemark.subThoroughfare != nil || placemark.thoroughfare != nil) && (placemark.subAdministrativeArea != nil || placemark.administrativeArea != nil) ? ", ": ""
+                        let secondSpace = (placemark.subAdministrativeArea != nil && placemark.administrativeArea != nil) ? " ": ""
+                        self.addressLine = String(
+                            format: "%@%@%@%@%@%@%@",
+                            // street number
+                            placemark.subThoroughfare ?? "",
+                            firstSpace,
+                            // street name
+                            placemark.thoroughfare ?? "",
+                            comma,
+                            //city
+                            placemark.locality ?? "",
+                            secondSpace,
+                            // state or province
+                            placemark.administrativeArea ?? ""
+                        )
+                    }
+                    
+                    DispatchQueue.main.async {
+                        annotation = MyAnnotation(title:  self.addressLine, locationName: "", discipline: "", coordinate: location)
+                        self.mapView.addAnnotation(annotation)
+                    }
+                } else {
+                    
+                    DispatchQueue.main.async {
+                        annotation = MyAnnotation(title:  "", locationName: "", discipline: "", coordinate: location)
+                        self.mapView.addAnnotation(annotation)
+                    }
+                }
+            }
+        }
+        
+        let mapContainerView = UIView()
+        BorderStyle.customShadowBorder(for: mapContainerView)
+        mapContainerView.addSubview(mapView)
+        mapView.pin(to: mapContainerView)
+        stackView.addArrangedSubview(mapContainerView)
+        mapContainerView.translatesAutoresizingMaskIntoConstraints = false
+        mapContainerView.heightAnchor.constraint(equalTo: mapContainerView.widthAnchor).isActive = true
     }
     
     func setConstraints() {
@@ -230,39 +277,50 @@ class UserDetailViewController: UIViewController {
         } else {
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 30).isActive = true
         }
-
-//        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-//        titleLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        
-        commentContainer.translatesAutoresizingMaskIntoConstraints = false
-        commentContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: commentLabel.frame.size.height).isActive = true
         
         barChart.translatesAutoresizingMaskIntoConstraints = false
         barChart.heightAnchor.constraint(equalToConstant: 100).isActive = true
-
+        
         currentStreakLabel.translatesAutoresizingMaskIntoConstraints = false
         currentStreakLabel.widthAnchor.constraint(equalTo: streakContainer.widthAnchor, multiplier: 0.5).isActive = true
         currentStreakLabel.leadingAnchor.constraint(equalTo: streakContainer.leadingAnchor, constant: 15).isActive = true
         currentStreakLabel.topAnchor.constraint(equalTo: streakContainer.topAnchor, constant: 10).isActive = true
-
+        
         longestStreakLabel.translatesAutoresizingMaskIntoConstraints = false
         longestStreakLabel.widthAnchor.constraint(equalTo: streakContainer.widthAnchor, multiplier: 0.5).isActive = true
         longestStreakLabel.leadingAnchor.constraint(equalTo: currentStreakLabel.trailingAnchor, constant: 5).isActive = true
         longestStreakLabel.topAnchor.constraint(equalTo: streakContainer.topAnchor, constant: 10).isActive = true
-
+        
         currentStreakTitle.translatesAutoresizingMaskIntoConstraints = false
         currentStreakTitle.widthAnchor.constraint(equalTo: streakContainer.widthAnchor, multiplier: 0.5).isActive = true
         currentStreakTitle.topAnchor.constraint(equalTo: currentStreakLabel.bottomAnchor).isActive = true
         currentStreakTitle.leadingAnchor.constraint(equalTo: streakContainer.leadingAnchor, constant: 15).isActive = true
         currentStreakTitle.bottomAnchor.constraint(greaterThanOrEqualTo: streakContainer.bottomAnchor, constant: -10).isActive = true
-
+        
         longestStreakTitle.translatesAutoresizingMaskIntoConstraints = false
         longestStreakTitle.widthAnchor.constraint(equalTo: streakContainer.widthAnchor, multiplier: 0.5).isActive = true
         longestStreakTitle.leadingAnchor.constraint(equalTo: currentStreakTitle.trailingAnchor, constant: 5).isActive = true
         longestStreakTitle.topAnchor.constraint(equalTo: longestStreakLabel.bottomAnchor).isActive = true
         longestStreakTitle.bottomAnchor.constraint(greaterThanOrEqualTo: streakContainer.bottomAnchor, constant: -10).isActive = true
         
-        subTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        subTitleLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+    }
+}
+
+extension UserDetailViewController: MKMapViewDelegate {
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        guard let annotation = annotation as? MyAnnotation else { return nil }
+        let identifier = "markerForEntry"
+        var annotationView: MKMarkerAnnotationView
+        if let deqeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView {
+            deqeuedView.annotation = annotation
+            annotationView = deqeuedView
+        } else {
+            annotationView = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            annotationView.isEnabled = true
+            annotationView.canShowCallout = true
+            annotationView.rightCalloutAccessoryView = UIButton(type: .system)
+        }
+        
+        return annotationView
     }
 }

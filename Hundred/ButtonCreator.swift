@@ -79,7 +79,7 @@ struct ButtonCreator {
 // 27. dark mode
 // 28. multiple photos
 // 29. cascade delete for public cloud
-
+// 30. reset map address
 
 
 //Thread 1: Fatal error: Unresolved error Error Domain=NSCocoaErrorDomain Code=134060 "A Core Data error occurred." UserInfo={NSLocalizedFailureReason=CloudKit integration requires that the value transformers for transformable attributes are available via +[NSValueTransformer valueTransformerForName:], return instances of NSData, and allow reverse transformation:

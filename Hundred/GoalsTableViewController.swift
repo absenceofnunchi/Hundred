@@ -17,12 +17,10 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
     }
     
     var fetchedResultsController: NSFetchedResultsController<Goal>?
-    
+    var pullControl = UIRefreshControl()
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        title = "Goals"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(getUsers))
         
         loadSavedData()
         configureTableView()
@@ -34,24 +32,24 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
     }
     
     func configureTableView() {
+        title = "Goals"
+        
         tableView.register(GoalCell.self, forCellReuseIdentifier: Cells.goalCell)
         tableView.rowHeight = 150
         tableView.separatorStyle = .none
         
         let inter = UIContextMenuInteraction(delegate: self)
         self.view.addInteraction(inter)
-    }
-    
-    @objc func getUsers() {
-        if let vc = storyboard?.instantiateViewController(withIdentifier: "Users") as? UsersViewController {
-            present(vc, animated: true)
-        }
+        
+        pullControl.attributedTitle = NSAttributedString(string: "Pull down to refresh")
+        pullControl.addTarget(self, action: #selector(refreshFetch), for: .valueChanged)
+        tableView.refreshControl = pullControl
+        tableView.addSubview(pullControl)
     }
     
     func loadSavedData() {
         if fetchedResultsController == nil {
             let request = NSFetchRequest<Goal>(entityName: "Goal")
-//            let request = Goal.createFetchRequest()
             let sort = NSSortDescriptor(key: "date", ascending: false)
             request.sortDescriptors = [sort]
             request.fetchBatchSize = 20
@@ -65,7 +63,16 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
             print("Fetch failed")
         }
         
-        tableView.reloadData()
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
+    }
+    
+    @objc func refreshFetch() {
+        loadSavedData()
+        Timer.scheduledTimer(withTimeInterval: 2, repeats: false) { (_) in
+            self.pullControl.endRefreshing()
+        }
     }
 }
 
@@ -86,7 +93,6 @@ extension GoalsTableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.goalCell, for: indexPath) as! GoalCell
         if let goal = fetchedResultsController?.object(at: indexPath) {
-            print("goal: \(goal)")
             cell.set(goal: goal)
         }
         return cell

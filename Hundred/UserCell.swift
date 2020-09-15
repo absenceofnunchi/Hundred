@@ -19,10 +19,6 @@ struct FetchedAnalytics {
 }
 
 class UserCell: UITableViewCell {
-    //    // includes the image and the containerView
-    //    var outerContainerView = UIView()
-    //    // excludes the image
-    //    var containerView = UIStackView()
     var imageConstraints: [NSLayoutConstraint] = []
     var coverImageView = UIImageView()
     

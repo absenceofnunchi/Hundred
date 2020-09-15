@@ -7,17 +7,28 @@
 //
 
 import UIKit
+import CloudKit
 import MapKit
 
 extension UIViewController {
     
-    func addCard<T: UIView>(text: String, subItem: T, stackView: UIStackView, containerHeight: CGFloat? = 20, bottomSpacing: CGFloat? = 60, insert: Int? = nil, tag: Int? = 1, topInset: CGFloat? = 30, bottomInset: CGFloat? = -30, widthMultiplier: CGFloat? = 0.8) {
+    func addCard<T: UIView>(text: String, subItem: T, stackView: UIStackView, containerHeight: CGFloat? = 20, bottomSpacing: CGFloat? = 60, insert: Int? = nil, tag: Int? = 1, topInset: CGFloat? = 30, bottomInset: CGFloat? = -30, widthMultiplier: CGFloat? = 0.8, isShadowBorder: Bool? = true) {
         let container = UIView()
         if let tag = tag {
             container.tag = tag
         }
-        BorderStyle.customShadowBorder(for: container)
-
+        
+        if let isShadowBorder = isShadowBorder {
+            if isShadowBorder {
+                BorderStyle.customShadowBorder(for: container)
+            } else {
+                let borderColor = UIColor.gray
+                container.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
+                container.layer.borderWidth = 0.8
+                container.layer.cornerRadius = 7.0
+            }
+        }
+        
         if let insert = insert {
             stackView.insertArrangedSubview(container, at: insert)
         } else {
@@ -28,7 +39,7 @@ extension UIViewController {
             container.translatesAutoresizingMaskIntoConstraints = false
             container.heightAnchor.constraint(greaterThanOrEqualToConstant: height).isActive = true
         }
-
+        
         let label = UILabel()
         label.text = text
         label.textColor = UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0)
@@ -41,9 +52,9 @@ extension UIViewController {
         label.widthAnchor.constraint(equalTo: container.widthAnchor, multiplier: 0.9).isActive = true
         label.centerXAnchor.constraint(equalTo: container.centerXAnchor).isActive = true
         label.topAnchor.constraint(equalTo: container.topAnchor, constant: 10).isActive = true
-
+        
         container.addSubview(subItem)
-
+        
         subItem.backgroundColor = .white
         subItem.translatesAutoresizingMaskIntoConstraints = false
         subItem.topAnchor.constraint(equalTo: label.bottomAnchor, constant: topInset ?? 30).isActive = true
@@ -55,7 +66,7 @@ extension UIViewController {
             stackView.setCustomSpacing(bottomSpacing, after: container)
         }
     }
-
+    
     
     func addHeader(text: String, stackView: UIStackView) {
         let label = UILabel()
@@ -65,13 +76,13 @@ extension UIViewController {
         label.heightAnchor.constraint(equalToConstant: 20).isActive = true
         stackView.addArrangedSubview(label)
         stackView.setCustomSpacing(10, after: label)
-
+        
         let l = UIView()
         l.translatesAutoresizingMaskIntoConstraints = false
         l.backgroundColor = UIColor(red: 220/255, green: 220/255, blue: 220/255, alpha: 0.8)
         l.heightAnchor.constraint(equalToConstant: 1).isActive = true
         stackView.addArrangedSubview(l)
-
+        
         stackView.setCustomSpacing(20, after: l)
     }
     
@@ -97,13 +108,13 @@ extension UIViewController {
     }
     
     func dateForPlist(date: Date) -> String {
-           let calendar = Calendar.current
-           let year = calendar.component(.year, from: date)
-           let month = calendar.component(.month, from: date)
-           let day = calendar.component(.day, from: date)
-           return "\(year).\(month).\(day)"
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: date)
+        let month = calendar.component(.month, from: date)
+        let day = calendar.component(.day, from: date)
+        return "\(year).\(month).\(day)"
     }
-
+    
     func dayVariance(date: Date, value: Int) -> Date {
         let calendar = Calendar.current
         if let tomorrow = calendar.date(byAdding: .day, value: -1, to: date) {
@@ -134,7 +145,7 @@ extension UIViewController {
         
         grayBackground?.addSubview(activityIndicator)
         self.view.addSubview(grayBackground!)
-
+        
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         activityIndicator.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
         activityIndicator.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
@@ -168,7 +179,7 @@ extension UIViewController {
             secondSpace,
             // state or province
             selectedItem.administrativeArea ?? ""
-            )
+        )
         return addressLine
     }
     
@@ -179,7 +190,82 @@ extension UIViewController {
         }
         return nil
     }
+    
+    
+    func isICloudContainerAvailable()->Bool {
+        
+        CKContainer.default().accountStatus { (accountStat, error) in
+            if (accountStat == .available) {
+                print("iCloud is available")
+            }
+            else {
+                print("iCloud is not available")
+            }
+        }
+        
+        CKContainer.default().accountStatus { (accountStatus, error) in
+            switch accountStatus {
+            case .available:
+                print("iCloud Available")
+            case .noAccount:
+                DispatchQueue.main.async {
+                    self.iCloudAlert(message: "No iCloud account available")
+                }
+            case .restricted:
+                DispatchQueue.main.async {
+                    self.iCloudAlert(message: "The iCloud account seems to be restricted")
+                }
+            case .couldNotDetermine:
+                DispatchQueue.main.async {
+                    self.iCloudAlert(message: "Unable to determine the iCloud status")
+                }
+            default:
+                DispatchQueue.main.async {
+                    self.iCloudAlert(message: "Unable to determine the iCloud status")
+                }
+            }
+        }
+        
+        
+        if FileManager.default.ubiquityIdentityToken != nil {
+            //print("User logged in")
+            return true
+        }
+        else {
+            //print("User is not logged in")
+            return false
+        }
+    }
 
+    func iCloudAlert(message: String) {
+        let ac = UIAlertController(title: "Requires you to log into your iCloud", message: message, preferredStyle: .alert)
+        ac.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
+            guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+                return
+            }
+
+            if UIApplication.shared.canOpenURL(settingsUrl) {
+                UIApplication.shared.open(settingsUrl, completionHandler: nil)
+            }
+        }))
+        
+        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
+        if let popoverController = ac.popoverPresentationController {
+            popoverController.sourceView = self.view
+            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+            popoverController.permittedArrowDirections = []
+        }
+        
+        present(ac, animated: true, completion: {() -> Void in
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
+            ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
+        })
+    }
+    
+    @objc func alertClose(_ alert:UIAlertController) {
+        self.dismiss(animated: true, completion: nil)
+    }
 }
 
 struct UILabelTheme {
@@ -207,7 +293,7 @@ struct UnitConversion {
     }
     
     static func stringToDecimal(string: String) -> NSDecimalNumber {
-       let formatter = NumberFormatter()
+        let formatter = NumberFormatter()
         formatter.generatesDecimalNumbers = true
         return formatter.number(from: string) as? NSDecimalNumber ?? 0
     }
@@ -236,11 +322,11 @@ class CustomTextField: UITextField {
     override open func textRect(forBounds bounds: CGRect) -> CGRect {
         return bounds.inset(by: insets)
     }
-
+    
     override open func placeholderRect(forBounds bounds: CGRect) -> CGRect {
         return bounds.inset(by: insets)
     }
-
+    
     override open func editingRect(forBounds bounds: CGRect) -> CGRect {
         return bounds.inset(by: insets)
     }
@@ -261,7 +347,7 @@ extension UITableView {
         
         for cell in cells {
             cell.alpha = 0
-//            cell.transform = CGAffineTransform(translationX: 0, y: tableViewHeight)
+            //            cell.transform = CGAffineTransform(translationX: 0, y: tableViewHeight)
         }
         for cell in cells {
             UIView.animate(withDuration: 1.5, delay: 0.08 * Double(delayCounter),usingSpringWithDamping: 0.6, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
@@ -274,7 +360,7 @@ extension UITableView {
 }
 
 extension UIFont {
-
+    
     static var title1: UIFont {
         return UIFont.preferredFont(forTextStyle: .title1)
     }
@@ -290,9 +376,9 @@ extension UIFont {
     static var caption: UIFont {
         return UIFont.preferredFont(forTextStyle: .caption2)
     }
-
+    
     func with(weight: UIFont.Weight) -> UIFont {
         return UIFont.systemFont(ofSize: pointSize, weight: weight)
     }
-
+    
 }

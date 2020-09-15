@@ -75,28 +75,27 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        var dataImporter = DataImporter(goalTitle: nil)
-        data = dataImporter.data
-        
         configureUI()
         setConstraints()
         
-        var mainDataImporter = MainDataImporter()
-        goals = mainDataImporter.data
+        var dataImporter = DataImporter(goalTitle: nil)
+        data = dataImporter.data
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        //        calendarHeatMap.reload()
+        calendarHeatMap.reload()
+        
+        var mainDataImporter = MainDataImporter()
+        goals = mainDataImporter.data
     }
     
     func configureUI() {
         title = "Dashboard"
         navigationController?.title = "Dashboard"
         
-        addCard(text: "Contribution Calendar", subItem: calendarHeatMap, stackView: stackView, containerHeight: 270)
-        addCard(text: "Composition Pie Chart", subItem: pieChartView, stackView: stackView, containerHeight: 300)
+        addCard(text: "Contribution Calendar", subItem: calendarHeatMap, stackView: stackView, containerHeight: 270, isShadowBorder: true)
+        addCard(text: "Composition Pie Chart", subItem: pieChartView, stackView: stackView, containerHeight: 300, isShadowBorder: true)
     }
     
     func setConstraints() {
@@ -220,7 +219,7 @@ class ViewController: UIViewController {
         for goal in goals {
             let metricCard = MetricCard()
             let (containerView, cardHeight) = metricCard.createMetricCard(entryCount: goal.progress.count, goal: goal, metricsDict: nil, fetchedAnalytics: nil, currentStreak: nil, longestStreak: nil)
-            addCard(text: goal.title, subItem: containerView, stackView: stackView, containerHeight: cardHeight, bottomSpacing: 30, tag: 5)
+            addCard(text: goal.title, subItem: containerView, stackView: stackView, containerHeight: cardHeight, bottomSpacing: 30, tag: 5, isShadowBorder: true)
         }
     }
 }

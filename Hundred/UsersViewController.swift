@@ -8,14 +8,10 @@
 
 import UIKit
 import CloudKit
-import MapKit
 
 class UsersViewController: UITableViewController {
     var users = [CKRecord]()
-    var imageView: UIImageView!
-    var commentLabel = UILabel()
-    var mapView: MKMapView!
-        
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -35,6 +31,8 @@ class UsersViewController: UITableViewController {
         let inter = UIContextMenuInteraction(delegate: self)
         self.view.addInteraction(inter)
         
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refreshFetch))
+        
 //        tableView.reloadData()
 //        tableView.setNeedsLayout()
 //        tableView.layoutIfNeeded()
@@ -51,7 +49,7 @@ class UsersViewController: UITableViewController {
         configuration.qualityOfService = .userInitiated
         
         let queryOperation = CKQueryOperation(query: query)
-        queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image"]
+        queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image", "longitude", "latitude"]
         queryOperation.queuePriority = .veryHigh
         queryOperation.configuration = configuration
         queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
@@ -136,49 +134,60 @@ extension UsersViewController: UIContextMenuInteractionDelegate {
         }
     }
     
-//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        guard let selectedPath = tableView.indexPathForSelectedRow else { return }
-//        if let target = segue.destination as? UserDetailViewController {
-//            let user = users[selectedPath.row]
-//            target.user = user
-//        }
-//    }
-    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        DispatchQueue.main.async {
-//            self.performSegue(withIdentifier: "UserDetailSegue", sender: self)
-//        }
-
-        let vc = storyboard?.instantiateViewController(withIdentifier: "UserDetail") as! UserDetailViewController
-        let user = users[indexPath.row]
-        vc.user = user
-        navigationController?.pushViewController(vc, animated: true)
+        tableView.isUserInteractionEnabled = false
         
-
+        let vc = storyboard?.instantiateViewController(withIdentifier: "UserDetail") as! UserDetailViewController
         
         // fetch analytics record using the user's reference
-//        let user = users[indexPath.row]
-//        vc.user = user
-//        self.present(vc,animated:true)
+        let user = users[indexPath.row]
+        vc.user = user
         
-//        let reference = CKRecord.Reference(recordID: user.recordID, action: .deleteSelf)
-//        let pred = NSPredicate(format: "owningProgress == %@", reference)
-//        let query = CKQuery(recordType: MetricAnalytics.analytics.rawValue, predicate: pred)
-//        CKContainer.default().publicCloudDatabase.perform(query, inZoneWith: nil) { results, error in
-//            if let error = error {
-//                print("error fetching the Analytics record: \(error.localizedDescription)")
-//            } else {
-//                if let results = results {
-//                    DispatchQueue.main.async {
-//                        vc.analytics = results
-//                        self.present(vc,animated:true)
-//                    }
-//                } else {
-//                    DispatchQueue.main.async {
-//                        self.present(vc,animated:true)
-//                    }
-//                }
-//            }
-//        }
+        let reference = CKRecord.Reference(recordID: user.recordID, action: .deleteSelf)
+        let pred = NSPredicate(format: "owningProgress == %@", reference)
+        let query = CKQuery(recordType: MetricAnalytics.analytics.rawValue, predicate: pred)
+        CKContainer.default().publicCloudDatabase.perform(query, inZoneWith: nil) { results, error in
+            if let error = error {
+                print("error fetching the Analytics record: \(error.localizedDescription)")
+            } else {
+                if let results = results {
+                    DispatchQueue.main.async {
+                        vc.analytics = results
+                        self.navigationController?.pushViewController(vc, animated: true, completion: {
+                            self.tableView.isUserInteractionEnabled = true
+                        })
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        self.navigationController?.pushViewController(vc, animated: true, completion: {
+                            self.tableView.isUserInteractionEnabled = true
+                        })
+                    }
+                }
+            }
+        }
+    }
+    
+    @objc func refreshFetch() {
+        self.users.removeAll()
+        fetchData()
+        self.navigationItem.rightBarButtonItem?.isEnabled = false
+        Timer.scheduledTimer(withTimeInterval: 7, repeats: false) { (_) in
+            self.navigationItem.rightBarButtonItem?.isEnabled = true
+        }
+    }
+}
+
+
+extension UINavigationController {
+    public func pushViewController(_ viewController: UIViewController, animated: Bool, completion: @escaping () -> Void) {
+        pushViewController(viewController, animated: animated)
+
+        guard animated, let coordinator = transitionCoordinator else {
+            DispatchQueue.main.async { completion() }
+            return
+        }
+
+        coordinator.animate(alongsideTransition: nil) { _ in completion() }
     }
 }

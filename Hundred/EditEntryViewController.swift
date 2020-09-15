@@ -465,7 +465,6 @@ class EditEntryViewController: UIViewController {
                             }
                         }
                     }
-                    print("final: \(progress)")
                     
                     self.saveContext()
                     
@@ -536,10 +535,6 @@ class EditEntryViewController: UIViewController {
             
             present(ac, animated: true)
         }
-    }
-    
-    @objc func alertClose(_ alert:UIAlertController) {
-        self.dismiss(animated: true, completion: nil)
     }
     
     func createButton(title: String?, image: String?, cornerRadius: CGFloat, color: UIColor, size: CGFloat?, tag: Int) -> UIButton {

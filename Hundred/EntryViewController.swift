@@ -148,8 +148,8 @@ class EntryViewController: UIViewController, ChartViewDelegate {
         
         stackView.addArrangedSubview(dateLabel)
         stackView.setCustomSpacing(30, after: dateLabel)
-        addCard(text: "Comment", subItem: commentLabel, stackView: stackView, containerHeight: 40)
-        addCard(text: "Calendar", subItem: calendarHeatMap, stackView: stackView, containerHeight: 270)
+        addCard(text: "Comment", subItem: commentLabel, stackView: stackView, containerHeight: 40, isShadowBorder: true)
+        addCard(text: "Calendar", subItem: calendarHeatMap, stackView: stackView, containerHeight: 270, isShadowBorder: true)
         
         if progress.metric.count > 0 {
             lineChartView.data = loadMetricsData()
@@ -197,7 +197,7 @@ class EntryViewController: UIViewController, ChartViewDelegate {
             chartContainer.alignment = .fill
         }
         
-        addCard(text: "Progress Chart", subItem: lineChartView, stackView: stackView, containerHeight: 270)
+        addCard(text: "Progress Chart", subItem: lineChartView, stackView: stackView, containerHeight: 270, isShadowBorder: true)
 
         if let latitude = progress.latitude, let longitude = progress.longitude, latitude != 0, longitude != 0 {
             mapView.delegate = self

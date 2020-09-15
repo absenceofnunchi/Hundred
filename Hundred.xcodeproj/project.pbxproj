@@ -32,7 +32,6 @@
 		4996BD5124D485CB00E301B4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4996BD5024D485CB00E301B4 /* Assets.xcassets */; };
 		4996BD5424D485CB00E301B4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4996BD5224D485CB00E301B4 /* LaunchScreen.storyboard */; };
 		4996BD5C24D48B0700E301B4 /* GoalsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD5B24D48B0700E301B4 /* GoalsTableViewController.swift */; };
-		4996BD5E24D4910600E301B4 /* AddGoalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD5D24D4910600E301B4 /* AddGoalViewController.swift */; };
 		499E8B2F24F0CC1700C829C8 /* EditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 499E8B2E24F0CC1700C829C8 /* EditViewController.swift */; };
 		49B328FE24E3269F00D9E8D4 /* DataImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B328FD24E3269F00D9E8D4 /* DataImporter.swift */; };
 		49C70D6925016923000BC383 /* MyAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C70D6825016923000BC383 /* MyAnnotation.swift */; };
@@ -51,6 +50,7 @@
 		49DB512C24ECAA6500857634 /* ButtonCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DB512B24ECAA6500857634 /* ButtonCreator.swift */; };
 		49DE68A624F71838009C886C /* ChartXAxisFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */; };
 		49E9631224FC8FA10041239B /* SpinnerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E9631124FC8FA10041239B /* SpinnerViewController.swift */; };
+		49ED332825114BBF006FE080 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49ED332725114BBF006FE080 /* ProfileViewController.swift */; };
 		49F1B1EA24FB21B8006D6887 /* CalendarDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F1B1E924FB21B8006D6887 /* CalendarDetailTableViewController.swift */; };
 		49F1B1EC24FB34BA006D6887 /* CalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F1B1EB24FB34BA006D6887 /* CalendarCell.swift */; };
 		49FD8FFF250EF7B100B60360 /* UserDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49FD8FFE250EF7B100B60360 /* UserDetailViewController.swift */; };
@@ -86,7 +86,6 @@
 		4996BD5324D485CB00E301B4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4996BD5524D485CB00E301B4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4996BD5B24D48B0700E301B4 /* GoalsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsTableViewController.swift; sourceTree = "<group>"; };
-		4996BD5D24D4910600E301B4 /* AddGoalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGoalViewController.swift; sourceTree = "<group>"; };
 		499E8B2E24F0CC1700C829C8 /* EditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewController.swift; sourceTree = "<group>"; };
 		49B328FD24E3269F00D9E8D4 /* DataImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataImporter.swift; sourceTree = "<group>"; };
 		49C70D6825016923000BC383 /* MyAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyAnnotation.swift; sourceTree = "<group>"; };
@@ -105,6 +104,7 @@
 		49DB512B24ECAA6500857634 /* ButtonCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonCreator.swift; sourceTree = "<group>"; };
 		49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartXAxisFormatter.swift; sourceTree = "<group>"; };
 		49E9631124FC8FA10041239B /* SpinnerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerViewController.swift; sourceTree = "<group>"; };
+		49ED332725114BBF006FE080 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		49F1B1E924FB21B8006D6887 /* CalendarDetailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDetailTableViewController.swift; sourceTree = "<group>"; };
 		49F1B1EB24FB34BA006D6887 /* CalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCell.swift; sourceTree = "<group>"; };
 		49FD8FFE250EF7B100B60360 /* UserDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDetailViewController.swift; sourceTree = "<group>"; };
@@ -190,12 +190,12 @@
 				4996BD4824D485C900E301B4 /* ViewController.swift */,
 				498AC32824FD524C003FDBF2 /* PieChartViewController.swift */,
 				49F1B1E924FB21B8006D6887 /* CalendarDetailTableViewController.swift */,
-				4996BD5D24D4910600E301B4 /* AddGoalViewController.swift */,
 				491A661F2509947300B659CB /* UsersViewController.swift */,
 				49FD8FFE250EF7B100B60360 /* UserDetailViewController.swift */,
 				4996BD5B24D48B0700E301B4 /* GoalsTableViewController.swift */,
 				491F5A7B24E458FA0075EDCD /* DetailTableViewController.swift */,
 				497DC78324EA15A800446178 /* NewViewController.swift */,
+				49ED332725114BBF006FE080 /* ProfileViewController.swift */,
 				494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */,
 				49C70D6C25016BF1000BC383 /* MapViewController.swift */,
 				49C70D722501940D000BC383 /* LocationSearchViewController.swift */,
@@ -375,7 +375,6 @@
 				494F0C2A24D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift in Sources */,
 				493FF0EF250AABA10085EB42 /* MetricCard.swift in Sources */,
 				4996BD4524D485C900E301B4 /* AppDelegate.swift in Sources */,
-				4996BD5E24D4910600E301B4 /* AddGoalViewController.swift in Sources */,
 				4926509124FF25AF001AA5A3 /* MainDataImporter.swift in Sources */,
 				4996BD4F24D485C900E301B4 /* Hundred.xcdatamodeld in Sources */,
 				49C8690524F44D66005D0C4D /* GoalCell.swift in Sources */,
@@ -389,6 +388,7 @@
 				49DE68A624F71838009C886C /* ChartXAxisFormatter.swift in Sources */,
 				49C70D8A2501E018000BC383 /* Goal+CoreDataClass.swift in Sources */,
 				4996BD4724D485C900E301B4 /* SceneDelegate.swift in Sources */,
+				49ED332825114BBF006FE080 /* ProfileViewController.swift in Sources */,
 				49DB512A24EC453B00857634 /* Extensions-Style.swift in Sources */,
 				49DB512C24ECAA6500857634 /* ButtonCreator.swift in Sources */,
 			);

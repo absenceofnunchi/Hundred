@@ -15,12 +15,10 @@ class DetailTableViewController: UITableViewController, UIContextMenuInteraction
     var progresses: [Progress]!
     var goal: Goal! {
         didSet {
-//            print("goal in progress: \(goal)")
-////            progresses = goal.progress.sorted {$0.date > $1.date}
-//            progresses = Array(goal.progress)
-//            print("progresses after: \(progresses)")
+            progresses = goal.progress.sorted {$0.date > $1.date}
         }
     }
+    var pullControl = UIRefreshControl()
     
     struct Cells {
         static let progressCell = "ProgressCell"
@@ -43,26 +41,37 @@ class DetailTableViewController: UITableViewController, UIContextMenuInteraction
     
     func configureUI() {
         title = goal.title
-//        tabBarController?.tabBar.isHidden = true
         
         tableView.register(ProgressCell.self, forCellReuseIdentifier: Cells.progressCell)
         tableView.rowHeight = 85
         
         let inter = UIContextMenuInteraction(delegate: self)
         self.view.addInteraction(inter)
+        
+        pullControl.attributedTitle = NSAttributedString(string: "Pull down to refresh")
+        pullControl.addTarget(self, action: #selector(refreshFetch), for: .valueChanged)
+        tableView.refreshControl = pullControl
+        tableView.addSubview(pullControl)
+    }
+    
+    @objc func refreshFetch() {
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
+        Timer.scheduledTimer(withTimeInterval: 2, repeats: false) { (_) in
+            self.pullControl.endRefreshing()
+        }
     }
     
     // MARK: - Table view data source
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        return progresses.count
-        return goal.progress.count
+        return progresses.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.progressCell, for: indexPath) as! ProgressCell
-        let progress = goal.progress[indexPath.row]
-        print("progress in progress: \(progress)")
+        let progress = progresses[indexPath.row]
         cell.set(progress: progress)
         return cell
     }
@@ -108,11 +117,7 @@ class DetailTableViewController: UITableViewController, UIContextMenuInteraction
         deleteAction.backgroundColor = .red
         
         let editAction = UIContextualAction(style: .destructive, title: "Edit") { (contextualAction, view, boolValue) in
-//            if let vc = self.storyboard?.instantiateViewController(withIdentifier: "EditEntry") as? EditEntryViewController {
-//                vc.progress = self.progresses[indexPath.row]
-//                self.navigationController?.pushViewController(vc, animated: true)
-//            }
-            self.editAction(progress: progress)
+            self.setEditAction(progress: progress)
         }
         editAction.backgroundColor = .systemBlue
         
@@ -120,7 +125,7 @@ class DetailTableViewController: UITableViewController, UIContextMenuInteraction
         return configuration
     }
     
-    func editAction (progress: Progress) {
+    func setEditAction (progress: Progress) {
         if let vc = self.storyboard?.instantiateViewController(withIdentifier: "EditEntry") as? EditEntryViewController {
             
             let geocoder = CLGeocoder()
@@ -285,7 +290,7 @@ extension DetailTableViewController {
         }
         
         let edit = UIAction(title: "Edit", image: UIImage(systemName: "square.and.pencil")) { action in
-            self.editAction(progress: progress)
+            self.setEditAction(progress: progress)
         }
         
         // Here we specify the "destructive" attribute to show that it’s destructive in nature
@@ -296,7 +301,7 @@ extension DetailTableViewController {
         func getPreviewVC(indexPath: IndexPath) -> UIViewController? {
             if let destinationVC = storyboard?.instantiateViewController(identifier: "Entry") as? EntryViewController {
                 destinationVC.progress = progresses[indexPath.row]
-                destinationVC.metrics = goal.metrics
+//                destinationVC.metrics = goal.metrics
                 destinationVC.indexPathRow = indexPath.row
                 destinationVC.indexPath = indexPath
                 

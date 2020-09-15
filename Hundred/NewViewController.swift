@@ -16,6 +16,7 @@ import CloudKit
 class NewViewController: UIViewController {
     var imagePathString: String?
     var imagePath: URL?
+    var switchControl: UISwitch!
     
     @IBOutlet weak var scrollView: UIScrollView!
     
@@ -390,7 +391,7 @@ class NewViewController: UIViewController {
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         
-        self.navigationController?.navigationBar.setValue(true, forKey: "hidesShadow")
+//        self.navigationController?.navigationBar.setValue(true, forKey: "hidesShadow")
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -400,6 +401,10 @@ class NewViewController: UIViewController {
     
     func configureUI() {
         navigationController?.title = "New Entry"
+        
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 25, weight: .regular, scale: .medium)
+        let uiImage = UIImage(systemName: "person.crop.circle", withConfiguration: symbolConfig)?.withTintColor(.darkGray, renderingMode: .alwaysOriginal)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: uiImage, style: .plain, target: self, action: #selector(getProfileVC))
         
         plusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 2)
         minusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 3)
@@ -426,7 +431,7 @@ class NewViewController: UIViewController {
         switchTitle.textColor = .darkGray
         switchTitle.textAlignment = .right
         
-        let switchControl = UISwitch(frame: CGRect(origin: CGPoint(x: 0,y :0), size: CGSize(width: 30, height: 30)))
+        switchControl = UISwitch(frame: CGRect(origin: CGPoint(x: 0,y :0), size: CGSize(width: 30, height: 30)))
         switchControl.isOn = true
         switchControl.tintColor = .lightGray
         switchControl.onTintColor = .darkGray
@@ -519,9 +524,23 @@ class NewViewController: UIViewController {
         metricStackView.heightAnchor.constraint(greaterThanOrEqualToConstant: 50).isActive = true
     }
     
+    @objc func getProfileVC() {
+        if let vc = storyboard?.instantiateViewController(identifier: "Profile") as? ProfileViewController {
+            DispatchQueue.main.async {
+                self.navigationController?.pushViewController(vc, animated: true)
+            }
+        }
+    }
+    
     @objc func switchValueDidChange(sender: UISwitch!) {
         if sender.isOn {
             isPublic = true
+            if isICloudContainerAvailable() {
+                print("logged in")
+            } else {
+                isPublic = false
+                switchControl.setOn(false, animated: false)
+            }
         } else{
             isPublic = false
         }
@@ -996,9 +1015,7 @@ class NewViewController: UIViewController {
         }
     }
     
-    @objc func alertClose(_ alert:UIAlertController) {
-        self.dismiss(animated: true, completion: nil)
-    }
+
     
     func savePList() {
         let dateString = dateForPlist(date: Date())
@@ -1151,8 +1168,8 @@ extension NewViewController {
         progressRecord[MetricAnalytics.goal.rawValue] = title as CKRecordValue
         progressRecord[MetricAnalytics.comment.rawValue] = comment as CKRecordValue
         
-        progressRecord[MetricAnalytics.longitude.rawValue] = NSDecimalNumber(value: location?.longitude ?? 0)
-        progressRecord[MetricAnalytics.latitude.rawValue] = NSDecimalNumber(value: location?.latitude ?? 0)
+        progressRecord[MetricAnalytics.longitude.rawValue] = location?.longitude
+        progressRecord[MetricAnalytics.latitude.rawValue] = location?.latitude
         
         try? progressRecord.encode(metricDict, forKey: MetricAnalytics.metrics.rawValue)
         progressRecord[MetricAnalytics.date.rawValue] = Date()
@@ -1161,30 +1178,9 @@ extension NewViewController {
             progressRecord[MetricAnalytics.image.rawValue] = CKAsset(fileURL: imagePath)
         }
         
-//        var metricAnalytics = [String: [String: String]]()
-//        var analytics: [String: String] = [:]
-        
         if isNew {
-//            for metricPair in metricDict {
-//                analytics.updateValue(metricPair.value, forKey: MetricAnalytics.Min.rawValue)
-//                analytics.updateValue(metricPair.value, forKey: MetricAnalytics.Max.rawValue)
-//                analytics.updateValue(metricPair.value, forKey: MetricAnalytics.Average.rawValue)
-//                analytics.updateValue(metricPair.value, forKey: MetricAnalytics.Sum.rawValue)
-//                metricAnalytics.updateValue(analytics, forKey: metricPair.key)
-//            }
-//            try? progressRecord.encode(metricAnalytics, forKey: MetricAnalytics.analytics.rawValue)
             progressRecord[MetricAnalytics.entryCount.rawValue] = 1
         } else {
-//            if let metrics = fetchedGoal?.metrics {
-//                for metric in metrics {
-//                    if let dict = MetricCard.getAnalytics(metric: metric) {
-//                        let convertedDict = dict.mapValues { UnitConversion.decimalToString(decimalNumber: $0)}
-//                        metricAnalytics.updateValue(convertedDict, forKey: metric)
-//                    }
-//                }
-//
-//                try? progressRecord.encode(metricAnalytics, forKey: MetricAnalytics.analytics.rawValue)
-//            }
             
             if let progress = fetchedGoal?.progress {
                 let entryCount = MetricCard.getEntryCount(progress: progress)
@@ -1236,45 +1232,44 @@ extension NewViewController {
                     }
                 }
                 
-                print("recordsArr: \(recordsArr)")
                 let operation = CKModifyRecordsOperation(recordsToSave: recordsArr, recordIDsToDelete: nil)
                 let operationConfiguration = CKOperation.Configuration()
-        
+                
                 operationConfiguration.allowsCellularAccess = true
                 operationConfiguration.qualityOfService = .userInitiated
                 operation.configuration = operationConfiguration
-        
+                
                 operation.perRecordProgressBlock = {(record, progress) in
                     print("perRecordProgressBlock: \(progress)")
                 }
-        
+                
                 operation.perRecordCompletionBlock = {(record, error) in
                     print("Upload complete")
                     print("perRecordCompletionBlock error: \(error)")
                 }
-        
+                
                 operation.modifyRecordsCompletionBlock = { (savedRecords, deletedRecordIDs, error) in
                     print("savedRecords: \(savedRecords)")
                     print("deletedRecordIDs: \(deletedRecordIDs)")
                     print("modifyRecordsCompletionBlock error: \(error)")
                 }
-        
+                
                 publicCloudDatabase.add(operation)
-//                publicCloudDatabase.save(progressRecord) { record, error in
-//                    if let error = error {
-//                        print("analytics save error======================================================: \(error)")
-//                    } else {
-//                        print("Sucessfully uploaded the analytics record====================================================")
-//                    }
-//                }
-//                publicCloudDatabase.save(analyticsRecord) { (record, error) in
-//                    if let error = error {
-//                        print("saving analytics record error: \(error)")
-//                        return
-//                    }
-//
-//                    print("Successfully uploaded to analytics record")
-//                }
+                //                publicCloudDatabase.save(progressRecord) { record, error in
+                //                    if let error = error {
+                //                        print("analytics save error======================================================: \(error)")
+                //                    } else {
+                //                        print("Sucessfully uploaded the analytics record====================================================")
+                //                    }
+                //                }
+                //                publicCloudDatabase.save(analyticsRecord) { (record, error) in
+                //                    if let error = error {
+                //                        print("saving analytics record error: \(error)")
+                //                        return
+                //                    }
+                //
+                //                    print("Successfully uploaded to analytics record")
+                //                }
             }
         }
     }
@@ -1296,6 +1291,3 @@ extension CKRecord {
         self[key] = try encoder.encode(encodable)
     }
 }
-
-
-
