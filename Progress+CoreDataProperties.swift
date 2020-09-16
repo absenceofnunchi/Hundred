@@ -2,13 +2,14 @@
 //  Progress+CoreDataProperties.swift
 //  Hundred
 //
-//  Created by jc on 2020-09-03.
+//  Created by J C on 2020-09-15.
 //  Copyright © 2020 J. All rights reserved.
 //
 //
 
 import Foundation
 import CoreData
+
 
 extension Progress {
 
@@ -55,5 +56,9 @@ extension Progress {
 
     @objc(removeMetric:)
     @NSManaged public func removeFromMetric(_ values: NSSet)
+
+}
+
+extension Progress : Identifiable {
 
 }

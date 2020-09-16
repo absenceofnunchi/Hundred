@@ -390,14 +390,17 @@ class NewViewController: UIViewController {
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
-        
-//        self.navigationController?.navigationBar.setValue(true, forKey: "hidesShadow")
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        tabBarController?.tabBar.isHidden = false
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        if let tabBarHeight = tabBarController?.tabBar.frame.size.height {
+            view.endEditing(true)
+            doneButton.frame = CGRect(x: 0, y: view.frame.size.height - CGFloat(tabBarHeight + 50), width: view.frame.size.width, height: 50)
+        }
     }
+
     
     func configureUI() {
         navigationController?.title = "New Entry"
@@ -524,9 +527,21 @@ class NewViewController: UIViewController {
         metricStackView.heightAnchor.constraint(greaterThanOrEqualToConstant: 50).isActive = true
     }
     
+    func fetchProfileInfo() -> [Profile]? {
+        var result: [Any]?
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Profile")
+        do {
+            result = try self.context.fetch(fetchRequest)
+        } catch {
+            print("Goal Data Importer error: \(error.localizedDescription)")
+        }
+        
+        return result as? [Profile]
+    }
+    
     @objc func getProfileVC() {
         if let vc = storyboard?.instantiateViewController(identifier: "Profile") as? ProfileViewController {
-            vc.isAuthenticated = isPublic
+            vc.isAuthenticated = fetchProfileInfo()?.first ?? nil
             DispatchQueue.main.async {
                 self.navigationController?.pushViewController(vc, animated: true)
             }

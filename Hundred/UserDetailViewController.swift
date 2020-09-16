@@ -35,7 +35,6 @@ class UserDetailViewController: UIViewController {
     var currentMetricsContainer: UIStackView!
     var barChart: BarChartView!
     let borderColor = UIColor.gray
-    var commentContainer = UIView()
     var longitude: Double?
     var latitude: Double?
     var mapView: MKMapView!
@@ -83,10 +82,6 @@ class UserDetailViewController: UIViewController {
             latitude = user.object(forKey: MetricAnalytics.latitude.rawValue) as? Double
         }
         
-        stackView.addArrangedSubview(commentContainer)
-        commentContainer.translatesAutoresizingMaskIntoConstraints = false
-        commentContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: 50).isActive = true
-        
         // comment
         commentLabel = UILabel()
         commentLabel.numberOfLines = 0
@@ -95,7 +90,6 @@ class UserDetailViewController: UIViewController {
         commentLabel.font = UIFont.preferredFont(forTextStyle: .body)
         commentLabel.text = comment ?? " "
         
-        //        addCard(text: "Comment", subItem: commentLabel, stackView: stackView, containerHeight: 40)
         addCard(text: "Comment", subItem: commentLabel, stackView: stackView, containerHeight: 40, bottomSpacing: nil, insert: nil, tag: nil, topInset: nil, bottomInset: nil, widthMultiplier: nil, isShadowBorder: false)
         
         streakContainer = UIView()

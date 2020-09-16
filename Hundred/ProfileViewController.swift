@@ -10,16 +10,17 @@ import UIKit
 
 class ProfileViewController: UIViewController {
     @IBOutlet weak var scrollView: UIScrollView!
-    var isAuthenticated: Bool! = false
+    var isAuthenticated: Profile?
     lazy var stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
         stackView.distribution = .fill
+        stackView.alignment = .fill
         stackView.spacing = 20
-        scrollView.addSubview(stackView)
-        stackView.pin(to: scrollView)
         stackView.isLayoutMarginsRelativeArrangement = true
         stackView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 5, leading: 25, bottom: 5, trailing: 25)
+        scrollView.addSubview(stackView)
+        stackView.pin(to: scrollView)
         return stackView
     }()
     
@@ -79,27 +80,105 @@ class ProfileViewController: UIViewController {
         return textView
     }()
     
+    var profileImageView: UIImageView!
+    var profileImageContainer: UIView!
+    var usernameDisplay: UILabel!
+    var aboutMeLabel: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if isAuthenticated {
-            configureAuthenticatedUI()
+        if isAuthenticated != nil {
+            if let profile = isAuthenticated {
+                configureAuthenticatedUI(profile: profile)
+                setAuthenticatedConstraints()
+            }
         } else {
+            initializeHideKeyboard()
             configureUnauthenticatedUI()
             setUnauthenticatedConstraints()
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         }
     }
     
-    func configureAuthenticatedUI() {
-        print("logged in")
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    func configureAuthenticatedUI(profile: Profile) {
+        profileImageView = UIImageView()
+        profileImageContainer = UIView()
+        profileImageContainer.addSubview(profileImageView)
+        stackView.addArrangedSubview(profileImageContainer)
+        stackView.setCustomSpacing(50, after: profileImageContainer)
+
+        if let image = profile.image {
+            let imagePath = getDocumentsDirectory().appendingPathComponent(image)
+            if let data = try? Data(contentsOf: imagePath) {
+                if let uiImage = UIImage(data: data) {
+                    profileImageView.image = UIImageView(image: uiImage).image?.resizeImageWith(newSize: CGSize(width: 100, height: 100))
+                    profileImageView.contentMode = .scaleAspectFill
+                    profileImageView.layer.borderColor = UIColor.black.cgColor
+                    profileImageView.layer.borderWidth = 2.0
+                    profileImageView.layer.cornerRadius = ((profileImageView.image?.size.height)!) / 2
+                    profileImageView.layer.masksToBounds = false
+                    profileImageView.clipsToBounds = true
+                }
+            }
+        } else {
+            let symbolConfig = UIImage.SymbolConfiguration(pointSize: 40, weight: .regular, scale: .unspecified)
+            profileImageView.image = UIImage(systemName: "person.crop.circle", withConfiguration: symbolConfig)?.withTintColor(.systemIndigo, renderingMode: .alwaysOriginal)
+            
+        }
+
+        //  username
+        usernameDisplay = UILabel()
+        usernameDisplay.adjustsFontSizeToFitWidth = false
+        usernameDisplay.lineBreakMode = .byTruncatingTail
+        usernameDisplay.font = UIFont.preferredFont(forTextStyle: .body)
+        usernameDisplay.text = profile.username
+        addCard(text: "Username", subItem: usernameDisplay, stackView: stackView, containerHeight: 50, bottomSpacing: 50, insert: nil, tag: nil, topInset: nil, bottomInset: nil, widthMultiplier: nil, isShadowBorder: false)
+
+        if let aboutMe = profile.aboutme {
+            aboutMeLabel = UILabel()
+            aboutMeLabel.numberOfLines = 0
+            aboutMeLabel.adjustsFontSizeToFitWidth = false
+            aboutMeLabel.lineBreakMode = .byTruncatingTail
+            aboutMeLabel.font = UIFont.preferredFont(forTextStyle: .body)
+            aboutMeLabel.text = aboutMe
+            addCard(text: "About Me", subItem: aboutMeLabel, stackView: stackView, containerHeight: 100, bottomSpacing: nil, insert: nil, tag: nil, topInset: nil, bottomInset: nil, widthMultiplier: nil, isShadowBorder: false)
+        }
+        
     }
     
     func setAuthenticatedConstraints() {
-        
+        // the profile image
+        profileImageView.translatesAutoresizingMaskIntoConstraints = false
+        profileImageView.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        profileImageView.heightAnchor.constraint(equalToConstant: 100).isActive = true
+        profileImageView.centerXAnchor.constraint(equalTo: profileImageContainer.centerXAnchor).isActive = true
+        profileImageView.centerYAnchor.constraint(equalTo: profileImageContainer.centerYAnchor).isActive = true
+        profileImageContainer.translatesAutoresizingMaskIntoConstraints = false
+        profileImageContainer.heightAnchor.constraint(equalToConstant: 100).isActive = true
     }
     
     func configureUnauthenticatedUI() {
         title = "Profile"
+        
+        // done button in the tool bar
+        let toolbar:UIToolbar = UIToolbar(frame: CGRect(x: 0, y: 0,  width: self.view.frame.size.width, height: 30))
+        let flexSpace = UIBarButtonItem(barButtonSystemItem:  .flexibleSpace, target: nil, action: nil)
+        let doneBtn: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(buttonPressed))
+        doneBtn.tag = 2
+        toolbar.setItems([flexSpace, doneBtn], animated: false)
+        toolbar.sizeToFit()
+        self.usernameTextField.inputAccessoryView = toolbar
+        self.commentTextView.inputAccessoryView = toolbar
 
         // button for the profile image
         buttonContainer.addSubview(symbolButton)
@@ -145,6 +224,7 @@ class ProfileViewController: UIViewController {
         commentTextView.translatesAutoresizingMaskIntoConstraints = false
         commentTextView.heightAnchor.constraint(equalToConstant: 150).isActive = true
     }
+
     
     @objc func buttonPressed(sender: UIButton!) {
         switch sender.tag {
@@ -172,9 +252,74 @@ class ProfileViewController: UIViewController {
                 let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
                 ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
             })
+        case 2:
+            view.endEditing(true)
+            
+            if let text = usernameTextField.text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty{
+                let profile = Profile(context: self.context)
+                
+                profile.username = usernameTextField.text ?? ""
+                
+                if let imageName = imageName {
+                    profile.image = imageName
+                }
+                
+                if let comment = commentTextView.text {
+                    profile.aboutme = comment
+                }
+                
+                self.saveContext()
+                
+                self.showSpinner(container: self.scrollView)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    _ = self.navigationController?.popViewController(animated: true)
+                    self.removeSpinner()
+                }
+                
+            } else {
+                let ac = UIAlertController(title: "Username cannot be empty", message: nil, preferredStyle: .alert)
+                ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+
+                if let popoverController = ac.popoverPresentationController {
+                    popoverController.sourceView = self.view
+                    popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                    popoverController.permittedArrowDirections = []
+                }
+                
+                present(ac, animated: true, completion: {() -> Void in
+                    let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
+                    ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
+                })
+            }
+
         default:
             print("default")
         }
+    }
+    
+    @objc func keyboardWillHide() {
+        self.view.frame.origin.y = 0
+    }
+
+    @objc func keyboardWillChange(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            if commentTextView.isFirstResponder {
+                let difference = keyboardSize.height - commentTextView.frame.origin.y + commentTextView.frame.size.height
+                self.view.frame.origin.y = -difference
+//                self.view.frame.origin.y = -keyboardSize.height
+            }
+        }
+    }
+    
+    func initializeHideKeyboard(){
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(
+            target: self,
+            action: #selector(dismissMyKeyboard))
+        view.addGestureRecognizer(tap)
+    }
+    
+    @objc func dismissMyKeyboard(){
+        view.endEditing(true)
     }
 }
 
@@ -199,12 +344,6 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
         symbolButton.imageView?.layer.cornerRadius = (symbolButton.imageView?.frame.width)! / 2
         symbolButton.imageView?.layer.masksToBounds = true
         symbolButton.alpha = 0
-        
-        //        if image.size.width > image.size.height {
-        //            symbolButton.imageView?.contentMode = .scaleAspectFit
-        //        } else {
-        //            symbolButton.imageView?.contentMode = .scaleAspectFill
-        //        }
         
         dismiss(animated: true, completion: nil)
         
@@ -249,6 +388,7 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
 }
 
 extension UIImage{
+    // resizing the profile into a circular shape
     func resizeImageWith(newSize: CGSize) -> UIImage {
         
         let horizontalRatio = newSize.width / size.width

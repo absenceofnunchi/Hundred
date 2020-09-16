@@ -1,5 +1,5 @@
 //
-//  Metric+CoreDataClass.swift
+//  Profile+CoreDataClass.swift
 //  Hundred
 //
 //  Created by J C on 2020-09-15.
@@ -10,7 +10,7 @@
 import Foundation
 import CoreData
 
-@objc(Metric)
-public class Metric: NSManagedObject {
+@objc(Profile)
+public class Profile: NSManagedObject {
 
 }

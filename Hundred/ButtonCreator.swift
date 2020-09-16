@@ -74,13 +74,13 @@ struct ButtonCreator {
 // 22. delete the images in ios directory
 // 23. fix streak
 // 24. make things background
-// 25. modified the goal from no metrics to some metrics. But since no values are added, they won't appear on modifying the entry
-// 26. done button when coming back from existing goals
+// 25. modified the goal from no metrics to some metrics. But since no values are added, they won't appear on modifying the entry - done
+// 26. done button when coming back from existing goals - done
 // 27. dark mode
-// 28. multiple photos
+// 28. multiple photos - done
 // 29. cascade delete for public cloud
 // 30. reset map address
-
+// 31. comment textview is squished for public feed when empty
 
 //Thread 1: Fatal error: Unresolved error Error Domain=NSCocoaErrorDomain Code=134060 "A Core Data error occurred." UserInfo={NSLocalizedFailureReason=CloudKit integration requires that the value transformers for transformable attributes are available via +[NSValueTransformer valueTransformerForName:], return instances of NSData, and allow reverse transformation:
 //Goal: metrics - Claims to return instances of nil}, ["NSLocalizedFailureReason": CloudKit integration requires that the value transformers for transformable
