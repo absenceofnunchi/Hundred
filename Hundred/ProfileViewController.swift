@@ -8,6 +8,11 @@
 
 import UIKit
 import AuthenticationServices
+import Network
+
+enum Keychain: String {
+    case userIdentifier
+}
 
 class ProfileViewController: UIViewController {
     @IBOutlet weak var scrollView: UIScrollView!
@@ -29,9 +34,7 @@ class ProfileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-  
-        loginPortal()
-        setConstraints()
+        getCredentials()
     }
     
     func setConstraints() {
@@ -41,6 +44,55 @@ class ProfileViewController: UIViewController {
 }
 
 extension ProfileViewController: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+    func getCredentials() {
+        // without checking for the internet access, the credential state will return .revoked or .notFound resulting in the deletion of the user identifier in Keychain
+        let monitor = NWPathMonitor()
+        let queue = DispatchQueue(label: "Monitor")
+        monitor.start(queue: queue)
+        
+        monitor.pathUpdateHandler = { path in
+            if path.status == .satisfied {
+                
+                let appleIDProvider = ASAuthorizationAppleIDProvider()
+                let currentUserIdentifier = KeychainWrapper.standard.string(forKey: Keychain.userIdentifier.rawValue)
+
+                appleIDProvider.getCredentialState(forUserID: currentUserIdentifier ?? "") { (credentialState, error) in
+                    switch credentialState {
+                    case .authorized:
+                        
+                        break // The Apple ID credential is valid.
+                    case .revoked, .notFound:
+                        // The Apple ID credential is either revoked or was not found, so show the sign-in UI.
+                        KeychainWrapper.standard.removeObject(forKey: Keychain.userIdentifier.rawValue)
+                        
+                        DispatchQueue.main.async {
+                            self.loginPortal()
+                            self.setConstraints()
+                        }
+                    default:
+                        break
+                    }
+                }
+                
+                
+                
+            } else {
+                    let ac = UIAlertController(title: "Network Error", message: "You're currently not connected to the Internet. This section requires an Internet access.", preferredStyle: .alert)
+                ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { action in
+                    _ = self.navigationController?.popViewController(animated: true)
+                }))
+            
+                    if let popoverController = ac.popoverPresentationController {
+                        popoverController.sourceView = self.view
+                        popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                        popoverController.permittedArrowDirections = []
+                    }
+            
+                self.present(ac, animated: true)
+            }
+        }
+    }
+    
     func loginPortal() {
         authorizationButton = ASAuthorizationAppleIDButton()
         authorizationButton.addTarget(self, action: #selector(handleAuthorizationAppleIDButtonPress), for: .touchUpInside)
@@ -51,7 +103,6 @@ extension ProfileViewController: ASAuthorizationControllerDelegate, ASAuthorizat
         let appleIDProvider = ASAuthorizationAppleIDProvider()
         let request = appleIDProvider.createRequest()
         request.requestedScopes = [.fullName, .email]
-        let requestPasswrdProviderID = ASAuthorizationPasswordProvider().createRequest()
         
         let authorizationController = ASAuthorizationController(authorizationRequests: [request])
         authorizationController.delegate = self
@@ -72,7 +123,7 @@ extension ProfileViewController: ASAuthorizationControllerDelegate, ASAuthorizat
             let fullName = appleIDCredential.fullName
             let email = appleIDCredential.email
             
-            KeychainWrapper.standard.set(userIdentifier, forKey: "userIdentifier")
+            KeychainWrapper.standard.set(userIdentifier, forKey: Keychain.userIdentifier.rawValue)
             print("fullName: \(fullName)")
             print("email: \(email)")
         
@@ -81,14 +132,29 @@ extension ProfileViewController: ASAuthorizationControllerDelegate, ASAuthorizat
             // Sign in using an existing iCloud Keychain credential.
             let username = passwordCredential.user
             let password = passwordCredential.password
-
+            print("username: \(username)")
+            print("password: \(password)")
             // For the purpose of this demo app, show the password credential as an alert.
 //            DispatchQueue.main.async {
-//                self.showPasswordCredentialAlert(username: username, password: password)
+//
 //            }
             
         default:
             break
         }
+    }
+    
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+//        let ac = UIAlertController(title: "Authorization Error", message: "The authorization attempt with your Apple ID credential has failed. Please try again.", preferredStyle: .alert)
+//        ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+//
+//        if let popoverController = ac.popoverPresentationController {
+//            popoverController.sourceView = self.view
+//            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+//            popoverController.permittedArrowDirections = []
+//        }
+//
+//        present(ac, animated: true)
+        
     }
 }
