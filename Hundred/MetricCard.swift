@@ -24,6 +24,7 @@ enum MetricAnalytics: String {
     case entryCount
     case longestStreak, currentStreak
     case metricTitle
+    case username, aboutme, profileImage
 }
 
 struct MetricCard {

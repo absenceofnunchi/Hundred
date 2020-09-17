@@ -16,6 +16,8 @@
 		491F5A7C24E458FA0075EDCD /* DetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 491F5A7B24E458FA0075EDCD /* DetailTableViewController.swift */; };
 		4926509124FF25AF001AA5A3 /* MainDataImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4926509024FF25AF001AA5A3 /* MainDataImporter.swift */; };
 		493FF0EF250AABA10085EB42 /* MetricCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493FF0EE250AABA10085EB42 /* MetricCard.swift */; };
+		494C424C2513DC3600CD0C34 /* KeychainItemAccessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494C424B2513DC3600CD0C34 /* KeychainItemAccessibility.swift */; };
+		494C424E2513DCB200CD0C34 /* KeychainWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494C424D2513DCB200CD0C34 /* KeychainWrapper.swift */; };
 		494F0C2A24D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */; };
 		494F0C2C24D7246A00C5450C /* ManagedObjectContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */; };
 		496149CC25007DAF00C5A23B /* BarChartAxisFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 496149CB25007DAE00C5A23B /* BarChartAxisFormatter.swift */; };
@@ -69,6 +71,8 @@
 		491F5A7B24E458FA0075EDCD /* DetailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailTableViewController.swift; sourceTree = "<group>"; };
 		4926509024FF25AF001AA5A3 /* MainDataImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainDataImporter.swift; sourceTree = "<group>"; };
 		493FF0EE250AABA10085EB42 /* MetricCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricCard.swift; sourceTree = "<group>"; };
+		494C424B2513DC3600CD0C34 /* KeychainItemAccessibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainItemAccessibility.swift; sourceTree = "<group>"; };
+		494C424D2513DCB200CD0C34 /* KeychainWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainWrapper.swift; sourceTree = "<group>"; };
 		494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistingGoalsMenuTableViewController.swift; sourceTree = "<group>"; };
 		494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedObjectContext.swift; sourceTree = "<group>"; };
 		496149CB25007DAE00C5A23B /* BarChartAxisFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarChartAxisFormatter.swift; sourceTree = "<group>"; };
@@ -89,6 +93,7 @@
 		4996BD5524D485CB00E301B4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4996BD5B24D48B0700E301B4 /* GoalsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsTableViewController.swift; sourceTree = "<group>"; };
 		499E8B2E24F0CC1700C829C8 /* EditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewController.swift; sourceTree = "<group>"; };
+		49A0B96C2512D0D40032DA41 /* HundredDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HundredDebug.entitlements; sourceTree = "<group>"; };
 		49B328FD24E3269F00D9E8D4 /* DataImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataImporter.swift; sourceTree = "<group>"; };
 		49C70D6825016923000BC383 /* MyAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyAnnotation.swift; sourceTree = "<group>"; };
 		49C70D6A25016B02000BC383 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
@@ -146,6 +151,8 @@
 			children = (
 				49026F9124DB423900724369 /* Constraints.swift */,
 				49DB512924EC453B00857634 /* Extensions-Style.swift */,
+				494C424D2513DCB200CD0C34 /* KeychainWrapper.swift */,
+				494C424B2513DC3600CD0C34 /* KeychainItemAccessibility.swift */,
 			);
 			path = "Extensions-Utilities";
 			sourceTree = "<group>";
@@ -184,6 +191,7 @@
 		4996BD4324D485C900E301B4 /* Hundred */ = {
 			isa = PBXGroup;
 			children = (
+				49A0B96C2512D0D40032DA41 /* HundredDebug.entitlements */,
 				49ED332925118B4B006FE080 /* Progress+CoreDataClass.swift */,
 				49ED332A25118B4B006FE080 /* Progress+CoreDataProperties.swift */,
 				49ED332B25118B4B006FE080 /* Metric+CoreDataClass.swift */,
@@ -364,6 +372,7 @@
 				49ED333125118B4B006FE080 /* Progress+CoreDataClass.swift in Sources */,
 				49C70D7125018D12000BC383 /* MyAnnotationView.swift in Sources */,
 				49C70D6D25016BF1000BC383 /* MapViewController.swift in Sources */,
+				494C424C2513DC3600CD0C34 /* KeychainItemAccessibility.swift in Sources */,
 				491A6622250997B200B659CB /* UserCell.swift in Sources */,
 				4996BD5C24D48B0700E301B4 /* GoalsTableViewController.swift in Sources */,
 				498AC32724FD520D003FDBF2 /* BaseViewController.swift in Sources */,
@@ -399,6 +408,7 @@
 				49DB512A24EC453B00857634 /* Extensions-Style.swift in Sources */,
 				49ED333625118B4B006FE080 /* Profile+CoreDataProperties.swift in Sources */,
 				49DB512C24ECAA6500857634 /* ButtonCreator.swift in Sources */,
+				494C424E2513DCB200CD0C34 /* KeychainWrapper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -545,7 +555,7 @@
 			baseConfigurationReference = A27ACB2AB86EC0276A9D5E1C /* Pods-Hundred.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = Hundred/Hundred.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Hundred/HundredDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 2RH2V33K5A;
 				INFOPLIST_FILE = Hundred/Info.plist;

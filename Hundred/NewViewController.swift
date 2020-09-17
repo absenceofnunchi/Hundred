@@ -550,13 +550,20 @@ class NewViewController: UIViewController {
     
     @objc func switchValueDidChange(sender: UISwitch!) {
         if sender.isOn {
-            isPublic = true
-//            if isICloudContainerAvailable() {
-//                print("logged in")
-//            } else {
-//                isPublic = false
-//                switchControl.setOn(false, animated: false)
-//            }
+            if isICloudContainerAvailable() {
+                if (fetchProfileInfo()?.first) != nil {
+                    isPublic = true
+                } else {
+                    isPublic = false
+                    switchControl.setOn(false, animated: false)
+                    
+                    alertForUsername()
+                }
+                isPublic = true
+            } else {
+                isPublic = false
+                switchControl.setOn(false, animated: false)
+            }
         } else{
             isPublic = false
         }
@@ -679,6 +686,8 @@ class NewViewController: UIViewController {
             }
             
         case 4:
+            // create a new goal or a progress post
+            
             // extract each metric unit/value to metricDict
             var metricDict: [String: String] = [:]
             for metricPair in metricStackView.arrangedSubviews {
@@ -803,8 +812,10 @@ class NewViewController: UIViewController {
                         
                         goal.progress.insert(progress)
                         
-                        // public cloud database
-                        publicCloudSave(title: goal.title, comment: commentTextView.text, metricDict: metricDict, isNew: true, fetchedGoal: nil)
+                        if isPublic {
+                            // public cloud database
+                            publicCloudSave(title: goal.title, comment: commentTextView.text, metricDict: metricDict, isNew: true, fetchedGoal: nil)
+                        }
                         
                         // Core Spotlight indexing
                         let attributeSet = CSSearchableItemAttributeSet(itemContentType: kUTTypeText as String)
@@ -873,8 +884,10 @@ class NewViewController: UIViewController {
                         
                         goalFromCoreData.lastUpdatedDate = Date()
                         
-                        // public cloud database
-                        publicCloudSave(title: goalFromCoreData.title, comment: commentTextView.text, metricDict: metricDict, isNew: false, fetchedGoal: goalFromCoreData)
+                        if isPublic {
+                            // public cloud database
+                            publicCloudSave(title: goalFromCoreData.title, comment: commentTextView.text, metricDict: metricDict, isNew: false, fetchedGoal: goalFromCoreData)
+                        }
                         
                     } else {
                         print("goal's in the existing list, but doesn't fetch")
@@ -1094,6 +1107,27 @@ class NewViewController: UIViewController {
         
         //        let vc = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? DetailTableViewController
     }
+    
+    func alertForUsername() {
+        let ac = UIAlertController(title: "No username", message: "A username is needed to post publicly. Would you like to create one?", preferredStyle: .alert)
+        ac.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
+            if let vc = self.storyboard?.instantiateViewController(identifier: "Profile") as? ProfileViewController {
+                DispatchQueue.main.async {
+                    self.navigationController?.pushViewController(vc, animated: true)
+                }
+            }
+        }))
+        
+        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
+        if let popoverController = ac.popoverPresentationController {
+            popoverController.sourceView = self.view
+            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+            popoverController.permittedArrowDirections = []
+        }
+        
+        present(ac, animated: true)
+    }
 }
 
 extension NewViewController: UITextViewDelegate, UITextFieldDelegate {
@@ -1173,19 +1207,31 @@ extension NewViewController: HandleLocation {
     }
 }
 
-
 extension NewViewController {
     func publicCloudSave(title: String, comment: String, metricDict: [String: String], isNew: Bool, fetchedGoal: Goal?) {
+        guard isICloudContainerAvailable() == true else { return }
+        guard let fetchedProfile = fetchProfileInfo()?.first else {
+            alertForUsername()
+            return
+        }
+        
         // public cloud database
         let progressRecord = CKRecord(recordType: MetricAnalytics.Progress.rawValue)
         progressRecord[MetricAnalytics.goal.rawValue] = title as CKRecordValue
         progressRecord[MetricAnalytics.comment.rawValue] = comment as CKRecordValue
         
+        // profile
+        progressRecord[MetricAnalytics.username.rawValue] = fetchedProfile.username
+        progressRecord[MetricAnalytics.profileImage.rawValue] = fetchedProfile.image
+        progressRecord[MetricAnalytics.aboutme.rawValue] = fetchedProfile.aboutme
+        
+        // analytics
         progressRecord[MetricAnalytics.longitude.rawValue] = location?.longitude
         progressRecord[MetricAnalytics.latitude.rawValue] = location?.latitude
         
         try? progressRecord.encode(metricDict, forKey: MetricAnalytics.metrics.rawValue)
         progressRecord[MetricAnalytics.date.rawValue] = Date()
+        
         
         if let imagePath = imagePath {
             progressRecord[MetricAnalytics.image.rawValue] = CKAsset(fileURL: imagePath)
