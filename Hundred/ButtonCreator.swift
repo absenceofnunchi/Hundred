@@ -81,7 +81,10 @@ struct ButtonCreator {
 // 29. cascade delete for public cloud
 // 30. reset map address
 // 31. comment textview is squished for public feed when empty
-// 32. FAQ page
+// 32. FAQ page (signout, after 100, heatmap vs. bar chart unit)
+// 33. fetching more than the batch size
+// 34. reupload icloud when fails
+// 35. section error when deleted from usersvc
 
 //Thread 1: Fatal error: Unresolved error Error Domain=NSCocoaErrorDomain Code=134060 "A Core Data error occurred." UserInfo={NSLocalizedFailureReason=CloudKit integration requires that the value transformers for transformable attributes are available via +[NSValueTransformer valueTransformerForName:], return instances of NSData, and allow reverse transformation:
 //Goal: metrics - Claims to return instances of nil}, ["NSLocalizedFailureReason": CloudKit integration requires that the value transformers for transformable

@@ -18,9 +18,7 @@ extension Profile {
     }
 
     @NSManaged public var username: String
-    @NSManaged public var image: String?
-    @NSManaged public var aboutme: String?
-
+    @NSManaged public var email: String
 }
 
 extension Profile : Identifiable {

@@ -31,7 +31,6 @@ class UserCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
     func configureUI(outerContainerView: UIView, containerView: UIView) {
         addSubview(outerContainerView)
         BorderStyle.customShadowBorder(for: outerContainerView)
@@ -78,13 +77,17 @@ class UserCell: UITableViewCell {
         let outerContainerView = UIView()
         // excludes the image
         let containerView = UIStackView()
+        containerView.axis = .vertical
+        containerView.spacing = 20
         let metricCard = MetricCard()
         
         configureUI(outerContainerView: outerContainerView, containerView: containerView)
         setConstraints(outerContainerView: outerContainerView, containerView: containerView)
         
         let title = user.object(forKey: MetricAnalytics.goal.rawValue) as? String
-        let comment = user.object(forKey: "comment") as? String
+        let date = user.object(forKey: MetricAnalytics.date.rawValue) as? Date
+        let username = user.object(forKey: MetricAnalytics.username.rawValue) as? String
+        let comment = user.object(forKey: MetricAnalytics.comment.rawValue) as? String
         let entryCount = user.object(forKey: MetricAnalytics.entryCount.rawValue) as? Int
         // today's metric/value pair, not the analytics
         let metricsDict = try? user.decode(forKey: MetricAnalytics.metrics.rawValue) as [String: String]
@@ -95,12 +98,30 @@ class UserCell: UITableViewCell {
         let titleLabelTheme = UILabelTheme(font: UIFont.body.with(weight: .bold), color: UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0), lineBreakMode: .byTruncatingTail, textAlignment: .left)
         let titleLabel = UILabel(theme: titleLabelTheme, text: title ?? "")
         
-        containerView.axis = .vertical
-        containerView.spacing = 20
-        
         containerView.addArrangedSubview(titleLabel)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        // date
+        if let date = date {
+            let dateLabelTheme = UILabelTheme(font: UIFont.caption.with(weight: .regular), color: .gray, lineBreakMode: .byTruncatingTail, textAlignment: .right)
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMM d y"
+            let dateLabel = UILabel(theme: dateLabelTheme, text: dateFormatter.string(from: date))
+            containerView.addArrangedSubview(dateLabel)
+            dateLabel.translatesAutoresizingMaskIntoConstraints = false
+            dateLabel.heightAnchor.constraint(equalToConstant: 10).isActive = true
+            containerView.setCustomSpacing(0, after: dateLabel)
+        }
+
+        // username
+        if let username = username {
+            let usernameLabelTheme = UILabelTheme(font: UIFont.caption, color: .darkGray, lineBreakMode: .byTruncatingTail, textAlignment: .right)
+            let usernameLabel = UILabel(theme: usernameLabelTheme, text: username)
+            containerView.addArrangedSubview(usernameLabel)
+            usernameLabel.translatesAutoresizingMaskIntoConstraints = false
+            usernameLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        }
         
         // comment
         let commentLabel = CustomLabel()
@@ -183,21 +204,14 @@ class UserCell: UITableViewCell {
         currentMetricsContainer.translatesAutoresizingMaskIntoConstraints = false
         currentMetricsContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: 150).isActive = true
         
-        let subTitleLabel = CustomLabel()
-        subTitleLabel.text = "Today's Metrics"
-        subTitleLabel.textColor = UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0)
-        subTitleLabel.font = UIFont.preferredFont(forTextStyle: .caption1)
-        subTitleLabel.textAlignment = .left
-        
-        currentMetricsContainer.addArrangedSubview(subTitleLabel)
-        
-//        subTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-//        subTitleLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        //        subTitleLabel.widthAnchor.constraint(equalTo: currentMetricsContainer.widthAnchor, multiplier: 0.9).isActive = true
-        //        subTitleLabel.centerXAnchor.constraint(equalTo: currentMetricsContainer.centerXAnchor).isActive = true
-        //        subTitleLabel.topAnchor.constraint(equalTo: currentMetricsContainer.topAnchor, constant: 10).isActive = true
-        
-        if let metricsDict = metricsDict {
+        if let metricsDict = metricsDict, !metricsDict.isEmpty {
+            let subTitleLabel = CustomLabel()
+            subTitleLabel.text = "Today's Metrics"
+            subTitleLabel.textColor = UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0)
+            subTitleLabel.font = UIFont.preferredFont(forTextStyle: .caption1)
+            subTitleLabel.textAlignment = .left
+            
+            currentMetricsContainer.addArrangedSubview(subTitleLabel)
 //            let metricsDictt = ["lbs": "23", "km": "223", "kg": "30", "jik": "209", "dkj": "2090"]
             for currentMetricPair in metricsDict {
                 let pairContainer = UIView()
@@ -237,47 +251,18 @@ class UserCell: UITableViewCell {
                 currentMetricValue.widthAnchor.constraint(greaterThanOrEqualTo: pairContainer.widthAnchor, multiplier: 0.45).isActive = true
                 currentMetricValue.heightAnchor.constraint(equalToConstant: 30).isActive = true
             }
+        } else {
+            let subTitleLabel = CustomLabel()
+            subTitleLabel.text = "No Metrics"
+            subTitleLabel.textColor = UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0)
+            subTitleLabel.font = UIFont.preferredFont(forTextStyle: .caption1)
+            subTitleLabel.textAlignment = .center
+            
+            currentMetricsContainer.addArrangedSubview(subTitleLabel)
         }
         
         containerView.addArrangedSubview(currentMetricsContainer)
-        
-        //        if let fetchedAnalytics = fetchedAnalytics {
-        //            print("fecthedAnalytics: \(fetchedAnalytics)")
-        //            for analytics in fetchedAnalytics {
-        //                let convertedAnalytics = analytics.value.mapValues { UnitConversion.stringToDecimal(string: $0) }
-        //                metricCard.displayMetrics(metricStackView: containerView, metric: analytics.key, dict: convertedAnalytics)
-        //            }
-        //        }
-        
-        //        // fetch analytics record using the user's reference
-        //        let reference = CKRecord.Reference(recordID: user.recordID, action: .deleteSelf)
-        //        let pred = NSPredicate(format: "owningProgress == %@", reference)
-        //        let query = CKQuery(recordType: MetricAnalytics.analytics.rawValue, predicate: pred)
-        //        CKContainer.default().publicCloudDatabase.perform(query, inZoneWith: nil) { results, error in
-        //            if let error = error {
-        //                print("error fetching the Analytics record: \(error.localizedDescription)")
-        //            } else {
-        //                if let results = results {
-        //                    for result in results {
-        //                        let metricTitle = result.object(forKey: MetricAnalytics.metricTitle.rawValue) as! String
-        //                        let max = result.object(forKey: MetricAnalytics.Max.rawValue) as! String
-        //                        let min = result.object(forKey: MetricAnalytics.Min.rawValue) as! String
-        //                        let average = result.object(forKey: MetricAnalytics.Average.rawValue) as! String
-        //                        let sum = result.object(forKey: MetricAnalytics.Sum.rawValue) as! String
-        //                        let dict: [String: NSDecimalNumber] = [
-        //                            MetricAnalytics.Max.rawValue: UnitConversion.stringToDecimal(string: max),
-        //                            MetricAnalytics.Min.rawValue: UnitConversion.stringToDecimal(string: min),
-        //                            MetricAnalytics.Average.rawValue: UnitConversion.stringToDecimal(string: average),
-        //                            MetricAnalytics.Sum.rawValue: UnitConversion.stringToDecimal(string: sum)
-        //                        ]
-        //
-        //                        DispatchQueue.main.async {
-        //                            metricCard.displayMetrics(metricStackView: containerView, metric: metricTitle, dict: dict)
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
+  
         
         if let imageAsset = user.object(forKey: MetricAnalytics.image.rawValue) as? CKAsset {
             metricCard.loadCoverPhoto(imageAsset: imageAsset) { (image) in

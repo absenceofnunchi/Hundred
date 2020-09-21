@@ -27,6 +27,8 @@ class UserDetailViewController: UIViewController {
     var longestStreakTitle: UILabel!
     var subTitleLabel: CustomLabel!
     var goalTitle: String?
+    var date: Date?
+    var username: String?
     var comment: String?
     var entryCount: Int?
     var metricsDict: [String: String]?
@@ -72,7 +74,9 @@ class UserDetailViewController: UIViewController {
         
         if let user = user {
             self.title = user.object(forKey: MetricAnalytics.goal.rawValue) as? String
-            comment = user.object(forKey: "comment") as? String
+            date = user.object(forKey: MetricAnalytics.date.rawValue) as? Date
+            username = user.object(forKey: MetricAnalytics.username.rawValue) as? String
+            comment = user.object(forKey: MetricAnalytics.comment.rawValue) as? String
             entryCount = user.object(forKey: MetricAnalytics.entryCount.rawValue) as? Int
             // today's metric/value pair, not the analytics
             metricsDict = try? user.decode(forKey: MetricAnalytics.metrics.rawValue) as [String: String]
@@ -80,6 +84,27 @@ class UserDetailViewController: UIViewController {
             longestStreak = user.object(forKey: MetricAnalytics.longestStreak.rawValue) as? Int
             longitude = user.object(forKey: MetricAnalytics.longitude.rawValue) as? Double
             latitude = user.object(forKey: MetricAnalytics.latitude.rawValue) as? Double
+        }
+        
+        // date
+        if let date = date {
+            let dateLabelTheme = UILabelTheme(font: UIFont.body.with(weight: .regular), color: .gray, lineBreakMode: .byTruncatingTail, textAlignment: .right)
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMM d y"
+            let dateLabel = UILabel(theme: dateLabelTheme, text: dateFormatter.string(from: date))
+            stackView.addArrangedSubview(dateLabel)
+            dateLabel.translatesAutoresizingMaskIntoConstraints = false
+            dateLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
+            stackView.setCustomSpacing(0, after: dateLabel)
+        }
+
+        // username
+        if let username = username {
+            let usernameLabelTheme = UILabelTheme(font: UIFont.body.with(weight: .bold), color: .darkGray, lineBreakMode: .byTruncatingTail, textAlignment: .right)
+            let usernameLabel = UILabel(theme: usernameLabelTheme, text: username)
+            stackView.addArrangedSubview(usernameLabel)
+            usernameLabel.translatesAutoresizingMaskIntoConstraints = false
+            usernameLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
         }
         
         // comment
@@ -134,7 +159,7 @@ class UserDetailViewController: UIViewController {
         currentMetricsContainer.translatesAutoresizingMaskIntoConstraints = false
         currentMetricsContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: 60).isActive = true
         
-        if let metricsDict = metricsDict {
+        if let metricsDict = metricsDict, !metricsDict.isEmpty {
             //            let metricsDictt = ["lbs": "23", "km": "223", "kg": "30", "jik": "209", "dkj": "2090"]
             for currentMetricPair in metricsDict {
                 let pairContainer = UIView()
@@ -174,6 +199,15 @@ class UserDetailViewController: UIViewController {
                 currentMetricValue.widthAnchor.constraint(greaterThanOrEqualTo: pairContainer.widthAnchor, multiplier: 0.45).isActive = true
                 currentMetricValue.heightAnchor.constraint(equalToConstant: 30).isActive = true
             }
+        } else {
+            let subTitleLabel = CustomLabel()
+            subTitleLabel.text = "No Metrics"
+            subTitleLabel.textColor = UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0)
+            subTitleLabel.font = UIFont.preferredFont(forTextStyle: .caption1)
+            subTitleLabel.textAlignment = .center
+            currentMetricsContainer.addArrangedSubview(subTitleLabel)
+            currentMetricsContainer.isLayoutMarginsRelativeArrangement = true
+            currentMetricsContainer.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
         }
         
         addCard(text: "Today's Metrics", subItem: currentMetricsContainer, stackView: stackView, containerHeight: 60, bottomSpacing: nil, insert: nil, tag: nil, topInset: nil, bottomInset: nil, widthMultiplier: nil, isShadowBorder: false)
@@ -237,22 +271,21 @@ class UserDetailViewController: UIViewController {
                         self.mapView.addAnnotation(annotation)
                     }
                 } else {
-                    
                     DispatchQueue.main.async {
                         annotation = MyAnnotation(title:  "", locationName: "", discipline: "", coordinate: location)
                         self.mapView.addAnnotation(annotation)
                     }
                 }
             }
+            
+            let mapContainerView = UIView()
+            BorderStyle.customShadowBorder(for: mapContainerView)
+            mapContainerView.addSubview(mapView)
+            mapView.pin(to: mapContainerView)
+            stackView.addArrangedSubview(mapContainerView)
+            mapContainerView.translatesAutoresizingMaskIntoConstraints = false
+            mapContainerView.heightAnchor.constraint(equalTo: mapContainerView.widthAnchor).isActive = true
         }
-        
-        let mapContainerView = UIView()
-        BorderStyle.customShadowBorder(for: mapContainerView)
-        mapContainerView.addSubview(mapView)
-        mapView.pin(to: mapContainerView)
-        stackView.addArrangedSubview(mapContainerView)
-        mapContainerView.translatesAutoresizingMaskIntoConstraints = false
-        mapContainerView.heightAnchor.constraint(equalTo: mapContainerView.widthAnchor).isActive = true
     }
     
     func setConstraints() {

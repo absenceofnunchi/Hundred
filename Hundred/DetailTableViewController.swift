@@ -204,6 +204,8 @@ class DetailTableViewController: UITableViewController, UIContextMenuInteraction
             }
         }
         
+        
+        
         self.context.delete(progress)
         self.progresses.remove(at: indexPath.row)
         tableView.deleteRows(at: [indexPath], with: .fade)

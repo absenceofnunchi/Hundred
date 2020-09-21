@@ -9,6 +9,8 @@
 import UIKit
 import CloudKit
 import MapKit
+import Network
+import AuthenticationServices
 
 extension UIViewController {
     
@@ -194,15 +196,6 @@ extension UIViewController {
     
     func isICloudContainerAvailable()->Bool {
         
-        CKContainer.default().accountStatus { (accountStat, error) in
-            if (accountStat == .available) {
-                print("iCloud is available")
-            }
-            else {
-                print("iCloud is not available")
-            }
-        }
-        
         CKContainer.default().accountStatus { (accountStatus, error) in
             switch accountStatus {
             case .available:
@@ -265,6 +258,70 @@ extension UIViewController {
     
     @objc func alertClose(_ alert:UIAlertController) {
         self.dismiss(animated: true, completion: nil)
+    }
+    
+    func getCredentials(completion: @escaping (Profile?) -> Void) {
+        // without checking for the internet access, the credential state will return .revoked or .notFound resulting in the deletion of the user identifier in Keychain
+        let monitor = NWPathMonitor()
+        let queue = DispatchQueue(label: "Monitor")
+        monitor.start(queue: queue)
+        monitor.pathUpdateHandler = { path in
+            if path.status == .satisfied {
+                let appleIDProvider = ASAuthorizationAppleIDProvider()
+                let currentUserIdentifier = KeychainWrapper.standard.string(forKey: Keychain.userIdentifier.rawValue)
+
+                appleIDProvider.getCredentialState(forUserID: currentUserIdentifier ?? "") { (credentialState, error) in
+                    switch credentialState {
+                    case .authorized:
+                        DispatchQueue.main.async {
+                            let request = Profile.createFetchRequest()
+                            do {
+                                let profiles = try self.context.fetch(request)
+                                print("profiles.first from extension: \(profiles.first)")
+                                completion(profiles.first)
+                            } catch {
+                                print("Fetch failed")
+                            }
+                        }
+                        monitor.cancel()
+                        break // The Apple ID credential is valid.
+                    case .revoked, .notFound:
+                        // The Apple ID credential is either revoked or was not found, so show the sign-in UI.
+                        KeychainWrapper.standard.removeObject(forKey: Keychain.userIdentifier.rawValue)
+                        DispatchQueue.main.async {
+                            let request = Profile.createFetchRequest()
+                            do {
+                                let profiles = try self.context.fetch(request)
+                                for profile in profiles {
+                                    self.context.delete(profile)
+                                }
+                            } catch {
+                                print("Fetched failed from revoked")
+                            }
+                        }
+                        monitor.cancel()
+                        completion(nil)
+                    default:
+                        monitor.cancel()
+                        break
+                    }
+                }
+            } else {
+                    let ac = UIAlertController(title: "Network Error", message: "You're currently not connected to the internet. This section requires an Internet access.", preferredStyle: .alert)
+                ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { action in
+                    _ = self.navigationController?.popViewController(animated: true)
+                }))
+
+                    if let popoverController = ac.popoverPresentationController {
+                        popoverController.sourceView = self.view
+                        popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                        popoverController.permittedArrowDirections = []
+                    }
+
+                self.present(ac, animated: true)
+                monitor.cancel()
+            }
+        }
     }
 }
 

@@ -19,6 +19,12 @@ class UsersViewController: UITableViewController {
         fetchData()
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+//        fetchData()
+
+    }
+    
     func configureUI() {
         title = "Public Feed"
         navigationItem.title = "Public Feed"
@@ -32,11 +38,6 @@ class UsersViewController: UITableViewController {
         self.view.addInteraction(inter)
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refreshFetch))
-        
-//        tableView.reloadData()
-//        tableView.setNeedsLayout()
-//        tableView.layoutIfNeeded()
-//        tableView.reloadData()
     }
     
     func fetchData() {
@@ -49,17 +50,13 @@ class UsersViewController: UITableViewController {
         configuration.qualityOfService = .userInitiated
         
         let queryOperation = CKQueryOperation(query: query)
-        queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image", "longitude", "latitude"]
+        queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image", "longitude", "latitude", "username", "email"]
         queryOperation.queuePriority = .veryHigh
         queryOperation.configuration = configuration
         queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
             if let record = record {
                 DispatchQueue.main.async {
                     self.users.append(record)
-                    self.tableView.reloadData()
-//                    self.tableView.layoutIfNeeded()
-//                    self.tableView.beginUpdates()
-//                    self.tableView.endUpdates()
                 }
             }
         }
@@ -73,7 +70,15 @@ class UsersViewController: UITableViewController {
             if let cursor = cursor {
                 print("cursor: \(cursor)")
             }
+                        
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
         }
+   
+//                    self.tableView.layoutIfNeeded()
+//                    self.tableView.beginUpdates()
+//                    self.tableView.endUpdates()
         
         publicDatabase.add(queryOperation)
     }
@@ -94,28 +99,39 @@ extension UsersViewController: UIContextMenuInteractionDelegate {
         return cell
     }
     
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            let user = users[indexPath.row]
-            
-            if let index = users.firstIndex(of: user) {
-                users.remove(at: index)
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
-            }
-        }
-    }
+//    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+//        if editingStyle == .delete {
+//            let user = users[indexPath.row]
+//            if let index = users.firstIndex(of: user) {
+//                users.remove(at: index)
+//                DispatchQueue.main.async {
+//                    self.tableView.reloadData()
+//                }
+//            }
+//        }
+//    }
     
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+
         let user = self.users[indexPath.row]
-        
-        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { (contextualAction, view, boolValue) in
-            self.deleteAction(user: user)
+        var configArr: [UIContextualAction] = []
+        if user.wasCreatedByThisUser {
+            let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { (contextualAction, view, boolValue) in
+                self.deleteAction(user: user)
+                
+                if let index = self.users.firstIndex(of: user) {
+                    self.users.remove(at: index)
+                    DispatchQueue.main.async {
+                        self.tableView.reloadData()
+                    }
+                }
+            }
+            deleteAction.backgroundColor = .red
+            configArr.append(deleteAction)
         }
-        deleteAction.backgroundColor = .red
+
         
-        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
+        let configuration = UISwipeActionsConfiguration(actions: configArr)
         return configuration
     }
     
@@ -172,7 +188,7 @@ extension UsersViewController: UIContextMenuInteractionDelegate {
         self.users.removeAll()
         fetchData()
         self.navigationItem.rightBarButtonItem?.isEnabled = false
-        Timer.scheduledTimer(withTimeInterval: 7, repeats: false) { (_) in
+        Timer.scheduledTimer(withTimeInterval: 5, repeats: false) { (_) in
             self.navigationItem.rightBarButtonItem?.isEnabled = true
         }
     }
@@ -189,5 +205,11 @@ extension UINavigationController {
         }
 
         coordinator.animate(alongsideTransition: nil) { _ in completion() }
+    }
+}
+
+extension CKRecord{
+    var wasCreatedByThisUser: Bool{
+        return (creatorUserRecordID == nil) || (creatorUserRecordID?.recordName == "__defaultOwner__")
     }
 }

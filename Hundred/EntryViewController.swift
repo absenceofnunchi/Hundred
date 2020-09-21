@@ -145,7 +145,6 @@ class EntryViewController: UIViewController, ChartViewDelegate {
         title = progress.goal.title
         
         scrollView.addSubview(imageView)
-        
         stackView.addArrangedSubview(dateLabel)
         stackView.setCustomSpacing(30, after: dateLabel)
         addCard(text: "Comment", subItem: commentLabel, stackView: stackView, containerHeight: 40, isShadowBorder: true)
