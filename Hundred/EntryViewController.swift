@@ -139,6 +139,8 @@ class EntryViewController: UIViewController, ChartViewDelegate {
         
         configureUI()
         setConstraints()
+        
+        print("progress.recordName: -------------------- \(progress.recordName)")
     }
     
     func configureUI() {
@@ -308,7 +310,6 @@ class EntryViewController: UIViewController, ChartViewDelegate {
     var metricsArr: [Metric] = []
     
     func loadMetricsData() -> LineChartData {
-//        let metricsRequest = Metric.createFetchRequest()
         let metricsRequest = NSFetchRequest<Metric>(entityName: "Metric")
         metricsRequest.predicate = NSPredicate(format: "metricToGoal.title == %@", progress.goal.title)
         let sort = NSSortDescriptor(key: "date", ascending: true)
@@ -403,63 +404,20 @@ class EntryViewController: UIViewController, ChartViewDelegate {
         }
     }
     
-    func deleteEntry() {
-        // deindex from Core Spotlight
-        CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: ["\(self.progress.id)"]) { (error) in
-            if let error = error {
-                print("Deindexing error: \(error.localizedDescription)")
-            } else {
-                print("Search item successfully deindexed")
-            }
-        }
-        
-        self.deletePlist(progress: self.progress)
-        self.context.delete(self.progress)
-        self.saveContext()
-        
-        if let mainVC = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
-            let dataImporter = DataImporter(goalTitle: nil)
-            mainVC.data = dataImporter.loadData(goalTitle: nil)
-            
-            let mainDataImporter = MainDataImporter()
-            mainVC.goals = mainDataImporter.loadData()
-        }
-        
-        self.tabBarController?.selectedIndex = 1
-        
-        //        if let indexPathRow = self.indexPathRow {
-        //            if let vc = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? DetailTableViewController {
-        //                vc.progresses.remove(at: indexPathRow)
-        //                vc.tableView.deleteRows(at: [self.indexPath], with: .fade)
-        //                _ = self.navigationController?.popViewController(animated: true)
-        //            }
-        //        }
-    }
+
     
-    func deletePlist(progress: Progress) {
-        let formattedDate = self.dateForPlist(date: progress.date)
-        if let url = self.pListURL() {
-            if FileManager.default.fileExists(atPath: url.path) {
-                do {
-                    let dataContent = try Data(contentsOf: url)
-                    if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
-                        if var count = dict[progress.goal.title]?[formattedDate] {
-                            if count > 0 {
-                                count -= 1
-                                dict[progress.goal.title]?[formattedDate] = count
-                                self.write(dictionary: dict)
-                                if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
-                                    let dataImporter = DataImporter(goalTitle: nil)
-                                    mainVC.data = dataImporter.loadData(goalTitle: nil)
-                                }
-                            }
-                        }
-                    }
-                } catch {
-                    print("error :\(error.localizedDescription)")
-                }
-            }
-        }
+    func deleteEntry() {
+        deleteSingleItem(progress: self.progress)
+        
+        self.navigationController?.popToRootViewController(animated: true)
+        
+//                if let indexPathRow = self.indexPathRow {
+//                    if let vc = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? DetailTableViewController {
+//                        vc.progresses.remove(at: indexPathRow)
+//                        vc.tableView.deleteRows(at: [self.indexPath], with: .fade)
+//                        _ = self.navigationController?.popViewController(animated: true)
+//                    }
+//                }
     }
 }
 

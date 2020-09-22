@@ -809,11 +809,12 @@ class NewViewController: UIViewController {
                             goal.goalToMetric.insert(singleEntry)
                         }
                         
-                        goal.progress.insert(progress)
-                        
                         if isPublic {
                             // public cloud database
-                            publicCloudSave(goal: goal, comment: commentTextView.text, metricDict: metricDict, isNew: true)
+                            publicCloudSave(goal: goal, progress: progress, comment: commentTextView.text, metricDict: metricDict, isNew: true)
+                        } else {
+                            goal.progress.insert(progress)
+                            self.saveContext()
                         }
                         
                         // Core Spotlight indexing
@@ -854,9 +855,6 @@ class NewViewController: UIViewController {
                             goalFromCoreData.goalToMetric.insert(singleEntry)
                         }
                         
-                        // progress
-                        goalFromCoreData.progress.insert(progress)
-                        
                         // streak
                         if let lastUpdatedDate =  goalFromCoreData.lastUpdatedDate {
                             let deadline = dayVariance(date: lastUpdatedDate, value: 1)
@@ -885,7 +883,11 @@ class NewViewController: UIViewController {
                         
                         if isPublic {
                             // public cloud database
-                            publicCloudSave(goal: goalFromCoreData, comment: commentTextView.text, metricDict: metricDict, isNew: false)
+                            publicCloudSave(goal: goalFromCoreData, progress: progress, comment: commentTextView.text, metricDict: metricDict, isNew: false)
+                        } else {
+                            // progress
+                            goalFromCoreData.progress.insert(progress)
+                            self.saveContext()
                         }
                         
                     } else {
@@ -905,7 +907,6 @@ class NewViewController: UIViewController {
                 }
             }
             
-            self.saveContext()
             savePList()
             
             imagePathString = nil
@@ -1108,27 +1109,6 @@ class NewViewController: UIViewController {
         //        let vc = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? DetailTableViewController
     }
     
-    func alertForUsername() {
-        let ac = UIAlertController(title: "No username", message: "A username is needed to post publicly. Would you like to create one?", preferredStyle: .alert)
-        ac.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
-            if let vc = self.storyboard?.instantiateViewController(identifier: "Profile") as? ProfileViewController {
-                DispatchQueue.main.async {
-                    self.navigationController?.pushViewController(vc, animated: true)
-                }
-            }
-        }))
-        
-        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        
-        if let popoverController = ac.popoverPresentationController {
-            popoverController.sourceView = self.view
-            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-            popoverController.permittedArrowDirections = []
-        }
-        
-        present(ac, animated: true)
-    }
-    
     func fetchProfileInfo() -> [Profile] {
         let request = Profile.createFetchRequest()
         var profiles: [Profile] = []
@@ -1220,7 +1200,7 @@ extension NewViewController: HandleLocation {
 }
 
 extension NewViewController {
-    func publicCloudSave(goal: Goal, comment: String, metricDict: [String: String], isNew: Bool) {
+    func publicCloudSave(goal: Goal, progress: Progress, comment: String, metricDict: [String: String], isNew: Bool) {
         guard isICloudContainerAvailable() == true else {
             switchControl.setOn(false, animated: true)
             return
@@ -1259,6 +1239,10 @@ extension NewViewController {
                 progressRecord[MetricAnalytics.longestStreak.rawValue] = goal.longestStreak
                 progressRecord[MetricAnalytics.currentStreak.rawValue] = goal.streak
                 
+                progress.recordName = progressRecord.recordID.recordName
+                goal.progress.insert(progress)
+                self.saveContext()
+                
                 let publicCloudDatabase = CKContainer.default().publicCloudDatabase
                 publicCloudDatabase.save(progressRecord) { (record, error) in
                     if let error = error {
@@ -1267,6 +1251,9 @@ extension NewViewController {
                     }
                     print("Sucessfully uploaded to Public Cloud DB==================================================== \(record)")
                     if let record = record {
+//                        print("record: -------------------- \(record)")
+//                        print("recordID: \(record.recordID)")
+//                        print("recordName: \(record.recordID.recordName)")
                         
                         var recordsArr: [CKRecord] = []
                         
@@ -1285,65 +1272,32 @@ extension NewViewController {
                         } else {
                             if let metrics = goal.metrics {
                                 for metric in metrics {
-                                    if let dict = MetricCard.getAnalytics(metric: metric) {
-                                        let convertedDict = dict.mapValues { UnitConversion.decimalToString(decimalNumber: $0)}
-                                        let analyticsRecord = CKRecord(recordType: MetricAnalytics.analytics.rawValue)
-                                        let reference = CKRecord.Reference(recordID: record.recordID, action: .deleteSelf)
-                                        analyticsRecord["owningProgress"] = reference as CKRecordValue
-                                        analyticsRecord[MetricAnalytics.metricTitle.rawValue] = metric
-                                        analyticsRecord[MetricAnalytics.Min.rawValue] = convertedDict[MetricAnalytics.Min.rawValue]
-                                        analyticsRecord[MetricAnalytics.Max.rawValue] = convertedDict[MetricAnalytics.Max.rawValue]
-                                        analyticsRecord[MetricAnalytics.Average.rawValue] = convertedDict[MetricAnalytics.Average.rawValue]
-                                        analyticsRecord[MetricAnalytics.Sum.rawValue] = convertedDict[MetricAnalytics.Sum.rawValue]
-                                        recordsArr.append(analyticsRecord)
+                                    DispatchQueue.main.async {
+                                        if let dict = MetricCard.getAnalytics(metric: metric) {
+                                            let convertedDict = dict.mapValues { UnitConversion.decimalToString(decimalNumber: $0)}
+                                            let analyticsRecord = CKRecord(recordType: MetricAnalytics.analytics.rawValue)
+                                            let reference = CKRecord.Reference(recordID: record.recordID, action: .deleteSelf)
+                                            analyticsRecord["owningProgress"] = reference as CKRecordValue
+                                            analyticsRecord[MetricAnalytics.metricTitle.rawValue] = metric
+                                            analyticsRecord[MetricAnalytics.Min.rawValue] = convertedDict[MetricAnalytics.Min.rawValue]
+                                            analyticsRecord[MetricAnalytics.Max.rawValue] = convertedDict[MetricAnalytics.Max.rawValue]
+                                            analyticsRecord[MetricAnalytics.Average.rawValue] = convertedDict[MetricAnalytics.Average.rawValue]
+                                            analyticsRecord[MetricAnalytics.Sum.rawValue] = convertedDict[MetricAnalytics.Sum.rawValue]
+                                            recordsArr.append(analyticsRecord)
+                                        }
                                     }
                                 }
                             }
                         }
                         
-                        let operation = CKModifyRecordsOperation(recordsToSave: recordsArr, recordIDsToDelete: nil)
-                        let operationConfiguration = CKOperation.Configuration()
-                        
-                        operationConfiguration.allowsCellularAccess = true
-                        operationConfiguration.qualityOfService = .userInitiated
-                        operation.configuration = operationConfiguration
-                        
-                        operation.perRecordProgressBlock = {(record, progress) in
-                            print("perRecordProgressBlock: \(progress)")
-                        }
-                        
-                        operation.perRecordCompletionBlock = {(record, error) in
-                            print("Upload complete")
-                            print("perRecordCompletionBlock error: \(error)")
-                        }
-                        
-                        operation.modifyRecordsCompletionBlock = { (savedRecords, deletedRecordIDs, error) in
-                            print("savedRecords: \(savedRecords)")
-                            print("deletedRecordIDs: \(deletedRecordIDs)")
-                            print("modifyRecordsCompletionBlock error: \(error)")
-                        }
-                        
-                        publicCloudDatabase.add(operation)
-                        //                publicCloudDatabase.save(progressRecord) { record, error in
-                        //                    if let error = error {
-                        //                        print("analytics save error======================================================: \(error)")
-                        //                    } else {
-                        //                        print("Sucessfully uploaded the analytics record====================================================")
-                        //                    }
-                        //                }
-                        //                publicCloudDatabase.save(analyticsRecord) { (record, error) in
-                        //                    if let error = error {
-                        //                        print("saving analytics record error: \(error)")
-                        //                        return
-                        //                    }
-                        //
-                        //                    print("Successfully uploaded to analytics record")
-                        //                }
+                        self.modifyRecords(recordsToSave: recordsArr, recordIDsToDelete: nil)
                     }
                 }
             } else {
-                self.switchControl.setOn(false, animated: true)
-                self.alertForUsername()
+                DispatchQueue.main.async {
+                    self.switchControl.setOn(false, animated: true)
+                    self.alertForUsername()
+                }
             }
         }
     }

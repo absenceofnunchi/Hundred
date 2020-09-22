@@ -122,7 +122,9 @@ class EditViewController: UIViewController {
         dButton.layer.cornerRadius = 0
         dButton.backgroundColor = .systemYellow
         dButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .body)
-        dButton.frame = CGRect(x: 0, y: view.frame.size.height - 50, width: view.frame.size.width, height: 50)
+        if let tabBarHeight = tabBarController?.tabBar.frame.size.height {
+            dButton.frame = CGRect(x: 0, y: view.frame.size.height - CGFloat(tabBarHeight + 50), width: view.frame.size.width, height: 50)
+        }
         dButton.tag = 3
         dButton.addTarget(self, action: #selector(buttonPressed) , for: .touchUpInside)
         return dButton
@@ -146,18 +148,18 @@ class EditViewController: UIViewController {
         navigationController?.delegate = self
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        tabBarController?.tabBar.isHidden = true
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        tabBarController?.tabBar.isHidden = false
-    }
-    
+//    override func viewWillAppear(_ animated: Bool) {
+//        super.viewWillAppear(animated)
+//        
+//        tabBarController?.tabBar.isHidden = true
+//    }
+//    
+//    override func viewWillDisappear(_ animated: Bool) {
+//        super.viewWillDisappear(animated)
+//        
+//        tabBarController?.tabBar.isHidden = false
+//    }
+//    
     func configureStackView() {
         addHeader(text: "Goal Title", stackView: stackView)
         stackView.addArrangedSubview(goalTextField)
@@ -268,7 +270,9 @@ class EditViewController: UIViewController {
         
         if notification.name == UIResponder.keyboardWillHideNotification {
             scrollView.contentInset = .zero
-            doneButton.frame = CGRect(x: 0, y: view.frame.size.height - 50, width: view.frame.size.width, height: 50)
+            if let tabBarHeight = tabBarController?.tabBar.frame.size.height {
+                doneButton.frame = CGRect(x: 0, y: view.frame.size.height - CGFloat(tabBarHeight + 50), width: view.frame.size.width, height: 50)
+            }
         } else {
             scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom, right: 0)
             doneButton.frame = CGRect(x: 0, y: view.frame.size.height - keyboardViewEndFrame.height - 50, width: view.frame.size.width, height: 50)

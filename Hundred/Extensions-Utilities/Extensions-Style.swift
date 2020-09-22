@@ -11,6 +11,8 @@ import CloudKit
 import MapKit
 import Network
 import AuthenticationServices
+import CoreSpotlight
+import MobileCoreServices
 
 extension UIViewController {
     
@@ -322,6 +324,117 @@ extension UIViewController {
                 monitor.cancel()
             }
         }
+    }
+    
+    // GoalVC, DetailVC, EntryVC
+    func modifyRecords(recordsToSave: [CKRecord]?, recordIDsToDelete: [CKRecord.ID]?) {
+        let operation = CKModifyRecordsOperation(recordsToSave: recordsToSave, recordIDsToDelete: recordIDsToDelete)
+        let operationConfiguration = CKOperation.Configuration()
+        
+        operationConfiguration.allowsCellularAccess = true
+        operationConfiguration.qualityOfService = .userInitiated
+        operation.configuration = operationConfiguration
+        
+        operation.perRecordProgressBlock = {(record, progress) in
+            print("perRecordProgressBlock: \(progress)")
+        }
+        
+        operation.perRecordCompletionBlock = {(record, error) in
+            print("Upload complete")
+            print("perRecordCompletionBlock error: \(error)")
+        }
+        
+        operation.modifyRecordsCompletionBlock = { (savedRecords, deletedRecordIDs, error) in
+            print("savedRecords: \(savedRecords)")
+            print("deletedRecordIDs: \(deletedRecordIDs)")
+            print("modifyRecordsCompletionBlock error: \(error)")
+        }
+        
+        let publicCloudDatabase = CKContainer.default().publicCloudDatabase
+        publicCloudDatabase.add(operation)
+    }
+    
+    // EntryVC, DetailTableVC
+    func deleteSingleItem(progress: Progress) {
+        // delete from the public container if it exists
+        if let recordName = progress.recordName {
+            let recordID = CKRecord.ID(recordName: recordName)
+            modifyRecords(recordsToSave: nil, recordIDsToDelete: [recordID])
+        }
+        
+        // deindex from Core Spotlight
+        CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: ["\(progress.id)"]) { (error) in
+            if let error = error {
+                print("Deindexing error: \(error.localizedDescription)")
+            } else {
+                print("Search item successfully deindexed")
+            }
+        }
+        
+        // delete the image from the directory
+        if let image = progress.image {
+            let imagePath = getDocumentsDirectory().appendingPathComponent(image)
+            do {
+                try FileManager.default.removeItem(at: imagePath)
+            } catch {
+                print("The image could not be deleted from the directory: \(error.localizedDescription)")
+            }
+        }
+        
+        // delete plist
+        let formattedDate = self.dateForPlist(date: progress.date)
+        if let url = self.pListURL() {
+            if FileManager.default.fileExists(atPath: url.path) {
+                do {
+                    let dataContent = try Data(contentsOf: url)
+                    if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
+                        if var count = dict[progress.goal.title]?[formattedDate] {
+                            if count > 0 {
+                                count -= 1
+                                dict[progress.goal.title]?[formattedDate] = count
+                                self.write(dictionary: dict)
+                            }
+                        }
+                    }
+                } catch {
+                    print("error :\(error.localizedDescription)")
+                }
+            }
+        }
+        
+        self.context.delete(progress)
+        self.saveContext()
+    
+        if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
+            // data for plist
+            let dataImporter = DataImporter(goalTitle: nil)
+            mainVC.data = dataImporter.loadData(goalTitle: nil)
+            
+            // Goal from Core Data
+            let mainDataImporter = MainDataImporter()
+            mainVC.goals = mainDataImporter.loadData()
+        }
+    }
+    
+    func alertForUsername() {
+        let ac = UIAlertController(title: "No username", message: "A username is needed to post publicly. Would you like to create one?", preferredStyle: .alert)
+        ac.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
+            if let vc = self.storyboard?.instantiateViewController(identifier: "Profile") as? ProfileViewController {
+                DispatchQueue.main.async {
+                    self.navigationController?.pushViewController(vc, animated: true)
+                }
+            }
+        }))
+        
+        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
+        if let popoverController = ac.popoverPresentationController {
+            popoverController.sourceView = self.view
+            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+            popoverController.permittedArrowDirections = []
+        }
+        
+        present(ac, animated: true)
     }
 }
 

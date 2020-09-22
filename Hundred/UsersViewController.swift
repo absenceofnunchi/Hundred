@@ -8,6 +8,7 @@
 
 import UIKit
 import CloudKit
+import CoreData
 
 class UsersViewController: UITableViewController {
     var users = [CKRecord]()
@@ -112,7 +113,6 @@ extension UsersViewController: UIContextMenuInteractionDelegate {
 //    }
     
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-
         let user = self.users[indexPath.row]
         var configArr: [UIContextualAction] = []
         if user.wasCreatedByThisUser {
@@ -145,7 +145,18 @@ extension UsersViewController: UIContextMenuInteractionDelegate {
             if error != nil {
                 print("delete error: \(error.debugDescription)")
             } else {
-                print("delete completed: \(id!)")
+                if let id = id {
+                    // delete the record name from the corresponding Core Data item
+                    let progressRequest = NSFetchRequest<Progress>(entityName: "Progress")
+                    progressRequest.predicate = NSPredicate(format: "recordName == %@", id.recordName as CVarArg)
+                    if let fetchedProgress = try? self.context.fetch(progressRequest) {
+                        if fetchedProgress.count > 0 {
+                            fetchedProgress.first?.recordName = nil
+                            self.saveContext()
+                        }
+                    }
+                }
+                
             }
         }
     }

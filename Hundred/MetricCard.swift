@@ -606,7 +606,7 @@ struct MetricCard {
         stdExpressionDescription.expressionResultType = .decimalAttributeType
         
         metricFetchRequest.propertiesToFetch = [maxExpressionDescription, minExpressionDescription, avgExpressionDescription, sumExpressionDescription]
-        
+
         do {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let context = appDelegate.persistentCloudKitContainer.viewContext
@@ -617,10 +617,10 @@ struct MetricCard {
         } catch {
             print(error.localizedDescription)
         }
-        
-        
         return nil
     }
+        
+    
     
     static func getEntryCount(progress: Set<Progress>) -> Int {
         var dateArr: Set<String> = []
@@ -653,3 +653,8 @@ extension NSUIColor {
         )
     }
 }
+
+
+
+
+

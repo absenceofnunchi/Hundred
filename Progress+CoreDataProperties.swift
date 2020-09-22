@@ -26,6 +26,7 @@ extension Progress {
     @NSManaged public var metric: Set<Metric>
     @NSManaged public var longitude: NSDecimalNumber?
     @NSManaged public var latitude: NSDecimalNumber?
+    @NSManaged public var recordName: String?
 
     public override func prepareForDeletion() {
         if let image = image {

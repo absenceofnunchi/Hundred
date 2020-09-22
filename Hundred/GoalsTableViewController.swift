@@ -141,8 +141,10 @@ extension GoalsTableViewController {
             }
         }
         
-        // deindex the related progresses from Core Spotlight
+        var recordIDs: [CKRecord.ID] = []
+        
         for progress in goal.progress {
+            // deindex the related progresses from Core Spotlight
             CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: ["\(progress.id)"]) { (error) in
                 if let error = error {
                     print("Deindexing error: \(error.localizedDescription)")
@@ -150,8 +152,30 @@ extension GoalsTableViewController {
                     print("Progress successfully deindexed")
                 }
             }
+            
+            // delete the image from the directory
+            if let image = progress.image {
+                let imagePath = getDocumentsDirectory().appendingPathComponent(image)
+                do {
+                    try FileManager.default.removeItem(at: imagePath)
+                } catch {
+                    print("The image could not be deleted from the directory: \(error.localizedDescription)")
+                }
+            }
+            
+            // get the array of record IDs if they exist
+            if let recordName = progress.recordName {
+                let recordID = CKRecord.ID(recordName: recordName)
+                recordIDs.append(recordID)
+            }
         }
         
+        // delete from the public container if they exist
+        if recordIDs.count > 0 {
+            modifyRecords(recordsToSave: nil, recordIDsToDelete: recordIDs)
+        }
+        
+        // delete relevant plist
         if let url = self.pListURL() {
             if FileManager.default.fileExists(atPath: url.path) {
                 do {
@@ -182,7 +206,6 @@ extension GoalsTableViewController {
         if let vc = self.storyboard?.instantiateViewController(withIdentifier: "EditGoal") as? EditViewController {
             vc.goalDetail = goal
             self.navigationController?.pushViewController(vc, animated: true)
-            
         }
     }
 

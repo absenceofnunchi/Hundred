@@ -10,14 +10,6 @@ import UIKit
 import CloudKit
 import Charts
 
-struct FetchedAnalytics {
-    var metricName: String
-    var min: String
-    var max: String
-    var average: String
-    var sum: String
-}
-
 class UserCell: UITableViewCell {
     var imageConstraints: [NSLayoutConstraint] = []
     var coverImageView = UIImageView()
@@ -93,7 +85,7 @@ class UserCell: UITableViewCell {
         let metricsDict = try? user.decode(forKey: MetricAnalytics.metrics.rawValue) as [String: String]
         let currentStreak = user.object(forKey: MetricAnalytics.currentStreak.rawValue) as? Int
         let longestStreak = user.object(forKey: MetricAnalytics.longestStreak.rawValue) as? Int
-        
+
         // title
         let titleLabelTheme = UILabelTheme(font: UIFont.body.with(weight: .bold), color: UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0), lineBreakMode: .byTruncatingTail, textAlignment: .left)
         let titleLabel = UILabel(theme: titleLabelTheme, text: title ?? "")
@@ -124,20 +116,33 @@ class UserCell: UITableViewCell {
         }
         
         // comment
+        let commentContainer = UIView()
+        let borderColor = UIColor.gray
+        commentContainer.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
+        commentContainer.layer.borderWidth = 0.8
+        commentContainer.layer.cornerRadius = 7.0
+        containerView.addArrangedSubview(commentContainer)
+        commentContainer.translatesAutoresizingMaskIntoConstraints = false
+        commentContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: 50).isActive = true
+        
         let commentLabel = CustomLabel()
-        commentLabel.adjustsFontSizeToFitWidth = true
-        commentLabel.sizeToFit()
         commentLabel.textColor = .darkGray
         commentLabel.numberOfLines = 0
-        commentLabel.text = comment ?? ""
+        commentLabel.adjustsFontSizeToFitWidth = false
+        commentLabel.lineBreakMode = .byTruncatingTail
+        commentLabel.font = UIFont.preferredFont(forTextStyle: .body)
+        if let comment = comment {
+            commentLabel.text = comment
+        }
         
-        let borderColor = UIColor.gray
-        commentLabel.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
-        commentLabel.layer.borderWidth = 0.8
-        commentLabel.layer.cornerRadius = 7.0
+        commentContainer.addSubview(commentLabel)
         
-        containerView.addArrangedSubview(commentLabel)
-        commentLabel.layoutIfNeeded()
+        commentLabel.backgroundColor = .white
+        commentLabel.translatesAutoresizingMaskIntoConstraints = false
+        commentLabel.widthAnchor.constraint(equalTo: commentContainer.widthAnchor, multiplier: 0.9).isActive = true
+        commentLabel.centerXAnchor.constraint(equalTo: commentContainer.centerXAnchor).isActive = true
+        commentLabel.centerYAnchor.constraint(equalTo: commentContainer.centerYAnchor).isActive = true
+        containerView.setCustomSpacing(20, after: commentContainer)
         
         let streakContainer = UIView()
         streakContainer.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor

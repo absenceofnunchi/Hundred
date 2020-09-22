@@ -352,137 +352,50 @@ class EditEntryViewController: UIViewController {
                 ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
             })
         case 2:
-            // completed editing
-//            let progressRequest = Progress.createFetchRequest()
-            let progressRequest = NSFetchRequest<Progress>(entityName: "Progress")
-            let progressPredicate = NSPredicate(format: "id == %@", progress.id as CVarArg)
-            progressRequest.predicate = progressPredicate
-            if let fetchedProgress = try? self.context.fetch(progressRequest) {
-                if fetchedProgress.count > 0 {
-                    progress = fetchedProgress.first
-                    // setting a new image
-                    if let imagePathString = imagePathString, let imageBinary = imageBinary {
-                        print("imagePathString is not nil: \(imagePathString)")
-                        
-                        // write the new image to disk
-                        if let jpegData = imageBinary.jpegData(compressionQuality: 0.8) {
-                            try? jpegData.write(to: imagePathString)
+            // done button is pressed
+            // first case is when there's a corresponding entry on Public Feed
+            if progress.recordName != nil {
+                // no iCloud
+                if isICloudContainerAvailable() == false {
+                    let ac = UIAlertController(title: "No iCloud Connection", message: "Looks like you had posted this entry on Public Feed as well. iCloud is needed to update the entry on Public Feed.", preferredStyle: .alert)
+                    
+                    // don't want to bother with the iCloud stuff even though my post exists on Pulic Feed. Just deal with the offline content
+                    ac.addAction(UIAlertAction(title: "Disregard", style: .default, handler: { (action) in
+                        self.done(action: action, profile: nil)
+                    }))
+                    
+                    // go to the iOS settings
+                    ac.addAction(UIAlertAction(title: "Go to Settings", style: .default, handler: { (_) in
+                        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+                            return
                         }
-                        
-                        // delete the previous image from the directory
-                        if let fetchedImagePath = fetchedProgress.first?.image {
-                            print("fetchedImagePath1: \(fetchedImagePath)")
-                            let imagePath = getDocumentsDirectory().appendingPathComponent(fetchedImagePath)
-                            do {
-                                print("image deleted: \(imagePath)")
-                                try FileManager.default.removeItem(at: imagePath)
-                            } catch {
-                                print("The image could not be deleted from the directory: \(error.localizedDescription)")
-                            }
+
+                        if UIApplication.shared.canOpenURL(settingsUrl) {
+                            UIApplication.shared.open(settingsUrl, completionHandler: nil)
                         }
-                        
-                        progress?.image = imageName!
-                        
-                        // if there's no newly selected image && no image pre-existing image
-                    } else if imagePathString == nil && progress.image == nil {
-                        progress?.image = nil
-                        
-                        // getting rid of the pre-existing image without setting a new image
-                    } else if imagePathString == nil && progress.image != nil {
-                        let imagePath = getDocumentsDirectory().appendingPathComponent(progress.image!)
-                        do {
-                            print("image deleted: \(imagePath)")
-                            try FileManager.default.removeItem(at: imagePath)
-                        } catch {
-                            print("The image could not be deleted from the directory: \(error.localizedDescription)")
-                        }
-                        
-                        progress.image = nil
+                    }))
+                    
+                    // iPad ui alert
+                    if let popoverController = ac.popoverPresentationController {
+                        popoverController.sourceView = self.view
+                        popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                        popoverController.permittedArrowDirections = []
                     }
-                    
-                    progress?.comment = commentTextView.text
-                    
-                    if let location = location {
-                        progress?.longitude = NSDecimalNumber(value: location.longitude)
-                        progress?.latitude = NSDecimalNumber(value: location.latitude)
-                    }
-                    
-                    if let metricsArr = progress.goal.metrics, metricsArr.count > 0 {
-                        // update the existing metric pertaining to this instance of progress
-                        if let metrics = progress?.metric, metrics.count > 0 {
-                            print("metrics: \(metrics)")
-                            
-                            for metric in metrics {
-                                let metricSubview = metricStackView.arrangedSubviews.first { (metricSubview) -> Bool in
-                                    let label = metricSubview.subviews[0] as! UILabel
-                                    
-                                    return label.text! == metric.unit
-                                }
-                                print("metricSubview: \(metricSubview)")
-                                
-                                if let metricSubview = metricSubview {
-                                    let textField = metricSubview.subviews[1] as! UITextField
-                                    let formatter = NumberFormatter()
-                                    formatter.generatesDecimalNumbers = true
-                                    let result = formatter.number(from: textField.text ?? "0") as? NSDecimalNumber ?? 0
-                                    print("results: \(result)")
-                                    metric.value = result
-                                }
-                            }
-                        } else {
-                            // if the metrics have been created, but no instance of Metric has been created
-                            var metricDict: [String: String] = [:]
-                            for metricPair in metricStackView.arrangedSubviews {
-                                print("metricPair: \(metricPair)")
-                                let unitLabel = metricPair.subviews[0] as! UILabel
-                                let valueTextField = metricPair.subviews[1] as! UITextField
-                                if let textContent = unitLabel.text, let valueTextContent = valueTextField.text {
-                                    let trimmedValue = valueTextContent.trimmingCharacters(in: .whitespacesAndNewlines)
-                                    print("trimmedValue: \(trimmedValue)")
-                                    metricDict.updateValue(trimmedValue, forKey: textContent)
-                                }
-                            }
-                            
-                            // create an array of instances of Metric
-                            var metricArr: [Metric] = []
-                            for singleMetricPair in metricDict {
-                                let newMetric = Metric(context: self.context)
-                                newMetric.date = Date()
-                                newMetric.unit = singleMetricPair.key
-                                newMetric.id = UUID()
-                                newMetric.value = UnitConversion.stringToDecimal(string: singleMetricPair.value)
-                                print("newMetric: \(newMetric)")
-                                
-                                metricArr.append(newMetric)
-                            }
-                            
-                            // add the new instances to progress before saving
-                            for item in metricArr {
-                                print("item: \(item)")
-                                
-                                progress.metric.insert(item)
-                                progress.goal.goalToMetric.insert(item)
-                            }
-                        }
-                    }
-                    
-                    self.saveContext()
-                    
-                    if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
-                        let dataImporter = DataImporter(goalTitle: nil)
-                        mainVC.data = dataImporter.loadData(goalTitle: nil)
-                        
-                        let mainDataImporter = MainDataImporter()
-                        mainVC.goals = mainDataImporter.loadData()
-                    }
-                    
-                    if previousViewController is EntryViewController {
-                        delegate?.callBack(value: progress, location: location, locationLabel: locationLabel.text)
-                    }
-                    
-                    _ = navigationController?.popViewController(animated: true)
+
+                    present(ac, animated: true, completion: {() -> Void in
+                        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
+                        ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
+                    })
+                } else {
+                    // iCloud post exists and the iCloud account is connected
+                    checkUsernameAndDone(action: nil)
                 }
+            } else {
+                // only the offline content exist
+                done(action: nil, profile: nil)
             }
+
+            
         case 3:
             if let vc = storyboard?.instantiateViewController(withIdentifier: "Map") as? MapViewController {
                 vc.editPlacemarkDelegate = self
@@ -493,6 +406,250 @@ class EditEntryViewController: UIViewController {
             locationText = ""
         default:
             print("default")
+        }
+    }
+    
+    func checkUsernameAndDone(action: UIAlertAction?) {
+        // username is needed to post online
+        getCredentials { (profile) in
+            if let profile = profile {
+                self.done(action: nil, profile: profile)
+            } else {
+                // no username exists
+                DispatchQueue.main.async {
+                    self.alertForUsername()
+                }
+            }
+        }
+    }
+    
+    
+    func done(action: UIAlertAction?, profile: Profile?) {
+        // completed editing
+        let progressRequest = NSFetchRequest<Progress>(entityName: "Progress")
+        let progressPredicate = NSPredicate(format: "id == %@", progress.id as CVarArg)
+        progressRequest.predicate = progressPredicate
+        if let fetchedProgress = try? self.context.fetch(progressRequest) {
+            if fetchedProgress.count > 0 {
+                progress = fetchedProgress.first
+                // setting a new image
+                if let imagePathString = imagePathString, let imageBinary = imageBinary {
+                    // write the new image to disk
+                    if let jpegData = imageBinary.jpegData(compressionQuality: 0.8) {
+                        try? jpegData.write(to: imagePathString)
+                    }
+                    
+                    // delete the previous image from the directory
+                    if let fetchedImagePath = fetchedProgress.first?.image {
+                        print("fetchedImagePath1: \(fetchedImagePath)")
+                        let imagePath = getDocumentsDirectory().appendingPathComponent(fetchedImagePath)
+                        do {
+                            print("image deleted: \(imagePath)")
+                            try FileManager.default.removeItem(at: imagePath)
+                        } catch {
+                            print("The image could not be deleted from the directory: \(error.localizedDescription)")
+                        }
+                    }
+                    
+                    progress?.image = imageName!
+                    
+                    // if there's no newly selected image && no image pre-existing image
+                } else if imagePathString == nil && progress.image == nil {
+                    progress?.image = nil
+                    
+                    // getting rid of the pre-existing image without setting a new image
+                } else if imagePathString == nil && progress.image != nil {
+                    let imagePath = getDocumentsDirectory().appendingPathComponent(progress.image!)
+                    do {
+                        print("image deleted: \(imagePath)")
+                        try FileManager.default.removeItem(at: imagePath)
+                    } catch {
+                        print("The image could not be deleted from the directory: \(error.localizedDescription)")
+                    }
+                    
+                    progress.image = nil
+                }
+                
+                // comment
+                progress?.comment = commentTextView.text
+                
+                // location
+                if let location = location {
+                    progress?.longitude = NSDecimalNumber(value: location.longitude)
+                    progress?.latitude = NSDecimalNumber(value: location.latitude)
+                }
+                
+                var metricDict: [String: String] = [:]
+                if let metricsArr = progress.goal.metrics, metricsArr.count > 0 {
+                    // update the existing metric pertaining to this instance of progress
+                    if let metrics = progress?.metric, metrics.count > 0 {
+                        
+                        // metrics is the Metric entity from Core Data
+                        for metric in metrics {
+                            let metricSubview = metricStackView.arrangedSubviews.first { (metricSubview) -> Bool in
+                                let label = metricSubview.subviews[0] as! UILabel
+                                return label.text! == metric.unit
+                            }
+                            
+                            if let metricSubview = metricSubview {
+                                let textField = metricSubview.subviews[1] as! UITextField
+                                let formatter = NumberFormatter()
+                                formatter.generatesDecimalNumbers = true
+                                let result = formatter.number(from: textField.text ?? "0") as? NSDecimalNumber ?? 0
+                                metric.value = result
+                                
+                                // this is for public cloud container only
+                                metricDict.updateValue(textField.text ?? "0", forKey: metric.unit)
+                            }
+                        }
+                    } else {
+                        // if the metrics have been created, but no instance of Metric has been created
+                        for metricPair in metricStackView.arrangedSubviews {
+                            let unitLabel = metricPair.subviews[0] as! UILabel
+                            let valueTextField = metricPair.subviews[1] as! UITextField
+                            if let textContent = unitLabel.text, let valueTextContent = valueTextField.text {
+                                let trimmedValue = valueTextContent.trimmingCharacters(in: .whitespacesAndNewlines)
+                                metricDict.updateValue(trimmedValue, forKey: textContent)
+                            }
+                        }
+                        
+                        // create an array of instances of Metric
+                        var metricArr: [Metric] = []
+                        for singleMetricPair in metricDict {
+                            let newMetric = Metric(context: self.context)
+                            newMetric.date = Date()
+                            newMetric.unit = singleMetricPair.key
+                            newMetric.id = UUID()
+                            newMetric.value = UnitConversion.stringToDecimal(string: singleMetricPair.value)
+                            metricArr.append(newMetric)
+                        }
+                        
+                        // add the new instances to progress before saving
+                        for item in metricArr {
+                            progress.metric.insert(item)
+                            progress.goal.goalToMetric.insert(item)
+                        }
+                    }
+                }
+                
+                
+                // public cloud database
+                if let profile = profile {
+                    let progressRecord = CKRecord(recordType: MetricAnalytics.Progress.rawValue)
+                    progressRecord[MetricAnalytics.goal.rawValue] = progress.goal.title as CKRecordValue
+                    progressRecord[MetricAnalytics.comment.rawValue] = commentTextView.text as CKRecordValue
+                    
+                    if let imagePathString = imagePathString {
+                        progressRecord[MetricAnalytics.image.rawValue] = CKAsset(fileURL: imagePathString)
+                    }
+                    
+                    try? progressRecord.encode(metricDict, forKey: MetricAnalytics.metrics.rawValue)
+                    progressRecord[MetricAnalytics.date.rawValue] = progress.date
+                    
+                    // profile
+                    progressRecord[MetricAnalytics.username.rawValue] = profile.username
+                    progressRecord[MetricAnalytics.email.rawValue] = profile.email
+                    
+                    // location
+                    if let location = location {
+                        progressRecord[MetricAnalytics.longitude.rawValue] = location.longitude
+                        progressRecord[MetricAnalytics.latitude.rawValue] = location.latitude
+                    }
+                    
+                    // entry count for the horizontal bar chart
+                    let entryCount = MetricCard.getEntryCount(progress: progress.goal.progress)
+                    progressRecord[MetricAnalytics.entryCount.rawValue] = entryCount
+                    
+                    // streaks
+                    progressRecord[MetricAnalytics.longestStreak.rawValue] = progress.goal.longestStreak
+                    progressRecord[MetricAnalytics.currentStreak.rawValue] = progress.goal.streak
+                    
+                    // save the newly modified record and delete the old one
+                    if let recordName = progress.recordName {
+                        let recordID = CKRecord.ID(recordName: recordName)
+                        let operation = CKModifyRecordsOperation(recordsToSave: [progressRecord], recordIDsToDelete: [recordID])
+                        // replace the old record name with the record name of the newly modified public cloud post's record name
+                        progress.recordName = progressRecord.recordID.recordName
+
+                        let operationConfiguration = CKOperation.Configuration()
+                        operationConfiguration.allowsCellularAccess = true
+                        operationConfiguration.qualityOfService = .userInitiated
+                        operation.configuration = operationConfiguration
+                        
+                        operation.perRecordProgressBlock = {(record, progress) in
+                            print("perRecordProgressBlock: \(progress)")
+                        }
+                        
+                        operation.perRecordCompletionBlock = {(record, error) in
+                            if let error = error {
+                                print("public cloud database error======================================================: \(error)")
+                                return
+                            }
+                            print("Sucessfully uploaded to Public Cloud DB==================================================== \(record)")
+                            var recordsArr: [CKRecord] = []
+                            
+                            if self.progress.goal.progress.count == 1 {
+                                for metricPair in metricDict {
+                                    let analyticsRecord = CKRecord(recordType: MetricAnalytics.analytics.rawValue)
+                                    let reference = CKRecord.Reference(recordID: record.recordID, action: .deleteSelf)
+                                    analyticsRecord["owningProgress"] = reference as CKRecordValue
+                                    analyticsRecord[MetricAnalytics.metricTitle.rawValue] = metricPair.key
+                                    analyticsRecord[MetricAnalytics.Min.rawValue] = metricPair.value
+                                    analyticsRecord[MetricAnalytics.Max.rawValue] = metricPair.value
+                                    analyticsRecord[MetricAnalytics.Average.rawValue] = metricPair.value
+                                    analyticsRecord[MetricAnalytics.Sum.rawValue] = metricPair.value
+                                    recordsArr.append(analyticsRecord)
+                                }
+                            } else {
+                                if let metrics = self.progress.goal.metrics {
+                                    for metric in metrics {
+                                        DispatchQueue.main.async {
+                                            if let dict = MetricCard.getAnalytics(metric: metric) {
+                                                let convertedDict = dict.mapValues { UnitConversion.decimalToString(decimalNumber: $0)}
+                                                let analyticsRecord = CKRecord(recordType: MetricAnalytics.analytics.rawValue)
+                                                let reference = CKRecord.Reference(recordID: record.recordID, action: .deleteSelf)
+                                                analyticsRecord["owningProgress"] = reference as CKRecordValue
+                                                analyticsRecord[MetricAnalytics.metricTitle.rawValue] = metric
+                                                analyticsRecord[MetricAnalytics.Min.rawValue] = convertedDict[MetricAnalytics.Min.rawValue]
+                                                analyticsRecord[MetricAnalytics.Max.rawValue] = convertedDict[MetricAnalytics.Max.rawValue]
+                                                analyticsRecord[MetricAnalytics.Average.rawValue] = convertedDict[MetricAnalytics.Average.rawValue]
+                                                analyticsRecord[MetricAnalytics.Sum.rawValue] = convertedDict[MetricAnalytics.Sum.rawValue]
+                                                recordsArr.append(analyticsRecord)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            self.modifyRecords(recordsToSave: recordsArr, recordIDsToDelete: nil)
+                        }
+                        
+                        operation.modifyRecordsCompletionBlock = { (savedRecords, deletedRecordIDs, error) in
+ 
+                        }
+                        
+                        let publicCloudDatabase = CKContainer.default().publicCloudDatabase
+                        publicCloudDatabase.add(operation)
+                    }
+                }
+                
+                // the persistent store save has to come after the public cloud save because the recordName might have to be modified
+                self.saveContext()
+                
+                if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
+                    let dataImporter = DataImporter(goalTitle: nil)
+                    mainVC.data = dataImporter.loadData(goalTitle: nil)
+                    
+                    let mainDataImporter = MainDataImporter()
+                    mainVC.goals = mainDataImporter.loadData()
+                }
+                
+                if previousViewController is EntryViewController {
+                    delegate?.callBack(value: progress, location: location, locationLabel: locationLabel.text)
+                }
+                
+                _ = navigationController?.popViewController(animated: true)
+            }
         }
     }
     
