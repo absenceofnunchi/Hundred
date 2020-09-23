@@ -90,3 +90,8 @@ struct ButtonCreator {
 //Goal: metrics - Claims to return instances of nil}, ["NSLocalizedFailureReason": CloudKit integration requires that the value transformers for transformable
 
 // NSSecureUnarchiveFromData
+
+
+// FAQ
+// 1. educate the use of keychain
+// 2. changing the username will delete all the subscriptions

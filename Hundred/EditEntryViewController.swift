@@ -549,6 +549,7 @@ class EditEntryViewController: UIViewController {
                     // profile
                     progressRecord[MetricAnalytics.username.rawValue] = profile.username
                     progressRecord[MetricAnalytics.email.rawValue] = profile.email
+                    progressRecord[MetricAnalytics.userId.rawValue] = profile.userId
                     
                     // location
                     if let location = location {

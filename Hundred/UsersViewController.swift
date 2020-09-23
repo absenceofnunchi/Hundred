@@ -20,12 +20,6 @@ class UsersViewController: UITableViewController {
         fetchData()
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-//        fetchData()
-
-    }
-    
     func configureUI() {
         title = "Public Feed"
         navigationItem.title = "Public Feed"
@@ -51,7 +45,7 @@ class UsersViewController: UITableViewController {
         configuration.qualityOfService = .userInitiated
         
         let queryOperation = CKQueryOperation(query: query)
-        queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image", "longitude", "latitude", "username", "email"]
+        queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image", "longitude", "latitude", "username", "email", "userId"]
         queryOperation.queuePriority = .veryHigh
         queryOperation.configuration = configuration
         queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
@@ -198,13 +192,20 @@ extension UsersViewController: UIContextMenuInteractionDelegate {
     @objc func refreshFetch() {
         self.users.removeAll()
         fetchData()
+        
+        let spinner = UIActivityIndicatorView(style: .medium)
+        spinner.tintColor = UIColor.black
+        spinner.startAnimating()
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: spinner)
         self.navigationItem.rightBarButtonItem?.isEnabled = false
         Timer.scheduledTimer(withTimeInterval: 5, repeats: false) { (_) in
             self.navigationItem.rightBarButtonItem?.isEnabled = true
+            spinner.stopAnimating()
+            self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(self.refreshFetch))
         }
+        
     }
 }
-
 
 extension UINavigationController {
     public func pushViewController(_ viewController: UIViewController, animated: Bool, completion: @escaping () -> Void) {

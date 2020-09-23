@@ -231,14 +231,14 @@ extension UIViewController {
             return false
         }
     }
-
+    
     func iCloudAlert(message: String) {
         let ac = UIAlertController(title: "Requires you to log into your iCloud", message: message, preferredStyle: .alert)
         ac.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
             guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
                 return
             }
-
+            
             if UIApplication.shared.canOpenURL(settingsUrl) {
                 UIApplication.shared.open(settingsUrl, completionHandler: nil)
             }
@@ -271,7 +271,6 @@ extension UIViewController {
             if path.status == .satisfied {
                 let appleIDProvider = ASAuthorizationAppleIDProvider()
                 let currentUserIdentifier = KeychainWrapper.standard.string(forKey: Keychain.userIdentifier.rawValue)
-
                 appleIDProvider.getCredentialState(forUserID: currentUserIdentifier ?? "") { (credentialState, error) in
                     switch credentialState {
                     case .authorized:
@@ -279,7 +278,7 @@ extension UIViewController {
                             let request = Profile.createFetchRequest()
                             do {
                                 let profiles = try self.context.fetch(request)
-                                print("profiles.first from extension: \(profiles.first)")
+                                print("profiles.first \(profiles.first)")
                                 completion(profiles.first)
                             } catch {
                                 print("Fetch failed")
@@ -287,7 +286,8 @@ extension UIViewController {
                         }
                         monitor.cancel()
                         break // The Apple ID credential is valid.
-                    case .revoked, .notFound:
+                    case .revoked:
+                        print("revoked)")
                         // The Apple ID credential is either revoked or was not found, so show the sign-in UI.
                         KeychainWrapper.standard.removeObject(forKey: Keychain.userIdentifier.rawValue)
                         DispatchQueue.main.async {
@@ -303,25 +303,57 @@ extension UIViewController {
                         }
                         monitor.cancel()
                         completion(nil)
+                    case .notFound:
+                        print("not found")
+                        DispatchQueue.main.async {
+                            let ac = UIAlertController(title: "iCloud Keychain", message: "If your iCloud keychain not enabled, please enable it. It allows you to use the follow feature on Public Feed as well as use the app in multiple devices.", preferredStyle: .alert)
+                            ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: {(_) in
+                                KeychainWrapper.standard.removeObject(forKey: Keychain.userIdentifier.rawValue)
+                                DispatchQueue.main.async {
+                                    let request = Profile.createFetchRequest()
+                                    do {
+                                        let profiles = try self.context.fetch(request)
+                                        for profile in profiles {
+                                            self.context.delete(profile)
+                                        }
+                                    } catch {
+                                        print("Fetched failed from revoked")
+                                    }
+                                }
+                                monitor.cancel()
+                                completion(nil)
+                            }))
+                            
+                            if let popoverController = ac.popoverPresentationController {
+                                popoverController.sourceView = self.view
+                                popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                                popoverController.permittedArrowDirections = []
+                            }
+                            
+                            self.present(ac, animated: true)
+                        }
                     default:
                         monitor.cancel()
                         break
                     }
                 }
+                
             } else {
+                DispatchQueue.main.async {
                     let ac = UIAlertController(title: "Network Error", message: "You're currently not connected to the internet. This section requires an Internet access.", preferredStyle: .alert)
-                ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { action in
-                    _ = self.navigationController?.popViewController(animated: true)
-                }))
-
+                    ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { action in
+                        _ = self.navigationController?.popViewController(animated: true)
+                    }))
+                    
                     if let popoverController = ac.popoverPresentationController {
                         popoverController.sourceView = self.view
                         popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
                         popoverController.permittedArrowDirections = []
                     }
-
-                self.present(ac, animated: true)
-                monitor.cancel()
+                    
+                    self.present(ac, animated: true)
+                    monitor.cancel()
+                }
             }
         }
     }
@@ -404,7 +436,7 @@ extension UIViewController {
         
         self.context.delete(progress)
         self.saveContext()
-    
+        
         if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
             // data for plist
             let dataImporter = DataImporter(goalTitle: nil)

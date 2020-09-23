@@ -1217,6 +1217,7 @@ extension NewViewController {
                 // profile
                 progressRecord[MetricAnalytics.username.rawValue] = profile.username
                 progressRecord[MetricAnalytics.email.rawValue] = profile.email
+                progressRecord[MetricAnalytics.userId.rawValue] = profile.userId
                 
                 // analytics
                 progressRecord[MetricAnalytics.longitude.rawValue] = self.location?.longitude

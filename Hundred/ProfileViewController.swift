@@ -9,6 +9,7 @@
 import UIKit
 import AuthenticationServices
 import Network
+import CloudKit
 
 enum Keychain: String {
     case userIdentifier
@@ -182,9 +183,61 @@ extension ProfileViewController: ASAuthorizationControllerDelegate, ASAuthorizat
             }
 
             if let email = appleIDCredential.email {
-                print("email: \(email)")
                 profile.email = email
                 self.emailLabel.text = email
+            }
+            
+            func permissionDeniedAlert() {
+                DispatchQueue.main.async {
+                    let ac = UIAlertController(title: "Permission Denied for Discoverability", message: "Since you have denied the discoverability through iCloud, others won't be able to subscribe to your postings, but you will still be able to subscribe to others who have given this permission. Your iCloud ID will not be visible to others, should you change your mind in the future. Please refer to the FAQ section more information.", preferredStyle: .alert)
+                    ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { (_) in
+                        return
+                    }))
+                    
+                    if let popoverController = ac.popoverPresentationController {
+                        popoverController.sourceView = self.view
+                        popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                        popoverController.permittedArrowDirections = []
+                    }
+                    
+                    self.present(ac, animated: true)
+                }
+            }
+            
+            CKContainer.default().status(forApplicationPermission: .userDiscoverability) { (status, error) in
+                if error != nil {
+                    permissionDeniedAlert()
+                } else {
+                    switch status {
+                    case .granted:
+                        print("granted")
+                        CKContainer.default().fetchUserRecordID { (record, error) in
+                            if error != nil {
+                                permissionDeniedAlert()
+                            }
+                            
+                            if let record = record {
+                                profile.userId = record.recordName
+                            }
+                        }
+                    case .couldNotComplete, .denied, .initialState:
+                        print("not granted")
+                        CKContainer.default().requestApplicationPermission(.userDiscoverability) { (status, error) in
+                            CKContainer.default().fetchUserRecordID { (record, error) in
+                                if error != nil {
+                                    permissionDeniedAlert()
+                                }
+                                
+                                if let record = record {
+                                    profile.userId = record.recordName
+                                }
+
+                            }
+                        }
+                    default:
+                        permissionDeniedAlert()
+                    }
+                }
             }
             
             let userIdentifier = appleIDCredential.user
