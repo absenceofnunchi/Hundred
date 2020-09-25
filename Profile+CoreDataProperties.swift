@@ -2,7 +2,7 @@
 //  Profile+CoreDataProperties.swift
 //  Hundred
 //
-//  Created by J C on 2020-09-15.
+//  Created by J C on 2020-09-23.
 //  Copyright © 2020 J. All rights reserved.
 //
 //
@@ -21,6 +21,7 @@ extension Profile {
     @NSManaged public var email: String
     @NSManaged public var userId: String
     @NSManaged public var subscription: [String]?
+
 }
 
 extension Profile : Identifiable {

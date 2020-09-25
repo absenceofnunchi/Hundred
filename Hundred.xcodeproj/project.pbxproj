@@ -24,6 +24,16 @@
 		49795B7624DC864000D27111 /* EntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49795B7524DC864000D27111 /* EntryViewController.swift */; };
 		497DC78424EA15A800446178 /* NewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 497DC78324EA15A800446178 /* NewViewController.swift */; };
 		49812F1D2503042900F2BBCB /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49812F1C2503042900F2BBCB /* CloudKit.framework */; };
+		4985495E251C01F80096444D /* Goal+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49854954251C01F80096444D /* Goal+CoreDataClass.swift */; };
+		4985495F251C01F80096444D /* Goal+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49854955251C01F80096444D /* Goal+CoreDataProperties.swift */; };
+		49854960251C01F80096444D /* Progress+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49854956251C01F80096444D /* Progress+CoreDataClass.swift */; };
+		49854961251C01F80096444D /* Progress+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49854957251C01F80096444D /* Progress+CoreDataProperties.swift */; };
+		49854962251C01F80096444D /* Profile+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49854958251C01F80096444D /* Profile+CoreDataClass.swift */; };
+		49854963251C01F80096444D /* Profile+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49854959251C01F80096444D /* Profile+CoreDataProperties.swift */; };
+		49854964251C01F80096444D /* Subscription+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4985495A251C01F80096444D /* Subscription+CoreDataClass.swift */; };
+		49854965251C01F80096444D /* Subscription+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4985495B251C01F80096444D /* Subscription+CoreDataProperties.swift */; };
+		49854966251C01F80096444D /* Metric+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4985495C251C01F80096444D /* Metric+CoreDataClass.swift */; };
+		49854967251C01F80096444D /* Metric+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4985495D251C01F80096444D /* Metric+CoreDataProperties.swift */; };
 		498AC32724FD520D003FDBF2 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498AC32624FD520D003FDBF2 /* BaseViewController.swift */; };
 		498AC32924FD524C003FDBF2 /* PieChartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498AC32824FD524C003FDBF2 /* PieChartViewController.swift */; };
 		4996BD4524D485C900E301B4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD4424D485C900E301B4 /* AppDelegate.swift */; };
@@ -47,14 +57,6 @@
 		49DE68A624F71838009C886C /* ChartXAxisFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */; };
 		49E9631224FC8FA10041239B /* SpinnerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E9631124FC8FA10041239B /* SpinnerViewController.swift */; };
 		49ED332825114BBF006FE080 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49ED332725114BBF006FE080 /* ProfileViewController.swift */; };
-		49ED333125118B4B006FE080 /* Progress+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49ED332925118B4B006FE080 /* Progress+CoreDataClass.swift */; };
-		49ED333225118B4B006FE080 /* Progress+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49ED332A25118B4B006FE080 /* Progress+CoreDataProperties.swift */; };
-		49ED333325118B4B006FE080 /* Metric+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49ED332B25118B4B006FE080 /* Metric+CoreDataClass.swift */; };
-		49ED333425118B4B006FE080 /* Metric+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49ED332C25118B4B006FE080 /* Metric+CoreDataProperties.swift */; };
-		49ED333525118B4B006FE080 /* Profile+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49ED332D25118B4B006FE080 /* Profile+CoreDataClass.swift */; };
-		49ED333625118B4B006FE080 /* Profile+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49ED332E25118B4B006FE080 /* Profile+CoreDataProperties.swift */; };
-		49ED333725118B4B006FE080 /* Goal+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49ED332F25118B4B006FE080 /* Goal+CoreDataClass.swift */; };
-		49ED333825118B4B006FE080 /* Goal+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49ED333025118B4B006FE080 /* Goal+CoreDataProperties.swift */; };
 		49F1B1EA24FB21B8006D6887 /* CalendarDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F1B1E924FB21B8006D6887 /* CalendarDetailTableViewController.swift */; };
 		49F1B1EC24FB34BA006D6887 /* CalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F1B1EB24FB34BA006D6887 /* CalendarCell.swift */; };
 		49FD8FFF250EF7B100B60360 /* UserDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49FD8FFE250EF7B100B60360 /* UserDetailViewController.swift */; };
@@ -80,6 +82,16 @@
 		497DC78324EA15A800446178 /* NewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewViewController.swift; sourceTree = "<group>"; };
 		49812F1B2503033700F2BBCB /* Hundred.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Hundred.entitlements; sourceTree = "<group>"; };
 		49812F1C2503042900F2BBCB /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
+		49854954251C01F80096444D /* Goal+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Goal+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		49854955251C01F80096444D /* Goal+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Goal+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		49854956251C01F80096444D /* Progress+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Progress+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		49854957251C01F80096444D /* Progress+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Progress+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		49854958251C01F80096444D /* Profile+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Profile+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		49854959251C01F80096444D /* Profile+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Profile+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		4985495A251C01F80096444D /* Subscription+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Subscription+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		4985495B251C01F80096444D /* Subscription+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Subscription+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		4985495C251C01F80096444D /* Metric+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Metric+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		4985495D251C01F80096444D /* Metric+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Metric+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 		498AC32624FD520D003FDBF2 /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
 		498AC32824FD524C003FDBF2 /* PieChartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PieChartViewController.swift; sourceTree = "<group>"; };
 		4996BD4124D485C900E301B4 /* Hundred.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hundred.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -106,14 +118,6 @@
 		49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartXAxisFormatter.swift; sourceTree = "<group>"; };
 		49E9631124FC8FA10041239B /* SpinnerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerViewController.swift; sourceTree = "<group>"; };
 		49ED332725114BBF006FE080 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
-		49ED332925118B4B006FE080 /* Progress+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Progress+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
-		49ED332A25118B4B006FE080 /* Progress+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Progress+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
-		49ED332B25118B4B006FE080 /* Metric+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Metric+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
-		49ED332C25118B4B006FE080 /* Metric+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Metric+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
-		49ED332D25118B4B006FE080 /* Profile+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Profile+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
-		49ED332E25118B4B006FE080 /* Profile+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Profile+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
-		49ED332F25118B4B006FE080 /* Goal+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Goal+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
-		49ED333025118B4B006FE080 /* Goal+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Goal+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 		49F1B1E924FB21B8006D6887 /* CalendarDetailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDetailTableViewController.swift; sourceTree = "<group>"; };
 		49F1B1EB24FB34BA006D6887 /* CalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCell.swift; sourceTree = "<group>"; };
 		49FD8FFE250EF7B100B60360 /* UserDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDetailViewController.swift; sourceTree = "<group>"; };
@@ -191,15 +195,17 @@
 		4996BD4324D485C900E301B4 /* Hundred */ = {
 			isa = PBXGroup;
 			children = (
+				49854954251C01F80096444D /* Goal+CoreDataClass.swift */,
+				49854955251C01F80096444D /* Goal+CoreDataProperties.swift */,
+				49854956251C01F80096444D /* Progress+CoreDataClass.swift */,
+				49854957251C01F80096444D /* Progress+CoreDataProperties.swift */,
+				49854958251C01F80096444D /* Profile+CoreDataClass.swift */,
+				49854959251C01F80096444D /* Profile+CoreDataProperties.swift */,
+				4985495A251C01F80096444D /* Subscription+CoreDataClass.swift */,
+				4985495B251C01F80096444D /* Subscription+CoreDataProperties.swift */,
+				4985495C251C01F80096444D /* Metric+CoreDataClass.swift */,
+				4985495D251C01F80096444D /* Metric+CoreDataProperties.swift */,
 				49A0B96C2512D0D40032DA41 /* HundredDebug.entitlements */,
-				49ED332925118B4B006FE080 /* Progress+CoreDataClass.swift */,
-				49ED332A25118B4B006FE080 /* Progress+CoreDataProperties.swift */,
-				49ED332B25118B4B006FE080 /* Metric+CoreDataClass.swift */,
-				49ED332C25118B4B006FE080 /* Metric+CoreDataProperties.swift */,
-				49ED332D25118B4B006FE080 /* Profile+CoreDataClass.swift */,
-				49ED332E25118B4B006FE080 /* Profile+CoreDataProperties.swift */,
-				49ED332F25118B4B006FE080 /* Goal+CoreDataClass.swift */,
-				49ED333025118B4B006FE080 /* Goal+CoreDataProperties.swift */,
 				49812F1B2503033700F2BBCB /* Hundred.entitlements */,
 				4996BD4824D485C900E301B4 /* ViewController.swift */,
 				498AC32824FD524C003FDBF2 /* PieChartViewController.swift */,
@@ -365,40 +371,43 @@
 			files = (
 				49026F9B24DB4FBF00724369 /* ProgressCell.swift in Sources */,
 				49795B7624DC864000D27111 /* EntryViewController.swift in Sources */,
-				49ED333825118B4B006FE080 /* Goal+CoreDataProperties.swift in Sources */,
-				49ED333725118B4B006FE080 /* Goal+CoreDataClass.swift in Sources */,
+				49854965251C01F80096444D /* Subscription+CoreDataProperties.swift in Sources */,
 				49E9631224FC8FA10041239B /* SpinnerViewController.swift in Sources */,
+				49854962251C01F80096444D /* Profile+CoreDataClass.swift in Sources */,
 				49C70D732501940D000BC383 /* LocationSearchViewController.swift in Sources */,
-				49ED333125118B4B006FE080 /* Progress+CoreDataClass.swift in Sources */,
 				49C70D7125018D12000BC383 /* MyAnnotationView.swift in Sources */,
 				49C70D6D25016BF1000BC383 /* MapViewController.swift in Sources */,
 				494C424C2513DC3600CD0C34 /* KeychainItemAccessibility.swift in Sources */,
+				49854967251C01F80096444D /* Metric+CoreDataProperties.swift in Sources */,
 				491A6622250997B200B659CB /* UserCell.swift in Sources */,
 				4996BD5C24D48B0700E301B4 /* GoalsTableViewController.swift in Sources */,
 				498AC32724FD520D003FDBF2 /* BaseViewController.swift in Sources */,
-				49ED333325118B4B006FE080 /* Metric+CoreDataClass.swift in Sources */,
-				49ED333525118B4B006FE080 /* Profile+CoreDataClass.swift in Sources */,
+				49854966251C01F80096444D /* Metric+CoreDataClass.swift in Sources */,
 				4906B77524F2FEA700417574 /* EditEntryViewController.swift in Sources */,
 				498AC32924FD524C003FDBF2 /* PieChartViewController.swift in Sources */,
 				49FD8FFF250EF7B100B60360 /* UserDetailViewController.swift in Sources */,
+				49854960251C01F80096444D /* Progress+CoreDataClass.swift in Sources */,
 				499E8B2F24F0CC1700C829C8 /* EditViewController.swift in Sources */,
 				49F1B1EC24FB34BA006D6887 /* CalendarCell.swift in Sources */,
+				49854961251C01F80096444D /* Progress+CoreDataProperties.swift in Sources */,
+				49854963251C01F80096444D /* Profile+CoreDataProperties.swift in Sources */,
 				49F1B1EA24FB21B8006D6887 /* CalendarDetailTableViewController.swift in Sources */,
-				49ED333225118B4B006FE080 /* Progress+CoreDataProperties.swift in Sources */,
 				49C70D6925016923000BC383 /* MyAnnotation.swift in Sources */,
 				4996BD4924D485C900E301B4 /* ViewController.swift in Sources */,
 				49026F9224DB423900724369 /* Constraints.swift in Sources */,
 				494F0C2A24D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift in Sources */,
+				4985495E251C01F80096444D /* Goal+CoreDataClass.swift in Sources */,
 				493FF0EF250AABA10085EB42 /* MetricCard.swift in Sources */,
 				4996BD4524D485C900E301B4 /* AppDelegate.swift in Sources */,
+				49854964251C01F80096444D /* Subscription+CoreDataClass.swift in Sources */,
 				4926509124FF25AF001AA5A3 /* MainDataImporter.swift in Sources */,
-				49ED333425118B4B006FE080 /* Metric+CoreDataProperties.swift in Sources */,
 				4996BD4F24D485C900E301B4 /* Hundred.xcdatamodeld in Sources */,
 				49C8690524F44D66005D0C4D /* GoalCell.swift in Sources */,
 				496149CC25007DAF00C5A23B /* BarChartAxisFormatter.swift in Sources */,
 				491A66202509947300B659CB /* UsersViewController.swift in Sources */,
 				491F5A7C24E458FA0075EDCD /* DetailTableViewController.swift in Sources */,
 				497DC78424EA15A800446178 /* NewViewController.swift in Sources */,
+				4985495F251C01F80096444D /* Goal+CoreDataProperties.swift in Sources */,
 				49B328FE24E3269F00D9E8D4 /* DataImporter.swift in Sources */,
 				494F0C2C24D7246A00C5450C /* ManagedObjectContext.swift in Sources */,
 				491165FF24FAE4A000B2963A /* Test.swift in Sources */,
@@ -406,7 +415,6 @@
 				4996BD4724D485C900E301B4 /* SceneDelegate.swift in Sources */,
 				49ED332825114BBF006FE080 /* ProfileViewController.swift in Sources */,
 				49DB512A24EC453B00857634 /* Extensions-Style.swift in Sources */,
-				49ED333625118B4B006FE080 /* Profile+CoreDataProperties.swift in Sources */,
 				49DB512C24ECAA6500857634 /* ButtonCreator.swift in Sources */,
 				494C424E2513DCB200CD0C34 /* KeychainWrapper.swift in Sources */,
 			);

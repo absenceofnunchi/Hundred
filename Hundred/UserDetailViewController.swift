@@ -29,6 +29,7 @@ class UserDetailViewController: UIViewController {
     var subTitleLabel: CustomLabel!
     var goalTitle: String?
     var userId: String?
+    var email: String?
     var date: Date?
     var username: String?
     var comment: String?
@@ -92,6 +93,7 @@ class UserDetailViewController: UIViewController {
         if let user = user {
             self.title = user.object(forKey: MetricAnalytics.goal.rawValue) as? String
             userId = user.object(forKey: MetricAnalytics.userId.rawValue) as? String
+            email = user.object(forKey: MetricAnalytics.email.rawValue) as? String
             date = user.object(forKey: MetricAnalytics.date.rawValue) as? Date
             username = user.object(forKey: MetricAnalytics.username.rawValue) as? String
             comment = user.object(forKey: MetricAnalytics.comment.rawValue) as? String
@@ -105,17 +107,14 @@ class UserDetailViewController: UIViewController {
             
             // bookmark button
             if !user.wasCreatedByThisUser {
-                // if the post doesn't belong to the current user, show the subscribe/unsubscribe button
-                let profileRequest = NSFetchRequest<Profile>(entityName: "Profile")
-                if let fetchedProfile = try? self.context.fetch(profileRequest) {
-                    if let profile = fetchedProfile.first, let userId = userId {
-                        // if the current user is already subscribed to this post, show the unsubscribe button
-                        if let subscription = profile.subscription, subscription.contains(userId) {
-                            print("isSubscribed true")
+                if let userId = userId {
+                    // if the post doesn't belong to the current user, show the subscribe/unsubscribe button
+                    let subscriptionRequest = NSFetchRequest<Subscription>(entityName: "Subscription")
+                    subscriptionRequest.predicate = NSPredicate(format: "userId == %@", userId as CVarArg)
+                    if let fetchedSubscriptions = try? self.context.fetch(subscriptionRequest) {
+                        if fetchedSubscriptions.count > 0 {
                             isSubscribed = true
                         } else {
-                            // the user is not subscribed to this post so show the subscribe button
-                            print("isSubscribed false")
                             isSubscribed = false
                         }
                     }
@@ -137,7 +136,7 @@ class UserDetailViewController: UIViewController {
             dateLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
             stackView.setCustomSpacing(0, after: dateLabel)
         }
-
+        
         // username
         if let username = username {
             let usernameLabelTheme = UILabelTheme(font: UIFont.body.with(weight: .bold), color: .darkGray, lineBreakMode: .byTruncatingTail, textAlignment: .right)
@@ -326,21 +325,6 @@ class UserDetailViewController: UIViewController {
             mapContainerView.translatesAutoresizingMaskIntoConstraints = false
             mapContainerView.heightAnchor.constraint(equalTo: mapContainerView.widthAnchor).isActive = true
         }
-        
-        
-        
-//        if let userId = userId {
-//            getCredentials { (profile) in
-//                if let profile = profile {
-//                    if profile.userId != userId {
-//                        let subscribeButton: UIBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "bookmark"), style: .done, target: self, action: #selector(self.subscribe))
-//                        subscribeButton.tintColor = .black
-//
-//                        self.navigationItem.rightBarButtonItems = [subscribeButton]
-//                    }
-//                }
-//            }
-//        }
     }
     
     func setConstraints() {
@@ -387,56 +371,156 @@ class UserDetailViewController: UIViewController {
     }
     
     @objc func subscribe() {
-        if let user = user {
-            if let userId = user.object(forKey: MetricAnalytics.userId.rawValue) as? String {
-                getCredentials { [unowned self] (profile) in
-                    print("profile in userdetail: \(profile)")
-                    if let profile = profile {
-                        print("profile.subscription exists \(profile.subscription)")
-                        if let existingSubscriptions = profile.subscription {
-                            print("existingSubscriptions----: \(existingSubscriptions)")
-                            if !(existingSubscriptions.contains(userId)) {
-                                profile.subscription?.append(userId)
-                            }
-                        } else {
-                            profile.subscription = [userId]
-                            print("intial subscripton: \(profile.subscription)")
-                        }
-                        
-                        DispatchQueue.main.async {
-                            self.saveContext()
-                        }
-                        
-                        // save subscription in public cloud database
-//                        let predicate = NSPredicate(format: "userId = %@", userId)
-//                        let subscription = CKQuerySubscription(recordType: MetricAnalytics.Progress.rawValue, predicate: predicate, options: .firesOnRecordCreation)
-//
-//                        let notification = CKSubscription.NotificationInfo()
-//                        notification.title = "The Hundred App"
-//                        notification.alertBody = "\(self.username ?? "A person you're following") made a new post"
-//                        notification.soundName = "default"
-//                        subscription.notificationInfo = notification
-//
-//                        let database = CKContainer.default().publicCloudDatabase
-//                        database.save(subscription) { (result, error) in
-//                            if let error = error {
-//                                print("error from subscription save: \(error.localizedDescription)")
-//                                self.showAlert(title: "Error", message: "Sorry, there was an error subscribing to this user. Please try again", action: nil)
-//                            } else {
-//                                DispatchQueue.main.async {
-//                                    self.isSubscribed = true
-//                                }
-//                            }
-//                        }
-                    } else {
-                        let action = UIAlertAction(title: "OK", style: .default, handler: { (_) in
-                            if let vc = self.storyboard?.instantiateViewController(identifier: "Profile") as? ProfileViewController {
-                                DispatchQueue.main.async {
-                                    self.navigationController?.pushViewController(vc, animated: true)
+        if let userId = userId {
+            // creaet a subscription using userID
+            let predicate = NSPredicate(format: "userId == %@", userId)
+            let subscription = CKQuerySubscription(recordType: MetricAnalytics.Progress.rawValue, predicate: predicate, options: .firesOnRecordCreation)
+            
+            // notification format for when the new post is posted
+            let notification = CKSubscription.NotificationInfo()
+            notification.title = "The Hundred App"
+            notification.alertBody = "\(self.username ?? "A person you're following") made a new post"
+            notification.soundName = "default"
+            subscription.notificationInfo = notification
+            
+            let database = CKContainer.default().publicCloudDatabase
+            // first attempt to save on public cloud
+            database.save(subscription) { (result, error) in
+                if let error = error {
+                    // if there is a duplicate subscription, delete the existing one
+                    if error.localizedDescription.contains("duplicate") {
+                        // get the subscription ID from the error message
+                        if let duplicateSubscriptionID = error.localizedDescription.slice(from: "'", to: "'") {
+                            database.delete(withSubscriptionID: duplicateSubscriptionID) { (result, error) in
+                                if let error = error {
+                                    print("error from duplicate error handling:  \(error.localizedDescription)")
+                                    self.showAlert(title: "Error", message: "Sorry, there was an error subscribing to this user. Please try again", action: nil)
+                                } else {
+                                    // second attempt to save after deleting the duplicate
+                                    database.save(subscription) { (result, error) in
+                                        if let error = error {
+                                            print("error from a second attempt to save:  \(error.localizedDescription)")
+                                            self.showAlert(title: "Error", message: "Sorry, there was an error subscribing to this user. Please try again", action: nil)
+                                        } else if let result = result {
+                                            DispatchQueue.main.async {
+                                                // check for an existing subscription for this post's creator in Core Data
+                                                let subscriptionRequest = NSFetchRequest<Subscription>(entityName: "Subscription")
+                                                subscriptionRequest.predicate = NSPredicate(format: "userId == %@", userId)
+                                                if let fetchedSubscriptions = try? self.context.fetch(subscriptionRequest) {
+                                                    // create a new subscription in Core Data since none exists
+                                                    if fetchedSubscriptions.count == 0 {
+                                                        let newSubscription = Subscription(context: self.context)
+                                                        newSubscription.email = self.email ?? ""
+                                                        newSubscription.userId = userId
+                                                        newSubscription.username = self.username ?? ""
+                                                        newSubscription.subscriptionId = result.subscriptionID
+                                                        self.saveContext()
+                                                    } else {
+                                                        for fetchedSubscription in fetchedSubscriptions {
+                                                            self.context.delete(fetchedSubscription)
+                                                        }
+                                                        let newSubscription = Subscription(context: self.context)
+                                                        newSubscription.email = self.email ?? ""
+                                                        newSubscription.userId = userId
+                                                        newSubscription.username = self.username ?? ""
+                                                        newSubscription.subscriptionId = result.subscriptionID
+                                                        self.saveContext()
+                                                    }
+                                                }
+                                                
+                                                self.isSubscribed = true
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                        })
-                        self.showAlert(title: "No profile found", message: "Follow/Unfollow feature requires creating your own profile first, but you're either not logged in at the moment or don't have an account.  Would you like to authenticate?", action: action)
+                        } else {
+                            // as a last resort, if the error message doesn't contain the subscription ID,
+                            // delete the entire subscriptions from SKSubscriptions and start over
+                            var subscriptionArr: [CKSubscription] = []
+                            
+                            // fetch all the subscription IDs from Core Data and reconstruct new subscriptions
+                            DispatchQueue.main.async {
+                                let subscriptionRequest = NSFetchRequest<Subscription>(entityName: "Subscription")
+                                if let fetchedSubscriptions = try? self.context.fetch(subscriptionRequest) {
+                                    for fetchedSubscription in fetchedSubscriptions {
+                                        // create a subscription using userID
+                                        let newPredicate = NSPredicate(format: "userId == %@", fetchedSubscription.userId)
+                                        let newSubscription = CKQuerySubscription(recordType: MetricAnalytics.Progress.rawValue, predicate: newPredicate, options: .firesOnRecordCreation)
+                                        
+                                        // notification format for when the new post is posted
+                                        let newNotification = CKSubscription.NotificationInfo()
+                                        newNotification.title = "The Hundred App"
+                                        newNotification.alertBody = "\(fetchedSubscription.username) made a new post"
+                                        newNotification.soundName = "default"
+                                        subscription.notificationInfo = newNotification
+                                        
+                                        subscriptionArr.append(newSubscription)
+                                        
+                                        // update Core Data with the new subscription IDs
+                                        fetchedSubscription.subscriptionId = newSubscription.subscriptionID
+                                    }
+                                }
+                            }
+
+                            // fetch all the subscriptions to be deleted
+                            var IDsToBeDeleted: [CKSubscription.ID] = []
+                            database.fetchAllSubscriptions { (subscriptions, error) in
+                                if let error = error {
+                                    print("error from fetch all subscriptions: \(error.localizedDescription)")
+                                } else if let subscriptions = subscriptions {
+                                    for subscription in subscriptions {
+                                        IDsToBeDeleted.append(subscription.subscriptionID)
+                                    }
+                                }
+                            }
+                            
+                            let operation = CKModifySubscriptionsOperation(subscriptionsToSave: subscriptionArr, subscriptionIDsToDelete: IDsToBeDeleted)
+                            operation.modifySubscriptionsCompletionBlock = { saved, deleted, error in
+                              if let error = error{
+                                print("error from modifySubscriptionsCompletionBlock: \(error.localizedDescription)")
+                              }else{
+                                print("Subscriptions saved: \(String(describing: saved))\nSubscriptions deleted: \(String(describing: deleted))")
+                                DispatchQueue.main.async {
+                                    // only save the newly updated data to Core Data if the subscription update is successful
+                                    self.saveContext()
+                                }
+                              }
+                            }
+
+                            database.add(operation)
+                        }
+                    } else {
+                        self.showAlert(title: "Error", message: "Sorry, there was an error subscribing to this user. Please try again", action: nil)
+                    }
+                } else if let result = result {
+                    DispatchQueue.main.async {
+                        // check for an existing subscription for this post's creator in Core Data
+                        let subscriptionRequest = NSFetchRequest<Subscription>(entityName: "Subscription")
+                        subscriptionRequest.predicate = NSPredicate(format: "userId == %@", userId)
+                        if let fetchedSubscriptions = try? self.context.fetch(subscriptionRequest) {
+                            // create a new subscription in Core Data since none exists
+                            if fetchedSubscriptions.count == 0 {
+                                let newSubscription = Subscription(context: self.context)
+                                newSubscription.email = self.email ?? ""
+                                newSubscription.userId = userId
+                                newSubscription.username = self.username ?? ""
+                                newSubscription.subscriptionId = result.subscriptionID
+                                self.saveContext()
+                            } else {
+                                for fetchedSubscription in fetchedSubscriptions {
+                                    self.context.delete(fetchedSubscription)
+                                }
+                                let newSubscription = Subscription(context: self.context)
+                                newSubscription.email = self.email ?? ""
+                                newSubscription.userId = userId
+                                newSubscription.username = self.username ?? ""
+                                newSubscription.subscriptionId = result.subscriptionID
+                                self.saveContext()
+                            }
+                        }
+                        
+                        self.isSubscribed = true
                     }
                 }
             }
@@ -444,51 +528,36 @@ class UserDetailViewController: UIViewController {
     }
     
     @objc func unsubscribe() {
-        if let user = user {
-            if let userId = user.object(forKey: MetricAnalytics.userId.rawValue) as? String {
-                getCredentials { [unowned self] (profile) in
-                    print("profile: -------------\(profile)")
-                    if let profile = profile, var existingSubscriptions = profile.subscription  {
-                        print("existingSubscriptions before delete: ---------- \(existingSubscriptions)")
-                        existingSubscriptions.removeAll{$0 == userId}
-                        print("existingSubscriptions after delete: \(existingSubscriptions)")
-                        profile.subscription = existingSubscriptions
-                        DispatchQueue.main.async {
-                            self.saveContext()
-                        }
-                        
-                        let database = CKContainer.default().publicCloudDatabase
-                        database.fetchAllSubscriptions { subscriptions, error in
-                            print("fetchAllSubscriptions \(subscriptions)")
-                        }
-                        
-                        
-                        
-                        // delete a single subscription
-//                        let database = CKContainer.default().publicCloudDatabase
-//                        let predicate = NSPredicate(format: "userId = %@", userId)
-//                        let subscription = CKQuerySubscription(recordType: MetricAnalytics.Progress.rawValue, predicate: predicate, options: .firesOnRecordCreation)
-//                        database.delete(withSubscriptionID: subscription.subscriptionID) { (result, error) in
-//                            print("result from deletion: \(result)")
-//                            if let error = error {
-//                                print("error from unsubscribing: \(error.localizedDescription)")
-//                                self.showAlert(title: "Error", message: "Sorry, there was an error unsubscribing from this user. Please try again", action: nil)
-//                            } else {
-//                                DispatchQueue.main.async {
-//                                    self.isSubscribed = false
-//                                }
-//                            }
-//                        }
-                    } else {
-                        let action = UIAlertAction(title: "OK", style: .default, handler: { (_) in
-                            if let vc = self.storyboard?.instantiateViewController(identifier: "Profile") as? ProfileViewController {
-                                DispatchQueue.main.async {
-                                    self.navigationController?.pushViewController(vc, animated: true)
-                                }
-                            }
-                        })
-                        self.showAlert(title: "No profile found", message: "Follow/Unfollow feature requires creating your own profile first, but you're either not logged in at the moment or don't have an account.  Would you like to authenticate?", action: action)
+        if let userId = userId {
+            let subscriptionRequest = NSFetchRequest<Subscription>(entityName: "Subscription")
+            subscriptionRequest.predicate = NSPredicate(format: "userId == %@", userId)
+            if let fetchedSubscriptions = try? self.context.fetch(subscriptionRequest) {
+                if fetchedSubscriptions.count > 0 {
+                    var IDsToBeDeleted: [CKSubscription.ID] = []
+                    for fetchedSubscription in fetchedSubscriptions {
+                        IDsToBeDeleted.append(fetchedSubscription.subscriptionId)
                     }
+                    
+                    let operation = CKModifySubscriptionsOperation(subscriptionsToSave: nil, subscriptionIDsToDelete: IDsToBeDeleted)
+                    operation.modifySubscriptionsCompletionBlock = { saved, deleted, error in
+                      if let error = error{
+                        print("error from modifySubscriptionsCompletionBlock: \(error.localizedDescription)")
+                        self.showAlert(title: "Error", message: "Sorry, there was an error unsubscribing from this user. Please try again", action: nil)
+                      }else{
+                        print("Subscriptions saved: \(String(describing: saved))\nSubscriptions deleted: \(String(describing: deleted))")
+                        DispatchQueue.main.async {
+                            // only save the newly updated data to Core Data if the subscription update is successful
+                            for fetchedSubscription in fetchedSubscriptions {
+                                self.context.delete(fetchedSubscription)
+                            }
+                            self.saveContext()
+                            self.isSubscribed = false
+                        }
+                      }
+                    }
+
+                    let database = CKContainer.default().publicCloudDatabase
+                    database.add(operation)
                 }
             }
         }
@@ -532,4 +601,14 @@ extension UserDetailViewController: MKMapViewDelegate {
     }
 }
 
+extension String {
 
+    func slice(from: String, to: String) -> String? {
+
+        return (range(of: from)?.upperBound).flatMap { substringFrom in
+            (range(of: to, range: substringFrom..<endIndex)?.lowerBound).map { substringTo in
+                String(self[substringFrom..<substringTo])
+            }
+        }
+    }
+}

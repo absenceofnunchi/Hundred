@@ -10,6 +10,8 @@ import UIKit
 import AuthenticationServices
 import Network
 import CloudKit
+import CoreSpotlight
+import MobileCoreServices
 
 enum Keychain: String {
     case userIdentifier
@@ -134,6 +136,7 @@ class ProfileViewController: UIViewController {
         
         getCredentials { (profile) in
             if let profile = profile {
+                print("profile---------------- \(profile)")
                 self.isAuthenticated = true
                 self.usernameLabel.text = profile.username
                 self.emailLabel.text = profile.email
@@ -152,99 +155,113 @@ class ProfileViewController: UIViewController {
 }
 
 extension ProfileViewController: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
-
+    // 1. if the discoverability is authorized and the sign in goes through, create a new Profile entity, spotlight index, Keychain, and set isAuthorized to true
+    // 2. if the discoverabiliy is not granted, inform the choice to say yes again or decline. If declined, set isAuthorized to false
     @objc func handleAuthorizationAppleIDButtonPress() {
-        let appleIDProvider = ASAuthorizationAppleIDProvider()
-        let request = appleIDProvider.createRequest()
-        request.requestedScopes = [.fullName, .email]
-
-        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
-        authorizationController.delegate = self
-        authorizationController.presentationContextProvider = self
-        authorizationController.performRequests()
+        CKContainer.default().status(forApplicationPermission: .userDiscoverability) { (status, error) in
+            if error != nil {
+                self.permissionDeniedAlert(title: "Permission Error", message: "Sorry! There was an error checking for the permission status for your iCloud user discoverability. Please try again.")
+            } else {
+                self.processApplicationPermission(status: status)
+            }
+        }
     }
 
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         return self.view.window!
     }
+    
+    func processApplicationPermission(status: CKContainer_Application_PermissionStatus) {
+        switch status {
+        case .granted:
+            let appleIDProvider = ASAuthorizationAppleIDProvider()
+            let request = appleIDProvider.createRequest()
+            request.requestedScopes = [.fullName, .email]
+
+            let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+            authorizationController.delegate = self
+            authorizationController.presentationContextProvider = self
+            authorizationController.performRequests()
+        case .couldNotComplete, .denied, .initialState:
+            DispatchQueue.main.async {
+                let ac = UIAlertController(title: "", message: "Sorry! You permission is required to obtain the unique record ID from your iCloud account.  You are not required to display the iCloud email or your name on the Public Feed and can be changed to your preference. Please see the FAQ section for more information.", preferredStyle: .alert)
+                ac.addAction(UIAlertAction(title: "OK", style: .default, handler: {(_) in
+                    // ask for the permission again since the user has been informed of the need and is OK with it
+                    CKContainer.default().requestApplicationPermission(.userDiscoverability) { (status, error) in
+                        // recursive to ensure the integrity
+                        self.processApplicationPermission(status: status)
+                    }
+                }))
+                
+                ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (_) in
+                    // the user doesn't want to grant the permission so go back to showing the Apple Sign in button
+                    self.isAuthenticated = false
+                }))
+                
+                if let popoverController = ac.popoverPresentationController {
+                    popoverController.sourceView = self.view
+                    popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                    popoverController.permittedArrowDirections = []
+                }
+                
+                self.present(ac, animated: true)
+            }
+        default:
+            self.isAuthenticated = false
+        }
+    }
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         switch authorization.credential {
         case let appleIDCredential as ASAuthorizationAppleIDCredential:
-            self.isAuthenticated = true
-
-            // Create an account in your system.
-            let profile = Profile(context: self.context)
-            if let fullName = appleIDCredential.fullName {
-                if let givenName = fullName.givenName, let familyName = fullName.familyName {
-                    profile.username = "\(givenName) \(familyName)"
-                    self.usernameLabel.text = "\(givenName) \(familyName)"
-                }
-            }
-
-            if let email = appleIDCredential.email {
-                profile.email = email
-                self.emailLabel.text = email
-            }
-            
-            func permissionDeniedAlert() {
-                DispatchQueue.main.async {
-                    let ac = UIAlertController(title: "Permission Denied for Discoverability", message: "Since you have denied the discoverability through iCloud, others won't be able to subscribe to your postings, but you will still be able to subscribe to others who have given this permission. Your iCloud ID will not be visible to others, should you change your mind in the future. Please refer to the FAQ section more information.", preferredStyle: .alert)
-                    ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { (_) in
-                        return
-                    }))
-                    
-                    if let popoverController = ac.popoverPresentationController {
-                        popoverController.sourceView = self.view
-                        popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
-                        popoverController.permittedArrowDirections = []
-                    }
-                    
-                    self.present(ac, animated: true)
-                }
-            }
-            
-            CKContainer.default().status(forApplicationPermission: .userDiscoverability) { (status, error) in
+            // since the permission to fetch the record ID is granted, use it to create Profile in Core Data, KeyChain, and Spotlight
+            CKContainer.default().fetchUserRecordID { (record, error) in
                 if error != nil {
-                    permissionDeniedAlert()
-                } else {
-                    switch status {
-                    case .granted:
-                        print("granted")
-                        CKContainer.default().fetchUserRecordID { (record, error) in
-                            if error != nil {
-                                permissionDeniedAlert()
-                            }
-                            
-                            if let record = record {
-                                profile.userId = record.recordName
+                    self.permissionDeniedAlert(title: "Error", message: "Sorry! There was an error fetching the Record ID of your iCloud account. Please try again")
+                }
+                
+                if let record = record {
+                    DispatchQueue.main.async {
+                        // Create an account in your system.
+                        let profile = Profile(context: self.context)
+                        if let fullName = appleIDCredential.fullName {
+                            if let givenName = fullName.givenName, let familyName = fullName.familyName {
+                                profile.username = "\(givenName) \(familyName)"
+                                self.usernameLabel.text = "\(givenName) \(familyName)"
                             }
                         }
-                    case .couldNotComplete, .denied, .initialState:
-                        print("not granted")
-                        CKContainer.default().requestApplicationPermission(.userDiscoverability) { (status, error) in
-                            CKContainer.default().fetchUserRecordID { (record, error) in
-                                if error != nil {
-                                    permissionDeniedAlert()
-                                }
-                                
-                                if let record = record {
-                                    profile.userId = record.recordName
-                                }
 
+                        if let email = appleIDCredential.email {
+                            profile.email = email
+                            self.emailLabel.text = email
+                        }
+                        profile.userId = record.recordName
+                        
+                        let userIdentifier = appleIDCredential.user
+                        KeychainWrapper.standard.set(userIdentifier, forKey: Keychain.userIdentifier.rawValue)
+                        
+                        self.saveContext()
+                        
+                        // Core Spotlight indexing
+                        let attributeSet = CSSearchableItemAttributeSet(itemContentType: kUTTypeText as String)
+                        attributeSet.title = self.usernameLabel.text
+                        attributeSet.contentCreationDate = Date()
+                        attributeSet.contentDescription = self.emailLabel.text
+                        
+                        let item = CSSearchableItem(uniqueIdentifier: self.emailLabel.text, domainIdentifier: "com.noName.Hundred", attributeSet: attributeSet)
+                        item.expirationDate = Date.distantFuture
+                        CSSearchableIndex.default().indexSearchableItems([item]) { (error) in
+                            if let error = error {
+                                print("Indexing error: \(error.localizedDescription)")
+                            } else {
+                                print("Search item for the new account successfully indexed")
                             }
                         }
-                    default:
-                        permissionDeniedAlert()
+                        
+                        self.isAuthenticated = true
                     }
                 }
             }
-            
-            let userIdentifier = appleIDCredential.user
-            KeychainWrapper.standard.set(userIdentifier, forKey: Keychain.userIdentifier.rawValue)
-            
-            self.saveContext()
-
         case let passwordCredential as ASPasswordCredential:
 
             // Sign in using an existing iCloud Keychain credential.
@@ -258,16 +275,16 @@ extension ProfileViewController: ASAuthorizationControllerDelegate, ASAuthorizat
     }
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-//        let ac = UIAlertController(title: "Authorization Error", message: "The authorization attempt with your Apple ID credential has failed. Please try again.", preferredStyle: .alert)
-//        ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-//
-//        if let popoverController = ac.popoverPresentationController {
-//            popoverController.sourceView = self.view
-//            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
-//            popoverController.permittedArrowDirections = []
-//        }
-//
-//        present(ac, animated: true)
+        let ac = UIAlertController(title: "Authorization Error", message: "Sorry! The authorization attempt with your Apple ID credential has failed. Please try again.", preferredStyle: .alert)
+        ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+
+        if let popoverController = ac.popoverPresentationController {
+            popoverController.sourceView = self.view
+            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+            popoverController.permittedArrowDirections = []
+        }
+
+        present(ac, animated: true)
         self.isAuthenticated = false
         print("The authorization attempt with your Apple ID credential has failed. Please try again.")
 

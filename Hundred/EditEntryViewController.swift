@@ -355,46 +355,53 @@ class EditEntryViewController: UIViewController {
             // done button is pressed
             // first case is when there's a corresponding entry on Public Feed
             if progress.recordName != nil {
-                // no iCloud
-                if isICloudContainerAvailable() == false {
-                    let ac = UIAlertController(title: "No iCloud Connection", message: "Looks like you had posted this entry on Public Feed as well. iCloud is needed to update the entry on Public Feed.", preferredStyle: .alert)
-                    
-                    // don't want to bother with the iCloud stuff even though my post exists on Pulic Feed. Just deal with the offline content
-                    ac.addAction(UIAlertAction(title: "Disregard", style: .default, handler: { (action) in
-                        self.done(action: action, profile: nil)
-                    }))
-                    
-                    // go to the iOS settings
-                    ac.addAction(UIAlertAction(title: "Go to Settings", style: .default, handler: { (_) in
-                        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
-                            return
+                let ac = UIAlertController(title: "No Profile", message: "Looks like you've posted this entry on Public Feed as well. Would you like to modify both the local entry and the public entry?", preferredStyle: .alert)
+                ac.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (_) in
+                    self.getCredentials { (profile) in
+                        if let profile = profile {
+                            self.done(profile: profile, isPublic: true)
+                        } else {
+                            let ac = UIAlertController(title: "No Profile", message: "You need to either log in or create a profile.  Would you like to login/create a profile?", preferredStyle: .alert)
+                            ac.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (_) in
+                                if let vc = self.storyboard?.instantiateViewController(identifier: "Profile") as? ProfileViewController {
+                                    DispatchQueue.main.async {
+                                        self.navigationController?.pushViewController(vc, animated: true)
+                                    }
+                                }
+                            }))
+                            ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+                            
+                            if let popoverController = ac.popoverPresentationController {
+                                popoverController.sourceView = self.view
+                                popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                                popoverController.permittedArrowDirections = []
+                            }
+                            
+                            self.present(ac, animated: true, completion: {() -> Void in
+                                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
+                                ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
+                            })
                         }
-
-                        if UIApplication.shared.canOpenURL(settingsUrl) {
-                            UIApplication.shared.open(settingsUrl, completionHandler: nil)
-                        }
-                    }))
-                    
-                    // iPad ui alert
-                    if let popoverController = ac.popoverPresentationController {
-                        popoverController.sourceView = self.view
-                        popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-                        popoverController.permittedArrowDirections = []
                     }
-
-                    present(ac, animated: true, completion: {() -> Void in
-                        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
-                        ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
-                    })
-                } else {
-                    // iCloud post exists and the iCloud account is connected
-                    checkUsernameAndDone(action: nil)
+                }))
+                ac.addAction(UIAlertAction(title: "Only the local entry", style: .default, handler: { (_) in
+                    self.done(profile: nil, isPublic: false)
+                }))
+                
+                ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+                
+                if let popoverController = ac.popoverPresentationController {
+                    popoverController.sourceView = self.view
+                    popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                    popoverController.permittedArrowDirections = []
                 }
-            } else {
-                // only the offline content exist
-                done(action: nil, profile: nil)
+                
+                present(ac, animated: true, completion: {() -> Void in
+                    let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
+                    ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
+                })
             }
-
+            
             
         case 3:
             if let vc = storyboard?.instantiateViewController(withIdentifier: "Map") as? MapViewController {
@@ -408,23 +415,8 @@ class EditEntryViewController: UIViewController {
             print("default")
         }
     }
-    
-    func checkUsernameAndDone(action: UIAlertAction?) {
-        // username is needed to post online
-        getCredentials { (profile) in
-            if let profile = profile {
-                self.done(action: nil, profile: profile)
-            } else {
-                // no username exists
-                DispatchQueue.main.async {
-                    self.alertForUsername()
-                }
-            }
-        }
-    }
-    
-    
-    func done(action: UIAlertAction?, profile: Profile?) {
+        
+    func done(profile: Profile?, isPublic: Bool) {
         // completed editing
         let progressRequest = NSFetchRequest<Progress>(entityName: "Progress")
         let progressPredicate = NSPredicate(format: "id == %@", progress.id as CVarArg)
@@ -532,108 +524,10 @@ class EditEntryViewController: UIViewController {
                     }
                 }
                 
-                
-                // public cloud database
-                if let profile = profile {
-                    let progressRecord = CKRecord(recordType: MetricAnalytics.Progress.rawValue)
-                    progressRecord[MetricAnalytics.goal.rawValue] = progress.goal.title as CKRecordValue
-                    progressRecord[MetricAnalytics.comment.rawValue] = commentTextView.text as CKRecordValue
-                    
-                    if let imagePathString = imagePathString {
-                        progressRecord[MetricAnalytics.image.rawValue] = CKAsset(fileURL: imagePathString)
-                    }
-                    
-                    try? progressRecord.encode(metricDict, forKey: MetricAnalytics.metrics.rawValue)
-                    progressRecord[MetricAnalytics.date.rawValue] = progress.date
-                    
-                    // profile
-                    progressRecord[MetricAnalytics.username.rawValue] = profile.username
-                    progressRecord[MetricAnalytics.email.rawValue] = profile.email
-                    progressRecord[MetricAnalytics.userId.rawValue] = profile.userId
-                    
-                    // location
-                    if let location = location {
-                        progressRecord[MetricAnalytics.longitude.rawValue] = location.longitude
-                        progressRecord[MetricAnalytics.latitude.rawValue] = location.latitude
-                    }
-                    
-                    // entry count for the horizontal bar chart
-                    let entryCount = MetricCard.getEntryCount(progress: progress.goal.progress)
-                    progressRecord[MetricAnalytics.entryCount.rawValue] = entryCount
-                    
-                    // streaks
-                    progressRecord[MetricAnalytics.longestStreak.rawValue] = progress.goal.longestStreak
-                    progressRecord[MetricAnalytics.currentStreak.rawValue] = progress.goal.streak
-                    
-                    // save the newly modified record and delete the old one
-                    if let recordName = progress.recordName {
-                        let recordID = CKRecord.ID(recordName: recordName)
-                        let operation = CKModifyRecordsOperation(recordsToSave: [progressRecord], recordIDsToDelete: [recordID])
-                        // replace the old record name with the record name of the newly modified public cloud post's record name
-                        progress.recordName = progressRecord.recordID.recordName
-
-                        let operationConfiguration = CKOperation.Configuration()
-                        operationConfiguration.allowsCellularAccess = true
-                        operationConfiguration.qualityOfService = .userInitiated
-                        operation.configuration = operationConfiguration
-                        
-                        operation.perRecordProgressBlock = {(record, progress) in
-                            print("perRecordProgressBlock: \(progress)")
-                        }
-                        
-                        operation.perRecordCompletionBlock = {(record, error) in
-                            if let error = error {
-                                print("public cloud database error======================================================: \(error)")
-                                return
-                            }
-                            print("Sucessfully uploaded to Public Cloud DB==================================================== \(record)")
-                            var recordsArr: [CKRecord] = []
-                            
-                            if self.progress.goal.progress.count == 1 {
-                                for metricPair in metricDict {
-                                    let analyticsRecord = CKRecord(recordType: MetricAnalytics.analytics.rawValue)
-                                    let reference = CKRecord.Reference(recordID: record.recordID, action: .deleteSelf)
-                                    analyticsRecord["owningProgress"] = reference as CKRecordValue
-                                    analyticsRecord[MetricAnalytics.metricTitle.rawValue] = metricPair.key
-                                    analyticsRecord[MetricAnalytics.Min.rawValue] = metricPair.value
-                                    analyticsRecord[MetricAnalytics.Max.rawValue] = metricPair.value
-                                    analyticsRecord[MetricAnalytics.Average.rawValue] = metricPair.value
-                                    analyticsRecord[MetricAnalytics.Sum.rawValue] = metricPair.value
-                                    recordsArr.append(analyticsRecord)
-                                }
-                            } else {
-                                if let metrics = self.progress.goal.metrics {
-                                    for metric in metrics {
-                                        DispatchQueue.main.async {
-                                            if let dict = MetricCard.getAnalytics(metric: metric) {
-                                                let convertedDict = dict.mapValues { UnitConversion.decimalToString(decimalNumber: $0)}
-                                                let analyticsRecord = CKRecord(recordType: MetricAnalytics.analytics.rawValue)
-                                                let reference = CKRecord.Reference(recordID: record.recordID, action: .deleteSelf)
-                                                analyticsRecord["owningProgress"] = reference as CKRecordValue
-                                                analyticsRecord[MetricAnalytics.metricTitle.rawValue] = metric
-                                                analyticsRecord[MetricAnalytics.Min.rawValue] = convertedDict[MetricAnalytics.Min.rawValue]
-                                                analyticsRecord[MetricAnalytics.Max.rawValue] = convertedDict[MetricAnalytics.Max.rawValue]
-                                                analyticsRecord[MetricAnalytics.Average.rawValue] = convertedDict[MetricAnalytics.Average.rawValue]
-                                                analyticsRecord[MetricAnalytics.Sum.rawValue] = convertedDict[MetricAnalytics.Sum.rawValue]
-                                                recordsArr.append(analyticsRecord)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            self.modifyRecords(recordsToSave: recordsArr, recordIDsToDelete: nil)
-                        }
-                        
-                        operation.modifyRecordsCompletionBlock = { (savedRecords, deletedRecordIDs, error) in
- 
-                        }
-                        
-                        let publicCloudDatabase = CKContainer.default().publicCloudDatabase
-                        publicCloudDatabase.add(operation)
-                    }
+                if isPublic == true, let profile = profile {
+                    publicEdit(progress: progress, profile: profile, metricDict: metricDict)
                 }
-                
+
                 // the persistent store save has to come after the public cloud save because the recordName might have to be modified
                 self.saveContext()
                 
@@ -651,6 +545,107 @@ class EditEntryViewController: UIViewController {
                 
                 _ = navigationController?.popViewController(animated: true)
             }
+        }
+    }
+    
+    func publicEdit(progress: Progress, profile: Profile, metricDict: [String: String]) {
+        // public cloud database
+        let progressRecord = CKRecord(recordType: MetricAnalytics.Progress.rawValue)
+        progressRecord[MetricAnalytics.goal.rawValue] = progress.goal.title as CKRecordValue
+        progressRecord[MetricAnalytics.comment.rawValue] = commentTextView.text as CKRecordValue
+        
+        if let imagePathString = imagePathString {
+            progressRecord[MetricAnalytics.image.rawValue] = CKAsset(fileURL: imagePathString)
+        }
+        
+        try? progressRecord.encode(metricDict, forKey: MetricAnalytics.metrics.rawValue)
+        progressRecord[MetricAnalytics.date.rawValue] = progress.date
+        
+        // profile
+        progressRecord[MetricAnalytics.username.rawValue] = profile.username
+        progressRecord[MetricAnalytics.email.rawValue] = profile.email
+        progressRecord[MetricAnalytics.userId.rawValue] = profile.userId
+        
+        // location
+        if let location = location {
+            progressRecord[MetricAnalytics.longitude.rawValue] = location.longitude
+            progressRecord[MetricAnalytics.latitude.rawValue] = location.latitude
+        }
+        
+        // entry count for the horizontal bar chart
+        let entryCount = MetricCard.getEntryCount(progress: progress.goal.progress)
+        progressRecord[MetricAnalytics.entryCount.rawValue] = entryCount
+        
+        // streaks
+        progressRecord[MetricAnalytics.longestStreak.rawValue] = progress.goal.longestStreak
+        progressRecord[MetricAnalytics.currentStreak.rawValue] = progress.goal.streak
+        
+        // save the newly modified record and delete the old one
+        if let recordName = progress.recordName {
+            let recordID = CKRecord.ID(recordName: recordName)
+            let operation = CKModifyRecordsOperation(recordsToSave: [progressRecord], recordIDsToDelete: [recordID])
+            // replace the old record name with the record name of the newly modified public cloud post's record name
+            progress.recordName = progressRecord.recordID.recordName
+            
+            let operationConfiguration = CKOperation.Configuration()
+            operationConfiguration.allowsCellularAccess = true
+            operationConfiguration.qualityOfService = .userInitiated
+            operation.configuration = operationConfiguration
+            
+            operation.perRecordProgressBlock = {(record, progress) in
+                print("perRecordProgressBlock: \(progress)")
+            }
+            
+            operation.perRecordCompletionBlock = {(record, error) in
+                if let error = error {
+                    print("public cloud database error======================================================: \(error)")
+                    return
+                }
+                print("Sucessfully uploaded to Public Cloud DB==================================================== \(record)")
+                var recordsArr: [CKRecord] = []
+                
+                if self.progress.goal.progress.count == 1 {
+                    for metricPair in metricDict {
+                        let analyticsRecord = CKRecord(recordType: MetricAnalytics.analytics.rawValue)
+                        let reference = CKRecord.Reference(recordID: record.recordID, action: .deleteSelf)
+                        analyticsRecord["owningProgress"] = reference as CKRecordValue
+                        analyticsRecord[MetricAnalytics.metricTitle.rawValue] = metricPair.key
+                        analyticsRecord[MetricAnalytics.Min.rawValue] = metricPair.value
+                        analyticsRecord[MetricAnalytics.Max.rawValue] = metricPair.value
+                        analyticsRecord[MetricAnalytics.Average.rawValue] = metricPair.value
+                        analyticsRecord[MetricAnalytics.Sum.rawValue] = metricPair.value
+                        recordsArr.append(analyticsRecord)
+                    }
+                } else {
+                    if let metrics = self.progress.goal.metrics {
+                        for metric in metrics {
+                            DispatchQueue.main.async {
+                                if let dict = MetricCard.getAnalytics(metric: metric) {
+                                    let convertedDict = dict.mapValues { UnitConversion.decimalToString(decimalNumber: $0)}
+                                    let analyticsRecord = CKRecord(recordType: MetricAnalytics.analytics.rawValue)
+                                    let reference = CKRecord.Reference(recordID: record.recordID, action: .deleteSelf)
+                                    analyticsRecord["owningProgress"] = reference as CKRecordValue
+                                    analyticsRecord[MetricAnalytics.metricTitle.rawValue] = metric
+                                    analyticsRecord[MetricAnalytics.Min.rawValue] = convertedDict[MetricAnalytics.Min.rawValue]
+                                    analyticsRecord[MetricAnalytics.Max.rawValue] = convertedDict[MetricAnalytics.Max.rawValue]
+                                    analyticsRecord[MetricAnalytics.Average.rawValue] = convertedDict[MetricAnalytics.Average.rawValue]
+                                    analyticsRecord[MetricAnalytics.Sum.rawValue] = convertedDict[MetricAnalytics.Sum.rawValue]
+                                    recordsArr.append(analyticsRecord)
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                self.modifyRecords(recordsToSave: recordsArr, recordIDsToDelete: nil)
+            }
+            
+            operation.modifyRecordsCompletionBlock = { (savedRecords, deletedRecordIDs, error) in
+                
+            }
+            
+            let publicCloudDatabase = CKContainer.default().publicCloudDatabase
+            publicCloudDatabase.add(operation)
         }
     }
     

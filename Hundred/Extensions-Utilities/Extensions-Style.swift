@@ -13,6 +13,7 @@ import Network
 import AuthenticationServices
 import CoreSpotlight
 import MobileCoreServices
+import CoreData
 
 extension UIViewController {
     
@@ -262,99 +263,189 @@ extension UIViewController {
         self.dismiss(animated: true, completion: nil)
     }
     
+    func permissionDeniedAlert(title: String, message: String) {
+        DispatchQueue.main.async {
+//            let ac = UIAlertController(title: "Permission Denied for Discoverability", message: "Since you have denied the discoverability through iCloud, others won't be able to subscribe to your postings, but you will still be able to subscribe to others who have given this permission. Your iCloud ID will not be visible to others, should you change your mind in the future. Please refer to the FAQ section more information.", preferredStyle: .alert)
+            let ac = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { action in
+                _ = self.navigationController?.popViewController(animated: true)
+            }))
+            
+//            let keyWindow = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
+//            if var topController = keyWindow?.rootViewController {
+//                while let presentedViewController = topController.presentedViewController {
+//                    topController = presentedViewController
+//                }
+//
+//                // topController should now be your topmost view controller
+//                print("topController: \(topController.)")
+//                if (topController is ProfileViewController) {
+//
+//                } else {
+//                    ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+//                }
+//            }
+            
+            if let popoverController = ac.popoverPresentationController {
+                popoverController.sourceView = self.view
+                popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                popoverController.permittedArrowDirections = []
+            }
+            
+            self.present(ac, animated: true)
+        }
+    }
+    
+    // 1. checks the iCloud availability
+    // 2. checks the internet connectivity
+    // 3. checks the status of the user discoverabiliy
+    // 4. checks the Apple sign in from iCloud Keychain
+    // 5. if yes to all, returns the profile from Core Data
     func getCredentials(completion: @escaping (Profile?) -> Void) {
-        // without checking for the internet access, the credential state will return .revoked or .notFound resulting in the deletion of the user identifier in Keychain
+        // check if the iCloud is available
+        guard isICloudContainerAvailable() == true else { return }
+        
+        // if no internet access, the credential state will return .revoked or .notFound resulting in the potential deletion of the user identifier in Keychain
         let monitor = NWPathMonitor()
         let queue = DispatchQueue(label: "Monitor")
         monitor.start(queue: queue)
         monitor.pathUpdateHandler = { path in
             if path.status == .satisfied {
-                let appleIDProvider = ASAuthorizationAppleIDProvider()
-                let currentUserIdentifier = KeychainWrapper.standard.string(forKey: Keychain.userIdentifier.rawValue)
-                appleIDProvider.getCredentialState(forUserID: currentUserIdentifier ?? "") { (credentialState, error) in
-                    switch credentialState {
-                    case .authorized:
-                        DispatchQueue.main.async {
-                            let request = Profile.createFetchRequest()
-                            do {
-                                let profiles = try self.context.fetch(request)
-                                print("profiles.first \(profiles.first)")
-                                completion(profiles.first)
-                            } catch {
-                                print("Fetch failed")
-                            }
-                        }
+                // now that the internet is connected, check the status of user discoverability
+                CKContainer.default().status(forApplicationPermission: .userDiscoverability) { (status, error) in
+                    if error != nil {
+                        self.permissionDeniedAlert(title: "Permission Error", message: "Sorry! There was an error checking for the permission status for your iCloud user discoverability. Please try again.")
                         monitor.cancel()
-                        break // The Apple ID credential is valid.
-                    case .revoked:
-                        print("revoked)")
-                        // The Apple ID credential is either revoked or was not found, so show the sign-in UI.
-                        KeychainWrapper.standard.removeObject(forKey: Keychain.userIdentifier.rawValue)
-                        DispatchQueue.main.async {
-                            let request = Profile.createFetchRequest()
-                            do {
-                                let profiles = try self.context.fetch(request)
-                                for profile in profiles {
-                                    self.context.delete(profile)
-                                }
-                            } catch {
-                                print("Fetched failed from revoked")
-                            }
-                        }
-                        monitor.cancel()
-                        completion(nil)
-                    case .notFound:
-                        print("not found")
-                        DispatchQueue.main.async {
-                            let ac = UIAlertController(title: "iCloud Keychain", message: "If your iCloud keychain not enabled, please enable it. It allows you to use the follow feature on Public Feed as well as use the app in multiple devices.", preferredStyle: .alert)
-                            ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: {(_) in
-                                KeychainWrapper.standard.removeObject(forKey: Keychain.userIdentifier.rawValue)
-                                DispatchQueue.main.async {
-                                    let request = Profile.createFetchRequest()
-                                    do {
-                                        let profiles = try self.context.fetch(request)
-                                        for profile in profiles {
-                                            self.context.delete(profile)
-                                        }
-                                    } catch {
-                                        print("Fetched failed from revoked")
-                                    }
-                                }
-                                monitor.cancel()
-                                completion(nil)
-                            }))
-                            
-                            if let popoverController = ac.popoverPresentationController {
-                                popoverController.sourceView = self.view
-                                popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
-                                popoverController.permittedArrowDirections = []
-                            }
-                            
-                            self.present(ac, animated: true)
-                        }
-                    default:
-                        monitor.cancel()
-                        break
+                    } else {
+                        self.processUserDiscoverability(status: status, monitor: monitor, completion: completion)
                     }
                 }
-                
             } else {
-                DispatchQueue.main.async {
-                    let ac = UIAlertController(title: "Network Error", message: "You're currently not connected to the internet. This section requires an Internet access.", preferredStyle: .alert)
-                    ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { action in
-                        _ = self.navigationController?.popViewController(animated: true)
-                    }))
-                    
-                    if let popoverController = ac.popoverPresentationController {
-                        popoverController.sourceView = self.view
-                        popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
-                        popoverController.permittedArrowDirections = []
+                self.permissionDeniedAlert(title: "Network Error", message: "You're currently not connected to the internet. This section requires an Internet access.")
+                monitor.cancel()
+            }
+        }
+    }
+    
+    func processUserDiscoverability(status: CKContainer_Application_PermissionStatus, monitor: NWPathMonitor, completion: @escaping (Profile?) -> Void) {
+        switch status {
+        case .granted:
+            // only if the user grants the permission to obtain the iCloud ID, allow Sign in with Apple ID
+            // this is because the record ID is used in places like subscriptions
+            // it also allows fetching an accurate profile from Core Data using the record ID
+            let appleIDProvider = ASAuthorizationAppleIDProvider()
+            let currentUserIdentifier = KeychainWrapper.standard.string(forKey: Keychain.userIdentifier.rawValue)
+            appleIDProvider.getCredentialState(forUserID: currentUserIdentifier ?? "") { (credentialState, error) in
+                switch credentialState {
+                case .authorized:
+                    print("authorized -------------------------")
+                    CKContainer.default().fetchUserRecordID { (record, error) in
+                        if error != nil {
+                            self.permissionDeniedAlert(title: "Error", message: "Sorry! There was an error fetching the Record ID of your iCloud account. Please try again")
+                            completion(nil)
+                            monitor.cancel()
+                        }
+                        if let record = record {
+                            // get the user's profile that has the current iCloud's record name in case there are multiple profiles
+                            DispatchQueue.main.async {
+                                let fetchRequest = NSFetchRequest<Profile>(entityName: "Profile")
+                                fetchRequest.predicate = NSPredicate(format: "userId == %@", record.recordName)
+                                do {
+                                    let profiles = try self.context.fetch(fetchRequest)
+                                    completion(profiles.first)
+                                } catch {
+                                    print("Failed to fetch the user profile: \(error.localizedDescription)")
+                                    self.permissionDeniedAlert(title: "Fetch Error", message: "Sorry! There was an error fetching your profile. Please try again.")
+                                }
+                            }
+                            monitor.cancel()
+                        }
                     }
-                    
-                    self.present(ac, animated: true)
+                    break
+                case .revoked:
+                    print("revoked -------------------------")
+                    // The Apple ID credential is revoked, so show the sign-in UI if this is in ProfileVC.
+                    KeychainWrapper.standard.removeObject(forKey: Keychain.userIdentifier.rawValue)
+                    DispatchQueue.main.async {
+                        let fetchRequest = NSFetchRequest<Profile>(entityName: "Profile")
+                        do {
+                            let profiles = try self.context.fetch(fetchRequest)
+                            var emailArr: [String] = []
+                            for profile in profiles {
+                                self.context.delete(profile)
+                                emailArr.append(profile.email)
+                            }
+                            
+                            // deindex the account from Core Spotlight
+                            CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: emailArr) { (error) in
+                                if let error = error {
+                                    print("Deindexing error: \(error.localizedDescription)")
+                                } else {
+                                    print("Goal successfully deindexed")
+                                }
+                            }
+                        } catch {
+                            print("Fetched failed from revoked: \(error.localizedDescription)")
+                            self.permissionDeniedAlert(title: "Fetch Error", message: "Sorry! There was an error fetching your profile. Please try again.")
+                        }
+                    }
+                    monitor.cancel()
+                    completion(nil)
+                    break
+                case .notFound:
+                    DispatchQueue.main.async {
+                        let ac = UIAlertController(title: "iCloud Keychain", message: "Please ensure that your iCloud Keychain is not enabled in case it's not enabled. iCloud Keychain allows you to post on Public Feed as well as use the app in multiple devices.", preferredStyle: .alert)
+                        ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: {(_) in
+                            monitor.cancel()
+                            completion(nil)
+                        }))
+                        
+                        if let popoverController = ac.popoverPresentationController {
+                            popoverController.sourceView = self.view
+                            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                            popoverController.permittedArrowDirections = []
+                        }
+                        
+                        self.present(ac, animated: true)
+                    }
+                    break
+                default:
+                    print("default")
+                    completion(nil)
                     monitor.cancel()
                 }
             }
+        // the iCloud user discoverability is not granted
+        case .couldNotComplete, .denied:
+            DispatchQueue.main.async {
+                let ac = UIAlertController(title: "", message: "Sorry! You permission is required to obtain the unique record ID from your iCloud account.  You are not required to display the iCloud email or your name on the Public Feed and can be changed to your preference. Please see the FAQ section for more information.", preferredStyle: .alert)
+                ac.addAction(UIAlertAction(title: "OK", style: .default, handler: {(_) in
+                    CKContainer.default().requestApplicationPermission(.userDiscoverability) { (status, error) in
+                        // recursive to ensure the integrity
+                        self.processUserDiscoverability(status: status, monitor: monitor, completion: completion)
+                    }
+                }))
+                
+                ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (_) in
+                    monitor.cancel()
+                    completion(nil)
+                }))
+                
+                if let popoverController = ac.popoverPresentationController {
+                    popoverController.sourceView = self.view
+                    popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                    popoverController.permittedArrowDirections = []
+                }
+                
+                self.present(ac, animated: true)
+            }
+
+            break
+        case .initialState:
+            completion(nil)
+            monitor.cancel()
+        default:
+            print("default")
         }
     }
     
@@ -373,13 +464,13 @@ extension UIViewController {
         
         operation.perRecordCompletionBlock = {(record, error) in
             print("Upload complete")
-            print("perRecordCompletionBlock error: \(error)")
+            print("perRecordCompletionBlock error: \(String(describing: error))")
         }
         
         operation.modifyRecordsCompletionBlock = { (savedRecords, deletedRecordIDs, error) in
-            print("savedRecords: \(savedRecords)")
-            print("deletedRecordIDs: \(deletedRecordIDs)")
-            print("modifyRecordsCompletionBlock error: \(error)")
+            print("savedRecords: \(String(describing: savedRecords))")
+            print("deletedRecordIDs: \(String(describing: deletedRecordIDs))")
+            print("modifyRecordsCompletionBlock error: \(String(describing: error))")
         }
         
         let publicCloudDatabase = CKContainer.default().publicCloudDatabase

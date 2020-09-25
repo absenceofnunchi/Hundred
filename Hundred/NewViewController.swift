@@ -548,20 +548,18 @@ class NewViewController: UIViewController {
     
     @objc func switchValueDidChange(sender: UISwitch!) {
         if sender.isOn {
-            if isICloudContainerAvailable() {
-                if (fetchProfileInfo()?.first) != nil {
-                    print("yes icloud, yes profile")
-                    isPublic = true
+            getCredentials { (profile) in
+                if let _ = profile {
+                    DispatchQueue.main.async {
+                        self.isPublic = true
+                    }
                 } else {
-                    print("yes icloud, no profile")
-                    isPublic = false
-                    switchControl.setOn(false, animated: false)
-                    
-                    alertForUsername()
+                    DispatchQueue.main.async {
+                        self.isPublic = false
+                        self.switchControl.setOn(false, animated: false)
+                        self.alertForUsername()
+                    }
                 }
-            } else {
-                isPublic = false
-                switchControl.setOn(false, animated: false)
             }
         } else{
             isPublic = false

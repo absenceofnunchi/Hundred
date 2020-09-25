@@ -1,5 +1,5 @@
 //
-//  Profile+CoreDataClass.swift
+//  Subscription+CoreDataClass.swift
 //  Hundred
 //
 //  Created by J C on 2020-09-23.
@@ -10,7 +10,7 @@
 import Foundation
 import CoreData
 
-@objc(Profile)
-public class Profile: NSManagedObject {
+@objc(Subscription)
+public class Subscription: NSManagedObject {
 
 }

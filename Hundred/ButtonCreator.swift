@@ -85,6 +85,10 @@ struct ButtonCreator {
 // 33. fetching more than the batch size
 // 34. reupload icloud when fails
 // 35. section error when deleted from usersvc
+// 36. app image for subscription notification
+// 37. the bookmark is determined by wrong subscription
+// 38. check the duplicate usernames
+// 39. delete public cloud from detailVC
 
 //Thread 1: Fatal error: Unresolved error Error Domain=NSCocoaErrorDomain Code=134060 "A Core Data error occurred." UserInfo={NSLocalizedFailureReason=CloudKit integration requires that the value transformers for transformable attributes are available via +[NSValueTransformer valueTransformerForName:], return instances of NSData, and allow reverse transformation:
 //Goal: metrics - Claims to return instances of nil}, ["NSLocalizedFailureReason": CloudKit integration requires that the value transformers for transformable
@@ -95,3 +99,10 @@ struct ButtonCreator {
 // FAQ
 // 1. educate the use of keychain
 // 2. changing the username will delete all the subscriptions
+
+
+// getCredentials()
+// 1. ProfileVC: need it either verify whether you're logged in or not, and if not, allow user to log in or create a new account
+// 2. EditEntryVC: profile needed to update on public cloud
+// 3. NewVC: to post on public cloud
+

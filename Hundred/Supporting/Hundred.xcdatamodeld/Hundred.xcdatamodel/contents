@@ -40,10 +40,17 @@
             <fetchIndexElement property="goal" type="Binary" order="ascending"/>
         </fetchIndex>
     </entity>
+    <entity name="Subscription" representedClassName="Subscription" syncable="YES">
+        <attribute name="email" optional="YES" attributeType="String"/>
+        <attribute name="subscriptionId" optional="YES" attributeType="String"/>
+        <attribute name="userId" optional="YES" attributeType="String"/>
+        <attribute name="username" optional="YES" attributeType="String"/>
+    </entity>
     <elements>
         <element name="Goal" positionX="-63" positionY="-18" width="128" height="164"/>
         <element name="Metric" positionX="-45" positionY="99" width="128" height="133"/>
         <element name="Profile" positionX="-54" positionY="108" width="128" height="89"/>
         <element name="Progress" positionX="-36" positionY="90" width="128" height="179"/>
+        <element name="Subscription" positionX="-54" positionY="117" width="128" height="89"/>
     </elements>
 </model>
