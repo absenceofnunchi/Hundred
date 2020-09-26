@@ -4,8 +4,10 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17502"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -391,17 +393,20 @@
                         <segue destination="7j6-mg-BsA" kind="relationship" relationship="viewControllers" id="xC5-Y3-BD4"/>
                         <segue destination="PQF-qJ-QnE" kind="relationship" relationship="viewControllers" id="vcS-6i-1zI"/>
                         <segue destination="SM5-4k-1FV" kind="relationship" relationship="viewControllers" id="Lpt-ED-vPe"/>
+                        <segue destination="RGO-Xf-hZe" kind="relationship" relationship="viewControllers" id="SlV-o6-F53"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="nEJ-zs-b19" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="131.8840579710145" y="138.61607142857142"/>
         </scene>
-        <!--Item-->
+        <!--Goals-->
         <scene sceneID="w2R-Kv-mQO">
             <objects>
                 <navigationController storyboardIdentifier="GoalVC" automaticallyAdjustsScrollViewInsets="NO" id="7j6-mg-BsA" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Item" id="FXN-Ev-Uev"/>
+                    <tabBarItem key="tabBarItem" title="Goals" selectedImage="calendar" catalog="system" id="FXN-Ev-Uev">
+                        <imageReference key="image" image="calendar" catalog="system" symbolScale="medium"/>
+                    </tabBarItem>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" largeTitles="YES" id="MI7-Dw-RRo">
                         <rect key="frame" x="0.0" y="44" width="414" height="96"/>
@@ -450,11 +455,123 @@
             </objects>
             <point key="canvasLocation" x="1800.0000000000002" y="-1667.4107142857142"/>
         </scene>
-        <!--Item-->
+        <!--More Collection View Controller-->
+        <scene sceneID="ztg-Uh-0Gr">
+            <objects>
+                <collectionViewController id="mnT-6q-OEt" customClass="MoreCollectionViewController" customModule="Hundred" customModuleProvider="target" sceneMemberID="viewController">
+                    <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="qv8-iU-0wQ">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="20" minimumInteritemSpacing="10" id="n5P-PC-Ckl">
+                            <size key="itemSize" width="128" height="128"/>
+                            <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                            <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                            <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                        </collectionViewFlowLayout>
+                        <cells>
+                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="MoreCell" id="VLK-UA-nhl" customClass="MoreCollectionViewCell" customModule="Hundred" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="2XC-zl-Zrf">
+                                    <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </collectionViewCellContentView>
+                            </collectionViewCell>
+                        </cells>
+                        <connections>
+                            <outlet property="dataSource" destination="mnT-6q-OEt" id="QUk-GA-b4W"/>
+                            <outlet property="delegate" destination="mnT-6q-OEt" id="ykH-vn-ocJ"/>
+                        </connections>
+                    </collectionView>
+                    <navigationItem key="navigationItem" id="baD-Ay-bWD"/>
+                    <connections>
+                        <segue destination="UQ9-M8-sHf" kind="show" identifier="SubscriptionSegue" id="OmR-zM-DT9"/>
+                    </connections>
+                </collectionViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="giQ-Gt-DJi" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1800" y="-988"/>
+        </scene>
+        <!--Subscription View Controller-->
+        <scene sceneID="rww-PI-fas">
+            <objects>
+                <tableViewController storyboardIdentifier="Subscription" id="UQ9-M8-sHf" customClass="SubscriptionViewController" customModule="Hundred" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="rub-3c-mWP">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="Vvh-UB-m8s">
+                                <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Vvh-UB-m8s" id="YLP-ut-UA3">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="UQ9-M8-sHf" id="FDR-fi-2h8"/>
+                            <outlet property="delegate" destination="UQ9-M8-sHf" id="BsX-Z5-lqB"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" id="3kC-h0-Z0P"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="QN7-k5-UWE" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2548" y="-988"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="lqm-6m-Ahs">
+            <objects>
+                <tableViewController storyboardIdentifier="FAQ" id="3DS-L2-WvG" customClass="FAQViewController" customModule="Hundred" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="e59-5B-Ybu">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="yhE-i8-Sbk">
+                                <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="yhE-i8-Sbk" id="7bB-J4-8zZ">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="3DS-L2-WvG" id="yyv-dq-Q1i"/>
+                            <outlet property="delegate" destination="3DS-L2-WvG" id="nNd-0A-oht"/>
+                        </connections>
+                    </tableView>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="9At-TW-Z2q" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3303" y="-988"/>
+        </scene>
+        <!--Feedback View Controller-->
+        <scene sceneID="JMd-P0-hCm">
+            <objects>
+                <viewController storyboardIdentifier="Feedback" id="8lA-yN-Bf6" customClass="FeedbackViewController" customModule="Hundred" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="l8Q-oj-bPx">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="KjD-8p-tfV"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ZyZ-J1-tU3" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4048" y="-988"/>
+        </scene>
+        <!--Dashboard-->
         <scene sceneID="X7b-mr-I5x">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="76L-0S-dL6" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Item" id="1qe-3K-FOI"/>
+                    <tabBarItem key="tabBarItem" title="Dashboard" selectedImage="gear" catalog="system" id="1qe-3K-FOI">
+                        <imageReference key="image" image="gear" catalog="system" symbolScale="medium"/>
+                    </tabBarItem>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" largeTitles="YES" id="NzL-BR-vLs">
                         <rect key="frame" x="0.0" y="44" width="414" height="96"/>
@@ -469,11 +586,13 @@
             </objects>
             <point key="canvasLocation" x="993" y="-297"/>
         </scene>
-        <!--Item-->
+        <!--New Entry-->
         <scene sceneID="7dc-IQ-I39">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="PQF-qJ-QnE" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Item" id="NMq-Vf-yQ0"/>
+                    <tabBarItem key="tabBarItem" title="New Entry" selectedImage="pencil" catalog="system" id="NMq-Vf-yQ0">
+                        <imageReference key="image" image="pencil" catalog="system" symbolScale="medium"/>
+                    </tabBarItem>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" largeTitles="YES" id="DnR-Sl-9WY">
                         <rect key="frame" x="0.0" y="44" width="414" height="96"/>
@@ -489,11 +608,13 @@
             </objects>
             <point key="canvasLocation" x="993" y="-1667"/>
         </scene>
-        <!--Item-->
+        <!--Public Feed-->
         <scene sceneID="1Rx-dn-yzH">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="SM5-4k-1FV" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Item" id="ReX-eF-8A2"/>
+                    <tabBarItem key="tabBarItem" title="Public Feed" selectedImage="globe" catalog="system" id="ReX-eF-8A2">
+                        <imageReference key="image" image="globe" catalog="system" symbolScale="medium"/>
+                    </tabBarItem>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" largeTitles="YES" id="KXQ-5g-5N4">
                         <rect key="frame" x="0.0" y="44" width="414" height="96"/>
@@ -509,8 +630,31 @@
             </objects>
             <point key="canvasLocation" x="993" y="1844"/>
         </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="j7s-kr-5r9">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="RGO-Xf-hZe" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" systemItem="more" id="OVD-Fj-g6o"/>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="EE8-CR-Jt8">
+                        <rect key="frame" x="0.0" y="44" width="414" height="96"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="mnT-6q-OEt" kind="relationship" relationship="rootViewController" id="unI-UK-KLA"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="22V-8f-61s" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="993" y="-988"/>
+        </scene>
     </scenes>
     <resources>
+        <image name="calendar" catalog="system" width="128" height="106"/>
+        <image name="gear" catalog="system" width="128" height="119"/>
+        <image name="globe" catalog="system" width="128" height="121"/>
+        <image name="pencil" catalog="system" width="128" height="113"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

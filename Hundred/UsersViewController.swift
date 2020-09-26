@@ -22,7 +22,6 @@ class UsersViewController: UITableViewController {
 
     func configureUI() {
         title = "Public Feed"
-        navigationItem.title = "Public Feed"
         
         tableView.register(UserCell.self, forCellReuseIdentifier: "UserCell")
         tableView.separatorStyle = .none
@@ -140,13 +139,15 @@ extension UsersViewController: UIContextMenuInteractionDelegate {
                 print("delete error: \(error.debugDescription)")
             } else {
                 if let id = id {
-                    // delete the record name from the corresponding Core Data item
-                    let progressRequest = NSFetchRequest<Progress>(entityName: "Progress")
-                    progressRequest.predicate = NSPredicate(format: "recordName == %@", id.recordName as CVarArg)
-                    if let fetchedProgress = try? self.context.fetch(progressRequest) {
-                        if fetchedProgress.count > 0 {
-                            fetchedProgress.first?.recordName = nil
-                            self.saveContext()
+                    DispatchQueue.main.async {
+                        // delete the record name from the corresponding Core Data item
+                        let progressRequest = NSFetchRequest<Progress>(entityName: "Progress")
+                        progressRequest.predicate = NSPredicate(format: "recordName == %@", id.recordName as CVarArg)
+                        if let fetchedProgress = try? self.context.fetch(progressRequest) {
+                            if fetchedProgress.count > 0 {
+                                fetchedProgress.first?.recordName = nil
+                                self.saveContext()
+                            }
                         }
                     }
                 }

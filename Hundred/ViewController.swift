@@ -92,7 +92,6 @@ class ViewController: UIViewController {
     
     func configureUI() {
         title = "Dashboard"
-        navigationController?.title = "Dashboard"
         
         addCard(text: "Contribution Calendar", subItem: calendarHeatMap, stackView: stackView, containerHeight: 270, isShadowBorder: true)
         addCard(text: "Composition Pie Chart", subItem: pieChartView, stackView: stackView, containerHeight: 300, isShadowBorder: true)

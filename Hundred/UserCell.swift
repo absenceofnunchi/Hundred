@@ -46,7 +46,7 @@ class UserCell: UITableViewCell {
         let barChart = metricCard.setupBarChart(entryCount: 0)
         return barChart
     }()
-    
+    let metricCard = MetricCard()
     let unitLabelTheme = UILabelTheme(font: UIFont.caption.with(weight: .bold), color: .lightGray, lineBreakMode: .byTruncatingTail)
     lazy var currentStreakTitle = UILabel(theme: unitLabelTheme, text: "")
     lazy var longestStreakTitle = UILabel(theme: unitLabelTheme, text: "")
@@ -152,7 +152,6 @@ class UserCell: UITableViewCell {
 //            }
 //        })
         
-        let metricCard = MetricCard()
         let title = user.object(forKey: MetricAnalytics.goal.rawValue) as? String
         let date = user.object(forKey: MetricAnalytics.date.rawValue) as? Date
         let username = user.object(forKey: MetricAnalytics.username.rawValue) as? String

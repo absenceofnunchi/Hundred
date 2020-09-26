@@ -34,6 +34,8 @@
 		49854965251C01F80096444D /* Subscription+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4985495B251C01F80096444D /* Subscription+CoreDataProperties.swift */; };
 		49854966251C01F80096444D /* Metric+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4985495C251C01F80096444D /* Metric+CoreDataClass.swift */; };
 		49854967251C01F80096444D /* Metric+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4985495D251C01F80096444D /* Metric+CoreDataProperties.swift */; };
+		4985496A251D9BF10096444D /* MoreCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49854969251D9BF10096444D /* MoreCollectionViewController.swift */; };
+		4985496D251D9EF70096444D /* MoreCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4985496C251D9EF70096444D /* MoreCollectionViewCell.swift */; };
 		498AC32724FD520D003FDBF2 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498AC32624FD520D003FDBF2 /* BaseViewController.swift */; };
 		498AC32924FD524C003FDBF2 /* PieChartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498AC32824FD524C003FDBF2 /* PieChartViewController.swift */; };
 		4996BD4524D485C900E301B4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD4424D485C900E301B4 /* AppDelegate.swift */; };
@@ -45,6 +47,9 @@
 		4996BD5424D485CB00E301B4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4996BD5224D485CB00E301B4 /* LaunchScreen.storyboard */; };
 		4996BD5C24D48B0700E301B4 /* GoalsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD5B24D48B0700E301B4 /* GoalsTableViewController.swift */; };
 		499E8B2F24F0CC1700C829C8 /* EditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 499E8B2E24F0CC1700C829C8 /* EditViewController.swift */; };
+		49AF2079251EBB25001EA1DD /* SubscriptionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49AF2078251EBB25001EA1DD /* SubscriptionViewController.swift */; };
+		49AF207C251EBBA4001EA1DD /* FAQViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49AF207B251EBBA4001EA1DD /* FAQViewController.swift */; };
+		49AF207F251EBBF2001EA1DD /* FeedbackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49AF207E251EBBF2001EA1DD /* FeedbackViewController.swift */; };
 		49B328FE24E3269F00D9E8D4 /* DataImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B328FD24E3269F00D9E8D4 /* DataImporter.swift */; };
 		49C70D6925016923000BC383 /* MyAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C70D6825016923000BC383 /* MyAnnotation.swift */; };
 		49C70D6B25016B02000BC383 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49C70D6A25016B02000BC383 /* MapKit.framework */; };
@@ -92,6 +97,8 @@
 		4985495B251C01F80096444D /* Subscription+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Subscription+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 		4985495C251C01F80096444D /* Metric+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Metric+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
 		4985495D251C01F80096444D /* Metric+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Metric+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		49854969251D9BF10096444D /* MoreCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreCollectionViewController.swift; sourceTree = "<group>"; };
+		4985496C251D9EF70096444D /* MoreCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreCollectionViewCell.swift; sourceTree = "<group>"; };
 		498AC32624FD520D003FDBF2 /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
 		498AC32824FD524C003FDBF2 /* PieChartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PieChartViewController.swift; sourceTree = "<group>"; };
 		4996BD4124D485C900E301B4 /* Hundred.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hundred.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -106,6 +113,9 @@
 		4996BD5B24D48B0700E301B4 /* GoalsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsTableViewController.swift; sourceTree = "<group>"; };
 		499E8B2E24F0CC1700C829C8 /* EditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewController.swift; sourceTree = "<group>"; };
 		49A0B96C2512D0D40032DA41 /* HundredDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HundredDebug.entitlements; sourceTree = "<group>"; };
+		49AF2078251EBB25001EA1DD /* SubscriptionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionViewController.swift; sourceTree = "<group>"; };
+		49AF207B251EBBA4001EA1DD /* FAQViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FAQViewController.swift; sourceTree = "<group>"; };
+		49AF207E251EBBF2001EA1DD /* FeedbackViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackViewController.swift; sourceTree = "<group>"; };
 		49B328FD24E3269F00D9E8D4 /* DataImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataImporter.swift; sourceTree = "<group>"; };
 		49C70D6825016923000BC383 /* MyAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyAnnotation.swift; sourceTree = "<group>"; };
 		49C70D6A25016B02000BC383 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
@@ -223,6 +233,10 @@
 				491165FE24FAE4A000B2963A /* Test.swift */,
 				4906B77424F2FEA700417574 /* EditEntryViewController.swift */,
 				499E8B2E24F0CC1700C829C8 /* EditViewController.swift */,
+				49854969251D9BF10096444D /* MoreCollectionViewController.swift */,
+				49AF2078251EBB25001EA1DD /* SubscriptionViewController.swift */,
+				49AF207B251EBBA4001EA1DD /* FAQViewController.swift */,
+				49AF207E251EBBF2001EA1DD /* FeedbackViewController.swift */,
 				498AC32624FD520D003FDBF2 /* BaseViewController.swift */,
 				49E9631124FC8FA10041239B /* SpinnerViewController.swift */,
 				494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */,
@@ -230,6 +244,7 @@
 				49026F9A24DB4FBF00724369 /* ProgressCell.swift */,
 				49F1B1EB24FB34BA006D6887 /* CalendarCell.swift */,
 				491A6621250997B200B659CB /* UserCell.swift */,
+				4985496C251D9EF70096444D /* MoreCollectionViewCell.swift */,
 				49B328FD24E3269F00D9E8D4 /* DataImporter.swift */,
 				4926509024FF25AF001AA5A3 /* MainDataImporter.swift */,
 				49DB512B24ECAA6500857634 /* ButtonCreator.swift */,
@@ -375,6 +390,7 @@
 				49E9631224FC8FA10041239B /* SpinnerViewController.swift in Sources */,
 				49854962251C01F80096444D /* Profile+CoreDataClass.swift in Sources */,
 				49C70D732501940D000BC383 /* LocationSearchViewController.swift in Sources */,
+				49AF2079251EBB25001EA1DD /* SubscriptionViewController.swift in Sources */,
 				49C70D7125018D12000BC383 /* MyAnnotationView.swift in Sources */,
 				49C70D6D25016BF1000BC383 /* MapViewController.swift in Sources */,
 				494C424C2513DC3600CD0C34 /* KeychainItemAccessibility.swift in Sources */,
@@ -385,6 +401,7 @@
 				49854966251C01F80096444D /* Metric+CoreDataClass.swift in Sources */,
 				4906B77524F2FEA700417574 /* EditEntryViewController.swift in Sources */,
 				498AC32924FD524C003FDBF2 /* PieChartViewController.swift in Sources */,
+				49AF207C251EBBA4001EA1DD /* FAQViewController.swift in Sources */,
 				49FD8FFF250EF7B100B60360 /* UserDetailViewController.swift in Sources */,
 				49854960251C01F80096444D /* Progress+CoreDataClass.swift in Sources */,
 				499E8B2F24F0CC1700C829C8 /* EditViewController.swift in Sources */,
@@ -396,6 +413,7 @@
 				4996BD4924D485C900E301B4 /* ViewController.swift in Sources */,
 				49026F9224DB423900724369 /* Constraints.swift in Sources */,
 				494F0C2A24D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift in Sources */,
+				4985496A251D9BF10096444D /* MoreCollectionViewController.swift in Sources */,
 				4985495E251C01F80096444D /* Goal+CoreDataClass.swift in Sources */,
 				493FF0EF250AABA10085EB42 /* MetricCard.swift in Sources */,
 				4996BD4524D485C900E301B4 /* AppDelegate.swift in Sources */,
@@ -414,9 +432,11 @@
 				49DE68A624F71838009C886C /* ChartXAxisFormatter.swift in Sources */,
 				4996BD4724D485C900E301B4 /* SceneDelegate.swift in Sources */,
 				49ED332825114BBF006FE080 /* ProfileViewController.swift in Sources */,
+				49AF207F251EBBF2001EA1DD /* FeedbackViewController.swift in Sources */,
 				49DB512A24EC453B00857634 /* Extensions-Style.swift in Sources */,
 				49DB512C24ECAA6500857634 /* ButtonCreator.swift in Sources */,
 				494C424E2513DCB200CD0C34 /* KeychainWrapper.swift in Sources */,
+				4985496D251D9EF70096444D /* MoreCollectionViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

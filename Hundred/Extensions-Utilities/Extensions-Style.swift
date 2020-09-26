@@ -338,7 +338,6 @@ extension UIViewController {
             appleIDProvider.getCredentialState(forUserID: currentUserIdentifier ?? "") { (credentialState, error) in
                 switch credentialState {
                 case .authorized:
-                    print("authorized -------------------------")
                     CKContainer.default().fetchUserRecordID { (record, error) in
                         if error != nil {
                             self.permissionDeniedAlert(title: "Error", message: "Sorry! There was an error fetching the Record ID of your iCloud account. Please try again")
@@ -363,7 +362,6 @@ extension UIViewController {
                     }
                     break
                 case .revoked:
-                    print("revoked -------------------------")
                     // The Apple ID credential is revoked, so show the sign-in UI if this is in ProfileVC.
                     KeychainWrapper.standard.removeObject(forKey: Keychain.userIdentifier.rawValue)
                     DispatchQueue.main.async {
@@ -673,5 +671,17 @@ extension UIFont {
     func with(weight: UIFont.Weight) -> UIFont {
         return UIFont.systemFont(ofSize: pointSize, weight: weight)
     }
-    
+}
+
+extension UIView {
+    func addShadow(offset: CGSize, color: UIColor, radius: CGFloat, opacity: Float, bgColor: UIColor) {
+        layer.masksToBounds = false
+        layer.shadowOffset = offset
+        layer.shadowColor = color.cgColor
+        layer.shadowRadius = radius
+        layer.shadowOpacity = opacity
+        
+        backgroundColor = .white
+        layer.backgroundColor =  bgColor.cgColor
+    }
 }

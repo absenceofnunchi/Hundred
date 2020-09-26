@@ -85,8 +85,8 @@ struct ButtonCreator {
 // 33. fetching more than the batch size
 // 34. reupload icloud when fails
 // 35. section error when deleted from usersvc
-// 36. app image for subscription notification
-// 37. the bookmark is determined by wrong subscription
+// 36. app image for subscription notification 
+// 37. the bookmark is determined by wrong subscription - done
 // 38. check the duplicate usernames
 // 39. delete public cloud from detailVC
 
