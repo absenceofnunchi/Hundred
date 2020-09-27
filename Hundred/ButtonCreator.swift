@@ -98,7 +98,6 @@ struct ButtonCreator {
 
 // FAQ
 // 1. educate the use of keychain
-// 2. changing the username will delete all the subscriptions
 
 
 // getCredentials()

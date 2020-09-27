@@ -136,7 +136,6 @@ class ProfileViewController: UIViewController {
         
         getCredentials { (profile) in
             if let profile = profile {
-                print("profile---------------- \(profile)")
                 self.isAuthenticated = true
                 self.usernameLabel.text = profile.username
                 self.emailLabel.text = profile.email

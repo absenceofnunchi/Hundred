@@ -141,17 +141,6 @@ class UserCell: UITableViewCell {
     }
     
     func set(user: CKRecord) {
-        
-//        CKContainer.default().fetchUserRecordID(completionHandler: { (recordId, error) in
-//            print("fetchUserRecordID: \(recordId)")
-//
-//            if let name = recordId?.recordName {
-//               print("iCloud ID: " + name)
-//            } else if let error = error {
-//               print(error.localizedDescription)
-//            }
-//        })
-        
         let title = user.object(forKey: MetricAnalytics.goal.rawValue) as? String
         let date = user.object(forKey: MetricAnalytics.date.rawValue) as? Date
         let username = user.object(forKey: MetricAnalytics.username.rawValue) as? String
@@ -244,10 +233,5 @@ class UserCell: UITableViewCell {
         coverImageView.image = nil
 
     }
-    
-    //    override func didMoveToSuperview() {
-    //        super.didMoveToSuperview()
-    //        layoutIfNeeded()
-    //    }
 }
 

@@ -81,10 +81,11 @@
                         <viewLayoutGuide key="safeArea" id="Cx5-If-I0Z"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
+                    <navigationItem key="navigationItem" id="cwC-30-sr7"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ww8-HG-CQP" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1800.0000000000002" y="-2394.6428571428569"/>
+            <point key="canvasLocation" x="4887" y="-988"/>
         </scene>
         <!--Edit View Controller-->
         <scene sceneID="aVo-CA-v3O">
@@ -487,6 +488,9 @@
                     <navigationItem key="navigationItem" id="baD-Ay-bWD"/>
                     <connections>
                         <segue destination="UQ9-M8-sHf" kind="show" identifier="SubscriptionSegue" id="OmR-zM-DT9"/>
+                        <segue destination="3DS-L2-WvG" kind="show" identifier="FAQSegue" id="mhx-fd-gVk"/>
+                        <segue destination="8lA-yN-Bf6" kind="show" identifier="FeedbackSegue" id="9lW-KT-g8y"/>
+                        <segue destination="xbp-lJ-Aaj" kind="show" identifier="AccountSegue" id="Bgg-0B-qrY"/>
                     </connections>
                 </collectionViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="giQ-Gt-DJi" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -502,7 +506,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="Vvh-UB-m8s">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" id="Vvh-UB-m8s">
                                 <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Vvh-UB-m8s" id="YLP-ut-UA3">
@@ -531,7 +535,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="yhE-i8-Sbk">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="FAQCell" id="yhE-i8-Sbk" customClass="FAQTableViewCell" customModule="Hundred" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="yhE-i8-Sbk" id="7bB-J4-8zZ">
@@ -545,6 +549,7 @@
                             <outlet property="delegate" destination="3DS-L2-WvG" id="nNd-0A-oht"/>
                         </connections>
                     </tableView>
+                    <navigationItem key="navigationItem" id="p0s-LG-Dgy"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9At-TW-Z2q" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -560,6 +565,7 @@
                         <viewLayoutGuide key="safeArea" id="KjD-8p-tfV"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
+                    <navigationItem key="navigationItem" id="Ed8-m2-aR3"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ZyZ-J1-tU3" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>

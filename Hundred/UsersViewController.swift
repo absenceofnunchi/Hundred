@@ -9,15 +9,21 @@
 import UIKit
 import CloudKit
 import CoreData
+import Network
 
 class UsersViewController: UITableViewController {
     var users = [CKRecord]()
+    var userId: String?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureUI()
-        fetchData()
+        if userId != nil {
+            fetchData(userId: userId)
+        } else {
+            fetchData(userId: nil)
+        }
     }
 
     func configureUI() {
@@ -32,49 +38,100 @@ class UsersViewController: UITableViewController {
         self.view.addInteraction(inter)
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refreshFetch))
+        if userId == nil {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), style: .plain, target: self, action: #selector(filterFeed))
+        }
     }
     
-    func fetchData() {
-        let publicDatabase = CKContainer.default().publicCloudDatabase
-        let predicate = NSPredicate(value: true)
-        let query =  CKQuery(recordType: "Progress", predicate: predicate)
-        
-        let configuration = CKQueryOperation.Configuration()
-        configuration.allowsCellularAccess = true
-        configuration.qualityOfService = .userInitiated
-        
-        let queryOperation = CKQueryOperation(query: query)
-        queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image", "longitude", "latitude", "username", "email", "userId"]
-        queryOperation.queuePriority = .veryHigh
-        queryOperation.configuration = configuration
-        queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
-            if let record = record {
-                DispatchQueue.main.async {
-                    self.users.append(record)
-                }
-            }
-        }
-        
-        queryOperation.queryCompletionBlock = { (cursor: CKQueryOperation.Cursor?, error: Error?) -> Void in
-            if let error = error {
-                print("queryCompletionBlock error: \(error)")
-                return
+    @objc func filterFeed() {
+        let ac = UIAlertController(title: "Filter", message: nil, preferredStyle: .actionSheet)
+        ac.addAction(UIAlertAction(title: "All", style: .default, handler: { (_) in
+            self.fetchData(userId: nil)
+            DispatchQueue.main.async {
+                self.title = "Public Feed"
             }
             
-            if let cursor = cursor {
-                print("cursor: \(cursor)")
+        }))
+        
+        ac.addAction(UIAlertAction(title: "My Public Entries Only", style: .default, handler: { (_) in
+            self.getCredentials { (profile) in
+                if let profile = profile {
+                    self.fetchData(userId: profile.userId)
+                    DispatchQueue.main.async {
+                        self.title = "My Entries Only"
+                    }
+                }
             }
-                        
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
+        }))
+        
+        if let popoverController = ac.popoverPresentationController {
+            popoverController.sourceView = self.view
+            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+            popoverController.permittedArrowDirections = []
+        }
+        
+        present(ac, animated: true, completion: {() -> Void in
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
+            ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
+        })
+    }
+    
+    func fetchData(userId: String?) {
+        let monitor = NWPathMonitor()
+        let queue = DispatchQueue(label: "Monitor")
+        monitor.start(queue: queue)
+        monitor.pathUpdateHandler = { path in
+            if path.status == .satisfied {
+                let publicDatabase = CKContainer.default().publicCloudDatabase
+                let predicate: NSPredicate!
+                if let userId = userId {
+                    predicate = NSPredicate(format: "userId == %@", userId)
+                } else {
+                    predicate = NSPredicate(value: true)
+                }
+                
+                let query =  CKQuery(recordType: "Progress", predicate: predicate)
+                
+                let configuration = CKQueryOperation.Configuration()
+                configuration.allowsCellularAccess = true
+                configuration.qualityOfService = .userInitiated
+                
+                let queryOperation = CKQueryOperation(query: query)
+                queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image", "longitude", "latitude", "username", "email", "userId"]
+                queryOperation.queuePriority = .veryHigh
+                queryOperation.configuration = configuration
+                queryOperation.resultsLimit = 50
+                queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
+                    if let record = record {
+                        DispatchQueue.main.async {
+                            self.users.append(record)
+                        }
+                    }
+                }
+                
+                queryOperation.queryCompletionBlock = { (cursor: CKQueryOperation.Cursor?, error: Error?) -> Void in
+                    if let error = error {
+                        print("queryCompletionBlock error: \(error)")
+                        return
+                    }
+                    
+                    if let cursor = cursor {
+                        print("cursor: \(cursor)")
+                    }
+                                
+                    DispatchQueue.main.async {
+                        self.tableView.reloadData()
+                    }
+                }
+           
+        //                    self.tableView.layoutIfNeeded()
+        //                    self.tableView.beginUpdates()
+        //                    self.tableView.endUpdates()
+                
+                publicDatabase.add(queryOperation)
+                monitor.cancel()
             }
         }
-   
-//                    self.tableView.layoutIfNeeded()
-//                    self.tableView.beginUpdates()
-//                    self.tableView.endUpdates()
-        
-        publicDatabase.add(queryOperation)
     }
 }
 
@@ -192,7 +249,7 @@ extension UsersViewController: UIContextMenuInteractionDelegate {
     
     @objc func refreshFetch() {
         self.users.removeAll()
-        fetchData()
+        fetchData(userId: userId)
         
         let spinner = UIActivityIndicatorView(style: .medium)
         spinner.tintColor = UIColor.black

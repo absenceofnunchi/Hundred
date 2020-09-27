@@ -17,7 +17,7 @@ struct Menu {
 }
 
 enum SegueIdentifier: String {
-    case SubscriptionSegue
+    case SubscriptionSegue, FAQSegue, AccountSegue, FeedbackSegue
 }
 
 class MoreCollectionViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
@@ -75,21 +75,22 @@ class MoreCollectionViewController: UICollectionViewController, UICollectionView
         
         return UIEdgeInsets(top: 10, left: edgeInsets, bottom: 10, right: edgeInsets)
     }
-    
-//    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        print("didselect: \(indexPath.row)")
-//        let segueIdentifier: String
-//        switch indexPath.row {
-//        case 0:
-//            segueIdentifier = SegueIdentifier.SubscriptionSegue.rawValue
-//        default:
-//            segueIdentifier = SegueIdentifier.SubscriptionSegue.rawValue
-//        }
-//        self.performSegue(withIdentifier: segueIdentifier, sender: self)
-//    }
+
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        // handle tap events
-        print("You selected cell #\(indexPath.item)!")
+        let segueIdentifier: String
+        switch indexPath.row {
+        case 0:
+            segueIdentifier = SegueIdentifier.SubscriptionSegue.rawValue
+        case 1:
+            segueIdentifier = SegueIdentifier.FAQSegue.rawValue
+        case 2:
+            segueIdentifier = SegueIdentifier.AccountSegue.rawValue
+        case 3:
+            segueIdentifier = SegueIdentifier.FeedbackSegue.rawValue
+        default:
+            segueIdentifier = SegueIdentifier.SubscriptionSegue.rawValue
+        }
+        self.performSegue(withIdentifier: segueIdentifier, sender: self)
     }
 
     /*

@@ -50,7 +50,6 @@ class MoreCollectionViewCell: UICollectionViewCell {
         containerView.pin(to: contentView)
         
         imageView.translatesAutoresizingMaskIntoConstraints = false
-//        imageView.trailingAnchor.constraint(equalTo: titleLabel.leadingAnchor).isActive = true
         imageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor, constant: 0).isActive = true
         imageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor, constant: -15).isActive = true
         

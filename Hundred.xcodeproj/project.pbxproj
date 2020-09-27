@@ -50,6 +50,7 @@
 		49AF2079251EBB25001EA1DD /* SubscriptionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49AF2078251EBB25001EA1DD /* SubscriptionViewController.swift */; };
 		49AF207C251EBBA4001EA1DD /* FAQViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49AF207B251EBBA4001EA1DD /* FAQViewController.swift */; };
 		49AF207F251EBBF2001EA1DD /* FeedbackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49AF207E251EBBF2001EA1DD /* FeedbackViewController.swift */; };
+		49AF2086251EF7DF001EA1DD /* FAQTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49AF2085251EF7DE001EA1DD /* FAQTableViewCell.swift */; };
 		49B328FE24E3269F00D9E8D4 /* DataImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B328FD24E3269F00D9E8D4 /* DataImporter.swift */; };
 		49C70D6925016923000BC383 /* MyAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C70D6825016923000BC383 /* MyAnnotation.swift */; };
 		49C70D6B25016B02000BC383 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49C70D6A25016B02000BC383 /* MapKit.framework */; };
@@ -57,6 +58,7 @@
 		49C70D7125018D12000BC383 /* MyAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C70D7025018D12000BC383 /* MyAnnotationView.swift */; };
 		49C70D732501940D000BC383 /* LocationSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C70D722501940D000BC383 /* LocationSearchViewController.swift */; };
 		49C8690524F44D66005D0C4D /* GoalCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C8690424F44D66005D0C4D /* GoalCell.swift */; };
+		49D3B4EB2520196500B714C5 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D3B4EA2520196500B714C5 /* StoreKit.framework */; };
 		49DB512A24EC453B00857634 /* Extensions-Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DB512924EC453B00857634 /* Extensions-Style.swift */; };
 		49DB512C24ECAA6500857634 /* ButtonCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DB512B24ECAA6500857634 /* ButtonCreator.swift */; };
 		49DE68A624F71838009C886C /* ChartXAxisFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */; };
@@ -116,6 +118,7 @@
 		49AF2078251EBB25001EA1DD /* SubscriptionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionViewController.swift; sourceTree = "<group>"; };
 		49AF207B251EBBA4001EA1DD /* FAQViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FAQViewController.swift; sourceTree = "<group>"; };
 		49AF207E251EBBF2001EA1DD /* FeedbackViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackViewController.swift; sourceTree = "<group>"; };
+		49AF2085251EF7DE001EA1DD /* FAQTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FAQTableViewCell.swift; sourceTree = "<group>"; };
 		49B328FD24E3269F00D9E8D4 /* DataImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataImporter.swift; sourceTree = "<group>"; };
 		49C70D6825016923000BC383 /* MyAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyAnnotation.swift; sourceTree = "<group>"; };
 		49C70D6A25016B02000BC383 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
@@ -123,6 +126,7 @@
 		49C70D7025018D12000BC383 /* MyAnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyAnnotationView.swift; sourceTree = "<group>"; };
 		49C70D722501940D000BC383 /* LocationSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchViewController.swift; sourceTree = "<group>"; };
 		49C8690424F44D66005D0C4D /* GoalCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalCell.swift; sourceTree = "<group>"; };
+		49D3B4EA2520196500B714C5 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		49DB512924EC453B00857634 /* Extensions-Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extensions-Style.swift"; sourceTree = "<group>"; };
 		49DB512B24ECAA6500857634 /* ButtonCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonCreator.swift; sourceTree = "<group>"; };
 		49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartXAxisFormatter.swift; sourceTree = "<group>"; };
@@ -144,6 +148,7 @@
 				49812F1D2503042900F2BBCB /* CloudKit.framework in Frameworks */,
 				49C70D6B25016B02000BC383 /* MapKit.framework in Frameworks */,
 				959BBA5D7FE2D6CC34668FE7 /* Pods_Hundred.framework in Frameworks */,
+				49D3B4EB2520196500B714C5 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -153,6 +158,7 @@
 		0A8A307875B520E0F1F62103 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				49D3B4EA2520196500B714C5 /* StoreKit.framework */,
 				49812F1C2503042900F2BBCB /* CloudKit.framework */,
 				49C70D6A25016B02000BC383 /* MapKit.framework */,
 				E151965057E79A8338541A10 /* Pods_Hundred.framework */,
@@ -245,6 +251,7 @@
 				49F1B1EB24FB34BA006D6887 /* CalendarCell.swift */,
 				491A6621250997B200B659CB /* UserCell.swift */,
 				4985496C251D9EF70096444D /* MoreCollectionViewCell.swift */,
+				49AF2085251EF7DE001EA1DD /* FAQTableViewCell.swift */,
 				49B328FD24E3269F00D9E8D4 /* DataImporter.swift */,
 				4926509024FF25AF001AA5A3 /* MainDataImporter.swift */,
 				49DB512B24ECAA6500857634 /* ButtonCreator.swift */,
@@ -422,6 +429,7 @@
 				4996BD4F24D485C900E301B4 /* Hundred.xcdatamodeld in Sources */,
 				49C8690524F44D66005D0C4D /* GoalCell.swift in Sources */,
 				496149CC25007DAF00C5A23B /* BarChartAxisFormatter.swift in Sources */,
+				49AF2086251EF7DF001EA1DD /* FAQTableViewCell.swift in Sources */,
 				491A66202509947300B659CB /* UsersViewController.swift in Sources */,
 				491F5A7C24E458FA0075EDCD /* DetailTableViewController.swift in Sources */,
 				497DC78424EA15A800446178 /* NewViewController.swift in Sources */,

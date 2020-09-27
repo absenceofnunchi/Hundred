@@ -44,8 +44,8 @@ extension UIViewController {
     func saveContext() {
         if self.context.hasChanges {
             do {
-//                try self.context.save()
-                try self.updateContext.save()
+                try self.context.save()
+//                try self.updateContext.save()
             } catch {
                 print("An error occurred while saving: \(error.localizedDescription)")
             }

@@ -112,6 +112,7 @@ class UserDetailViewController: UIViewController {
                     let subscriptionRequest = NSFetchRequest<Subscription>(entityName: "Subscription")
                     subscriptionRequest.predicate = NSPredicate(format: "userId == %@", userId as CVarArg)
                     if let fetchedSubscriptions = try? self.context.fetch(subscriptionRequest) {
+                        print("fetchedSubscriptions-------------------: \(fetchedSubscriptions)")
                         if fetchedSubscriptions.count > 0 {
                             isSubscribed = true
                         } else {
@@ -415,6 +416,8 @@ class UserDetailViewController: UIViewController {
                                                         newSubscription.username = self.username ?? ""
                                                         newSubscription.subscriptionId = result.subscriptionID
                                                         self.saveContext()
+                                                        print("newSubscription1: \(newSubscription)")
+
                                                     } else {
                                                         for fetchedSubscription in fetchedSubscriptions {
                                                             self.context.delete(fetchedSubscription)
@@ -425,6 +428,8 @@ class UserDetailViewController: UIViewController {
                                                         newSubscription.username = self.username ?? ""
                                                         newSubscription.subscriptionId = result.subscriptionID
                                                         self.saveContext()
+                                                        print("newSubscription2: \(newSubscription)")
+
                                                     }
                                                 }
                                                 
@@ -507,6 +512,8 @@ class UserDetailViewController: UIViewController {
                                 newSubscription.username = self.username ?? ""
                                 newSubscription.subscriptionId = result.subscriptionID
                                 self.saveContext()
+                                print("newSubscription3: \(newSubscription)")
+
                             } else {
                                 for fetchedSubscription in fetchedSubscriptions {
                                     self.context.delete(fetchedSubscription)
@@ -517,6 +524,8 @@ class UserDetailViewController: UIViewController {
                                 newSubscription.username = self.username ?? ""
                                 newSubscription.subscriptionId = result.subscriptionID
                                 self.saveContext()
+                                print("newSubscription4: \(newSubscription)")
+
                             }
                         }
                         
@@ -577,7 +586,10 @@ class UserDetailViewController: UIViewController {
                 popoverController.permittedArrowDirections = []
             }
             
-            self.present(ac, animated: true, completion: nil)
+            self.present(ac, animated: true, completion: {() -> Void in
+                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
+                ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
+            })
         }
     }
 }
