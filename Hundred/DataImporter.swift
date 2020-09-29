@@ -36,9 +36,13 @@ struct DataImporter {
     //        }
     //    }
     
+    // [goalTitle: [date: count]]
     private func readHeatmap(goalTitle: String?) -> [String: Int]? {
-        guard let url = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathComponent("Heatmap.plist") else { return nil  }
-        if let dict = NSDictionary(contentsOf: url) as? [String: [String: Int]] {
+        let keyValStore = NSUbiquitousKeyValueStore.default
+        if let dict = keyValStore.dictionary(forKey: "heatmap") as? [String : [String : Int] ] {
+//            dict.removeAll()
+//            keyValStore.set(dict, forKey: "heatmap")
+//            keyValStore.synchronize()
             if let goalTitle = goalTitle {
                 if let newDict = dict[goalTitle] {
                     return newDict

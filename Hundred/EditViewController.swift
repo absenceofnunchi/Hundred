@@ -300,7 +300,6 @@ class EditViewController: UIViewController {
         }
         
         if metricArr.isDistinct() == true {
-//            let goalRequest = Goal.createFetchRequest()
             let goalRequest = NSFetchRequest<Goal>(entityName: "Goal")
             goalRequest.predicate = NSPredicate(format: "title == %@", goalDetail.title)
             if let fetchedGoal = try? self.context.fetch(goalRequest) {
@@ -370,6 +369,16 @@ class EditViewController: UIViewController {
                     _ = navigationController?.popViewController(animated: true)
                 } else {
                     print("goal's in the existing list, but doesn't fetch")
+                    let ac = UIAlertController(title: "Error", message: "Sorry, there was an error in fetching your information. Please try again.", preferredStyle: .alert)
+                    ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                    
+                    if let popoverController = ac.popoverPresentationController {
+                          popoverController.sourceView = self.view
+                          popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                          popoverController.permittedArrowDirections = []
+                    }
+                    
+                    present(ac, animated: true)
                     return
                 }
             }

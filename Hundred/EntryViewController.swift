@@ -140,7 +140,7 @@ class EntryViewController: UIViewController, ChartViewDelegate {
         configureUI()
         setConstraints()
         
-        print("progress.recordName: -------------------- \(progress.recordName)")
+        print("progress.recordName: -------------------- \(String(describing: progress.recordName))")
     }
     
     func configureUI() {

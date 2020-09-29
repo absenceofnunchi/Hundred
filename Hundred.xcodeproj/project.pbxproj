@@ -21,6 +21,18 @@
 		494F0C2A24D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */; };
 		494F0C2C24D7246A00C5450C /* ManagedObjectContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */; };
 		496149CC25007DAF00C5A23B /* BarChartAxisFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 496149CB25007DAE00C5A23B /* BarChartAxisFormatter.swift */; };
+		4964C8ED252372FC0093DAE0 /* StoreObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C8EC252372FC0093DAE0 /* StoreObserver.swift */; };
+		4964C8F02523758B0093DAE0 /* AppProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C8EF2523758B0093DAE0 /* AppProtocols.swift */; };
+		4964C8F3252377380093DAE0 /* AppDataTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C8F2252377380093DAE0 /* AppDataTypes.swift */; };
+		4964C8F6252378E70093DAE0 /* Products.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C8F5252378E70093DAE0 /* Products.swift */; };
+		4964C8F9252379260093DAE0 /* Purchases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C8F8252379260093DAE0 /* Purchases.swift */; };
+		4964C8FC252379920093DAE0 /* PaymentTransactionDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C8FB252379920093DAE0 /* PaymentTransactionDetails.swift */; };
+		4964C8FF25237A620093DAE0 /* IAPViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C8FE25237A620093DAE0 /* IAPViewController.swift */; };
+		4964C90225237B040093DAE0 /* AppExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C90125237B040093DAE0 /* AppExtensions.swift */; };
+		4964C90625237B240093DAE0 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C90525237B240093DAE0 /* Utilities.swift */; };
+		4964C90A25237B870093DAE0 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C90925237B870093DAE0 /* BaseViewController.swift */; };
+		4964C90E252388C90093DAE0 /* ParentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C90D252388C90093DAE0 /* ParentViewController.swift */; };
+		4964C9232523A4BE0093DAE0 /* ProductIds.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4964C9222523A4BE0093DAE0 /* ProductIds.plist */; };
 		49795B7624DC864000D27111 /* EntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49795B7524DC864000D27111 /* EntryViewController.swift */; };
 		497DC78424EA15A800446178 /* NewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 497DC78324EA15A800446178 /* NewViewController.swift */; };
 		49812F1D2503042900F2BBCB /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49812F1C2503042900F2BBCB /* CloudKit.framework */; };
@@ -36,7 +48,6 @@
 		49854967251C01F80096444D /* Metric+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4985495D251C01F80096444D /* Metric+CoreDataProperties.swift */; };
 		4985496A251D9BF10096444D /* MoreCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49854969251D9BF10096444D /* MoreCollectionViewController.swift */; };
 		4985496D251D9EF70096444D /* MoreCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4985496C251D9EF70096444D /* MoreCollectionViewCell.swift */; };
-		498AC32724FD520D003FDBF2 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498AC32624FD520D003FDBF2 /* BaseViewController.swift */; };
 		498AC32924FD524C003FDBF2 /* PieChartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498AC32824FD524C003FDBF2 /* PieChartViewController.swift */; };
 		4996BD4524D485C900E301B4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD4424D485C900E301B4 /* AppDelegate.swift */; };
 		4996BD4724D485C900E301B4 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD4624D485C900E301B4 /* SceneDelegate.swift */; };
@@ -59,6 +70,7 @@
 		49C70D732501940D000BC383 /* LocationSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C70D722501940D000BC383 /* LocationSearchViewController.swift */; };
 		49C8690524F44D66005D0C4D /* GoalCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C8690424F44D66005D0C4D /* GoalCell.swift */; };
 		49D3B4EB2520196500B714C5 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D3B4EA2520196500B714C5 /* StoreKit.framework */; };
+		49DB486A2520F985004B3747 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DB48692520F985004B3747 /* StoreManager.swift */; };
 		49DB512A24EC453B00857634 /* Extensions-Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DB512924EC453B00857634 /* Extensions-Style.swift */; };
 		49DB512C24ECAA6500857634 /* ButtonCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DB512B24ECAA6500857634 /* ButtonCreator.swift */; };
 		49DE68A624F71838009C886C /* ChartXAxisFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */; };
@@ -85,6 +97,18 @@
 		494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistingGoalsMenuTableViewController.swift; sourceTree = "<group>"; };
 		494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedObjectContext.swift; sourceTree = "<group>"; };
 		496149CB25007DAE00C5A23B /* BarChartAxisFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarChartAxisFormatter.swift; sourceTree = "<group>"; };
+		4964C8EC252372FC0093DAE0 /* StoreObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreObserver.swift; sourceTree = "<group>"; };
+		4964C8EF2523758B0093DAE0 /* AppProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppProtocols.swift; sourceTree = "<group>"; };
+		4964C8F2252377380093DAE0 /* AppDataTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDataTypes.swift; sourceTree = "<group>"; };
+		4964C8F5252378E70093DAE0 /* Products.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Products.swift; sourceTree = "<group>"; };
+		4964C8F8252379260093DAE0 /* Purchases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Purchases.swift; sourceTree = "<group>"; };
+		4964C8FB252379920093DAE0 /* PaymentTransactionDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentTransactionDetails.swift; sourceTree = "<group>"; };
+		4964C8FE25237A620093DAE0 /* IAPViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPViewController.swift; sourceTree = "<group>"; };
+		4964C90125237B040093DAE0 /* AppExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppExtensions.swift; sourceTree = "<group>"; };
+		4964C90525237B240093DAE0 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
+		4964C90925237B870093DAE0 /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
+		4964C90D252388C90093DAE0 /* ParentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentViewController.swift; sourceTree = "<group>"; };
+		4964C9222523A4BE0093DAE0 /* ProductIds.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ProductIds.plist; sourceTree = "<group>"; };
 		49795B7524DC864000D27111 /* EntryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryViewController.swift; sourceTree = "<group>"; };
 		497DC78324EA15A800446178 /* NewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewViewController.swift; sourceTree = "<group>"; };
 		49812F1B2503033700F2BBCB /* Hundred.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Hundred.entitlements; sourceTree = "<group>"; };
@@ -101,7 +125,6 @@
 		4985495D251C01F80096444D /* Metric+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Metric+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 		49854969251D9BF10096444D /* MoreCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreCollectionViewController.swift; sourceTree = "<group>"; };
 		4985496C251D9EF70096444D /* MoreCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreCollectionViewCell.swift; sourceTree = "<group>"; };
-		498AC32624FD520D003FDBF2 /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
 		498AC32824FD524C003FDBF2 /* PieChartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PieChartViewController.swift; sourceTree = "<group>"; };
 		4996BD4124D485C900E301B4 /* Hundred.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hundred.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4996BD4424D485C900E301B4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -127,6 +150,7 @@
 		49C70D722501940D000BC383 /* LocationSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchViewController.swift; sourceTree = "<group>"; };
 		49C8690424F44D66005D0C4D /* GoalCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalCell.swift; sourceTree = "<group>"; };
 		49D3B4EA2520196500B714C5 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		49DB48692520F985004B3747 /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		49DB512924EC453B00857634 /* Extensions-Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extensions-Style.swift"; sourceTree = "<group>"; };
 		49DB512B24ECAA6500857634 /* ButtonCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonCreator.swift; sourceTree = "<group>"; };
 		49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartXAxisFormatter.swift; sourceTree = "<group>"; };
@@ -190,6 +214,38 @@
 			path = Supporting;
 			sourceTree = "<group>";
 		};
+		4964C90C252388A70093DAE0 /* IAP */ = {
+			isa = PBXGroup;
+			children = (
+				4964C90D252388C90093DAE0 /* ParentViewController.swift */,
+				4964C8F2252377380093DAE0 /* AppDataTypes.swift */,
+				4964C8EF2523758B0093DAE0 /* AppProtocols.swift */,
+				4964C90125237B040093DAE0 /* AppExtensions.swift */,
+				4964C8FE25237A620093DAE0 /* IAPViewController.swift */,
+				4964C8FB252379920093DAE0 /* PaymentTransactionDetails.swift */,
+				4964C8F5252378E70093DAE0 /* Products.swift */,
+				4964C8F8252379260093DAE0 /* Purchases.swift */,
+				49DB48692520F985004B3747 /* StoreManager.swift */,
+				4964C8EC252372FC0093DAE0 /* StoreObserver.swift */,
+				4964C90525237B240093DAE0 /* Utilities.swift */,
+				4964C9222523A4BE0093DAE0 /* ProductIds.plist */,
+			);
+			path = IAP;
+			sourceTree = "<group>";
+		};
+		4964C91125238FA10093DAE0 /* CustomCells */ = {
+			isa = PBXGroup;
+			children = (
+				49C8690424F44D66005D0C4D /* GoalCell.swift */,
+				49026F9A24DB4FBF00724369 /* ProgressCell.swift */,
+				49F1B1EB24FB34BA006D6887 /* CalendarCell.swift */,
+				491A6621250997B200B659CB /* UserCell.swift */,
+				4985496C251D9EF70096444D /* MoreCollectionViewCell.swift */,
+				49AF2085251EF7DE001EA1DD /* FAQTableViewCell.swift */,
+			);
+			path = CustomCells;
+			sourceTree = "<group>";
+		};
 		4996BD3824D485C900E301B4 = {
 			isa = PBXGroup;
 			children = (
@@ -225,6 +281,7 @@
 				49812F1B2503033700F2BBCB /* Hundred.entitlements */,
 				4996BD4824D485C900E301B4 /* ViewController.swift */,
 				498AC32824FD524C003FDBF2 /* PieChartViewController.swift */,
+				4964C90925237B870093DAE0 /* BaseViewController.swift */,
 				49F1B1E924FB21B8006D6887 /* CalendarDetailTableViewController.swift */,
 				491A661F2509947300B659CB /* UsersViewController.swift */,
 				49FD8FFE250EF7B100B60360 /* UserDetailViewController.swift */,
@@ -243,15 +300,8 @@
 				49AF2078251EBB25001EA1DD /* SubscriptionViewController.swift */,
 				49AF207B251EBBA4001EA1DD /* FAQViewController.swift */,
 				49AF207E251EBBF2001EA1DD /* FeedbackViewController.swift */,
-				498AC32624FD520D003FDBF2 /* BaseViewController.swift */,
 				49E9631124FC8FA10041239B /* SpinnerViewController.swift */,
 				494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */,
-				49C8690424F44D66005D0C4D /* GoalCell.swift */,
-				49026F9A24DB4FBF00724369 /* ProgressCell.swift */,
-				49F1B1EB24FB34BA006D6887 /* CalendarCell.swift */,
-				491A6621250997B200B659CB /* UserCell.swift */,
-				4985496C251D9EF70096444D /* MoreCollectionViewCell.swift */,
-				49AF2085251EF7DE001EA1DD /* FAQTableViewCell.swift */,
 				49B328FD24E3269F00D9E8D4 /* DataImporter.swift */,
 				4926509024FF25AF001AA5A3 /* MainDataImporter.swift */,
 				49DB512B24ECAA6500857634 /* ButtonCreator.swift */,
@@ -260,9 +310,11 @@
 				49C70D6825016923000BC383 /* MyAnnotation.swift */,
 				49C70D7025018D12000BC383 /* MyAnnotationView.swift */,
 				493FF0EE250AABA10085EB42 /* MetricCard.swift */,
-				4996BD5524D485CB00E301B4 /* Info.plist */,
+				4964C91125238FA10093DAE0 /* CustomCells */,
+				4964C90C252388A70093DAE0 /* IAP */,
 				49026F9024DB41EB00724369 /* Extensions-Utilities */,
 				49026F9324DB4E2600724369 /* Supporting */,
+				4996BD5524D485CB00E301B4 /* Info.plist */,
 			);
 			path = Hundred;
 			sourceTree = "<group>";
@@ -339,6 +391,7 @@
 				4996BD5424D485CB00E301B4 /* LaunchScreen.storyboard in Resources */,
 				4996BD5124D485CB00E301B4 /* Assets.xcassets in Resources */,
 				4996BD4C24D485C900E301B4 /* Main.storyboard in Resources */,
+				4964C9232523A4BE0093DAE0 /* ProductIds.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -404,37 +457,47 @@
 				49854967251C01F80096444D /* Metric+CoreDataProperties.swift in Sources */,
 				491A6622250997B200B659CB /* UserCell.swift in Sources */,
 				4996BD5C24D48B0700E301B4 /* GoalsTableViewController.swift in Sources */,
-				498AC32724FD520D003FDBF2 /* BaseViewController.swift in Sources */,
+				4964C8FC252379920093DAE0 /* PaymentTransactionDetails.swift in Sources */,
 				49854966251C01F80096444D /* Metric+CoreDataClass.swift in Sources */,
 				4906B77524F2FEA700417574 /* EditEntryViewController.swift in Sources */,
 				498AC32924FD524C003FDBF2 /* PieChartViewController.swift in Sources */,
 				49AF207C251EBBA4001EA1DD /* FAQViewController.swift in Sources */,
 				49FD8FFF250EF7B100B60360 /* UserDetailViewController.swift in Sources */,
+				4964C8ED252372FC0093DAE0 /* StoreObserver.swift in Sources */,
 				49854960251C01F80096444D /* Progress+CoreDataClass.swift in Sources */,
+				4964C90E252388C90093DAE0 /* ParentViewController.swift in Sources */,
+				49DB486A2520F985004B3747 /* StoreManager.swift in Sources */,
 				499E8B2F24F0CC1700C829C8 /* EditViewController.swift in Sources */,
 				49F1B1EC24FB34BA006D6887 /* CalendarCell.swift in Sources */,
 				49854961251C01F80096444D /* Progress+CoreDataProperties.swift in Sources */,
+				4964C90225237B040093DAE0 /* AppExtensions.swift in Sources */,
 				49854963251C01F80096444D /* Profile+CoreDataProperties.swift in Sources */,
 				49F1B1EA24FB21B8006D6887 /* CalendarDetailTableViewController.swift in Sources */,
 				49C70D6925016923000BC383 /* MyAnnotation.swift in Sources */,
 				4996BD4924D485C900E301B4 /* ViewController.swift in Sources */,
+				4964C8F3252377380093DAE0 /* AppDataTypes.swift in Sources */,
 				49026F9224DB423900724369 /* Constraints.swift in Sources */,
 				494F0C2A24D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift in Sources */,
 				4985496A251D9BF10096444D /* MoreCollectionViewController.swift in Sources */,
 				4985495E251C01F80096444D /* Goal+CoreDataClass.swift in Sources */,
+				4964C8F6252378E70093DAE0 /* Products.swift in Sources */,
 				493FF0EF250AABA10085EB42 /* MetricCard.swift in Sources */,
 				4996BD4524D485C900E301B4 /* AppDelegate.swift in Sources */,
 				49854964251C01F80096444D /* Subscription+CoreDataClass.swift in Sources */,
 				4926509124FF25AF001AA5A3 /* MainDataImporter.swift in Sources */,
+				4964C8FF25237A620093DAE0 /* IAPViewController.swift in Sources */,
 				4996BD4F24D485C900E301B4 /* Hundred.xcdatamodeld in Sources */,
+				4964C8F02523758B0093DAE0 /* AppProtocols.swift in Sources */,
 				49C8690524F44D66005D0C4D /* GoalCell.swift in Sources */,
 				496149CC25007DAF00C5A23B /* BarChartAxisFormatter.swift in Sources */,
+				4964C90A25237B870093DAE0 /* BaseViewController.swift in Sources */,
 				49AF2086251EF7DF001EA1DD /* FAQTableViewCell.swift in Sources */,
 				491A66202509947300B659CB /* UsersViewController.swift in Sources */,
 				491F5A7C24E458FA0075EDCD /* DetailTableViewController.swift in Sources */,
 				497DC78424EA15A800446178 /* NewViewController.swift in Sources */,
 				4985495F251C01F80096444D /* Goal+CoreDataProperties.swift in Sources */,
 				49B328FE24E3269F00D9E8D4 /* DataImporter.swift in Sources */,
+				4964C90625237B240093DAE0 /* Utilities.swift in Sources */,
 				494F0C2C24D7246A00C5450C /* ManagedObjectContext.swift in Sources */,
 				491165FF24FAE4A000B2963A /* Test.swift in Sources */,
 				49DE68A624F71838009C886C /* ChartXAxisFormatter.swift in Sources */,
@@ -442,6 +505,7 @@
 				49ED332825114BBF006FE080 /* ProfileViewController.swift in Sources */,
 				49AF207F251EBBF2001EA1DD /* FeedbackViewController.swift in Sources */,
 				49DB512A24EC453B00857634 /* Extensions-Style.swift in Sources */,
+				4964C8F9252379260093DAE0 /* Purchases.swift in Sources */,
 				49DB512C24ECAA6500857634 /* ButtonCreator.swift in Sources */,
 				494C424E2513DCB200CD0C34 /* KeychainWrapper.swift in Sources */,
 				4985496D251D9EF70096444D /* MoreCollectionViewCell.swift in Sources */,

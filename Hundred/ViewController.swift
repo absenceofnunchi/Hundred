@@ -67,7 +67,7 @@ class ViewController: UIViewController {
             calendar.delegate = self
             return calendar
         } else {
-            let calendar = CalendarHeatmap(config: config, startDate: Date(2019, 1, 1), endDate: Date())
+            let calendar = CalendarHeatmap(config: config, startDate: Date(2020, 1, 1), endDate: Date())
             calendar.delegate = self
             return calendar
         }

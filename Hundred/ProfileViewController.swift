@@ -143,6 +143,8 @@ class ProfileViewController: UIViewController {
                 self.isAuthenticated = false
             }
         }
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Upgrade", style: .plain, target: self, action: #selector(goToUpgrade))
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -150,6 +152,12 @@ class ProfileViewController: UIViewController {
         UIView.animate(withDuration: 2, delay: 0, options: [], animations: {
             self.imageView.alpha = 1
         })
+    }
+    
+    @objc func goToUpgrade() {
+        if let vc = storyboard?.instantiateViewController(identifier: "parent") as? ParentViewController {
+            navigationController?.pushViewController(vc, animated: true)
+        }
     }
 }
 

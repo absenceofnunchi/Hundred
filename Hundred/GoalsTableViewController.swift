@@ -175,19 +175,12 @@ extension GoalsTableViewController {
             modifyRecords(recordsToSave: nil, recordIDsToDelete: recordIDs)
         }
         
-        // delete relevant plist
-        if let url = self.pListURL() {
-            if FileManager.default.fileExists(atPath: url.path) {
-                do {
-                    let dataContent = try Data(contentsOf: url)
-                    if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
-                        dict.removeValue(forKey: goal.title)
-                        self.write(dictionary: dict)
-                    }
-                } catch {
-                    print("error :\(error.localizedDescription)")
-                }
-            }
+        // delete relevant iCloud key/value for heatmap
+        let keyValStore = NSUbiquitousKeyValueStore.default
+        if var dict = keyValStore.dictionary(forKey: "heatmap") as? [String : [String : Int] ] {
+            dict.removeValue(forKey: goal.title)
+            keyValStore.set(dict, forKey: "heatmap")
+            keyValStore.synchronize()
         }
         
         self.context.delete(goal)
@@ -196,7 +189,7 @@ extension GoalsTableViewController {
         if let mainVC = (self.tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
             let dataImporter = DataImporter(goalTitle: nil)
             mainVC.data = dataImporter.loadData(goalTitle: nil)
-            
+
             let mainDataImporter = MainDataImporter()
             mainVC.goals = mainDataImporter.loadData()
         }

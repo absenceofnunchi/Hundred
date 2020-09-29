@@ -9,6 +9,7 @@
 import UIKit
 import CoreData
 import UserNotifications
+import StoreKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
@@ -37,7 +38,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         UNUserNotificationCenter.current().delegate = self
 
-        
+        // Attach an observer to the payment queue.
+        SKPaymentQueue.default().add(StoreObserver.shared)
         return true
     }
     
@@ -57,6 +59,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // Called when the user discards a scene session.
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
+    }
+    
+    func applicationWillTerminate(_ application: UIApplication) {
+        // Remove the observer.
+        SKPaymentQueue.default().remove(StoreObserver.shared)
     }
 
     // MARK: - Core Data stack

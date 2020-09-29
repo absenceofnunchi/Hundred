@@ -406,7 +406,6 @@ class NewViewController: UIViewController {
         
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 25, weight: .regular, scale: .medium)
         let uiImage = UIImage(systemName: "person.crop.circle", withConfiguration: symbolConfig)?.withTintColor(.darkGray, renderingMode: .alwaysOriginal)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: uiImage, style: .plain, target: self, action: #selector(getProfileVC))
         
         plusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 2)
         minusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 3)
@@ -537,14 +536,7 @@ class NewViewController: UIViewController {
         
         return result as? [Profile]
     }
-    
-    @objc func getProfileVC() {
-        if let vc = storyboard?.instantiateViewController(identifier: "Profile") as? ProfileViewController {
-            DispatchQueue.main.async {
-                self.navigationController?.pushViewController(vc, animated: true)
-            }
-        }
-    }
+
     
     @objc func switchValueDidChange(sender: UISwitch!) {
         if sender.isOn {
@@ -1045,56 +1037,108 @@ class NewViewController: UIViewController {
   
     func savePList() {
         let dateString = dateForPlist(date: Date())
-        
-        if let url = pListURL() {
-            if FileManager.default.fileExists(atPath: url.path) {
-                do {
-                    let dataContent = try Data(contentsOf: url)
-                    if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
-                        if let oldGoalTitle = existingGoal?.title {
-                            if let oldGoalData = dict[oldGoalTitle] {
-                                if var count = oldGoalData[dateString] {
-                                    count += 1
-                                    dict.updateValue([dateString: count], forKey: oldGoalTitle)
-                                    write(dictionary: dict)
-                                } else {
-                                    dict.updateValue([dateString: 1], forKey: oldGoalTitle)
-                                    write(dictionary: dict)
-                                }
-                            } else {
-                                dict[oldGoalTitle] = [dateString: 1]
-                                write(dictionary: dict)
-                            }
+        let keyValStore = NSUbiquitousKeyValueStore.default
+        // if the heatmap key/value already exists
+        if var dict = keyValStore.dictionary(forKey: "heatmap") as? [String : [String : Int]] {
+                // if the goal already exists, update the heatmap key/value for the existing goal
+                if let oldGoalTitle = existingGoal?.title {
+                    if let oldGoalData = dict[oldGoalTitle] {
+                        if var count = oldGoalData[dateString] {
+                            count += 1
+                            dict.updateValue([dateString: count], forKey: oldGoalTitle)
+                            keyValStore.set(dict, forKey: "heatmap")
+                            keyValStore.synchronize()
                         } else {
-                            if let newGoalTitle = goalTextField.text {
-                                dict.updateValue([dateString: 1], forKey: newGoalTitle)
-                                write(dictionary: dict)
-                            } else {
-                                let ac = UIAlertController(title: "Error", message: "The goal title cannot be empty", preferredStyle: .alert)
-                                ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-                                
-                                if let popoverController = ac.popoverPresentationController {
-                                    popoverController.sourceView = self.view
-                                    popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-                                    popoverController.permittedArrowDirections = []
-                                }
-                                
-                                present(ac, animated: true)
-                                return
-                            }
+                            dict.updateValue([dateString: 1], forKey: oldGoalTitle)
+                            keyValStore.set(dict, forKey: "heatmap")
+                            keyValStore.synchronize()
                         }
+                    } else {
+                        dict[oldGoalTitle] = [dateString: 1]
+                        keyValStore.set(dict, forKey: "heatmap")
+                        keyValStore.synchronize()
                     }
-                } catch {
-                    print(error)
+                } else {
+                    // if this is a brand new goal, create a new key/value dictionary for heatmap
+                    if let newGoalTitle = goalTextField.text {
+                        dict.updateValue([dateString: 1], forKey: newGoalTitle)
+                        print("new dict: \(dict)")
+                        keyValStore.set(dict, forKey: "heatmap")
+                        keyValStore.synchronize()
+                    } else {
+                        let ac = UIAlertController(title: "Error", message: "The goal title cannot be empty", preferredStyle: .alert)
+                        ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                        
+                        if let popoverController = ac.popoverPresentationController {
+                            popoverController.sourceView = self.view
+                            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                            popoverController.permittedArrowDirections = []
+                        }
+                        
+                        present(ac, animated: true)
+                        return
+                    }
                 }
+            // if the heatmap key/value doesn't exist
             } else {
                 if let oldGoalTitle = existingGoal?.title {
-                    write(dictionary: [oldGoalTitle: [dateString: 1]])
+                    keyValStore.set([oldGoalTitle: [dateString: 1]], forKey: "heatmap")
+                    keyValStore.synchronize()
                 } else if let newGoalTitle = goalTextField.text {
-                    write(dictionary: [newGoalTitle: [dateString: 1]])
+                    keyValStore.set([newGoalTitle: [dateString: 1]], forKey: "heatmap")
+                    keyValStore.synchronize()
                 }
             }
-        }
+        
+//        if let url = pListURL() {
+//            if FileManager.default.fileExists(atPath: url.path) {
+//                do {
+//                    let dataContent = try Data(contentsOf: url)
+//                    if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
+//                        if let oldGoalTitle = existingGoal?.title {
+//                            if let oldGoalData = dict[oldGoalTitle] {
+//                                if var count = oldGoalData[dateString] {
+//                                    count += 1
+//                                    dict.updateValue([dateString: count], forKey: oldGoalTitle)
+//                                    write(dictionary: dict)
+//                                } else {
+//                                    dict.updateValue([dateString: 1], forKey: oldGoalTitle)
+//                                    write(dictionary: dict)
+//                                }
+//                            } else {
+//                                dict[oldGoalTitle] = [dateString: 1]
+//                                write(dictionary: dict)
+//                            }
+//                        } else {
+//                            if let newGoalTitle = goalTextField.text {
+//                                dict.updateValue([dateString: 1], forKey: newGoalTitle)
+//                                write(dictionary: dict)
+//                            } else {
+//                                let ac = UIAlertController(title: "Error", message: "The goal title cannot be empty", preferredStyle: .alert)
+//                                ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+//
+//                                if let popoverController = ac.popoverPresentationController {
+//                                    popoverController.sourceView = self.view
+//                                    popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+//                                    popoverController.permittedArrowDirections = []
+//                                }
+//
+//                                present(ac, animated: true)
+//                                return
+//                            }
+//                        }
+//                    }
+//                } catch {
+//                    print(error)
+//                }
+//            } else {
+//                if let oldGoalTitle = existingGoal?.title {
+//                    write(dictionary: [oldGoalTitle: [dateString: 1]])
+//                } else if let newGoalTitle = goalTextField.text {
+//                    write(dictionary: [newGoalTitle: [dateString: 1]])
+//                }
+//            }
+//        }
         
         if let mainVC = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
             let dataImporter = DataImporter(goalTitle: nil)
@@ -1248,12 +1292,8 @@ extension NewViewController {
                         print("public cloud database error======================================================: \(error)")
                         return
                     }
-                    print("Sucessfully uploaded to Public Cloud DB==================================================== \(record)")
+                    print("Sucessfully uploaded to Public Cloud DB==================================================== \(String(describing: record))")
                     if let record = record {
-//                        print("record: -------------------- \(record)")
-//                        print("recordID: \(record.recordID)")
-//                        print("recordName: \(record.recordID.recordName)")
-                        
                         var recordsArr: [CKRecord] = []
                         
                         if isNew {

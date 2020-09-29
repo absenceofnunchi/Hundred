@@ -95,22 +95,22 @@ extension UIViewController {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return paths[0]
     }
-    
-    func pListURL() -> URL? {
-        guard let result = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("Heatmap.plist") else { return nil  }
-        return result
-    }
-    
-    func write(dictionary: [String: [String: Int]]) {
-        if let url = pListURL() {
-            do {
-                let plistData = try PropertyListSerialization.data(fromPropertyList: dictionary, format: .xml, options: 0)
-                try plistData.write(to: url)
-            } catch {
-                print(error)
-            }
-        }
-    }
+//    
+//    func pListURL() -> URL? {
+//        guard let result = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("Heatmap.plist") else { return nil  }
+//        return result
+//    }
+//    
+//    func write(dictionary: [String: [String: Int]]) {
+//        if let url = pListURL() {
+//            do {
+//                let plistData = try PropertyListSerialization.data(fromPropertyList: dictionary, format: .xml, options: 0)
+//                try plistData.write(to: url)
+//            } catch {
+//                print(error)
+//            }
+//        }
+//    }
     
     func dateForPlist(date: Date) -> String {
         let calendar = Calendar.current
@@ -502,26 +502,38 @@ extension UIViewController {
             }
         }
         
-        // delete plist
+        // delete key/value for heatmap
         let formattedDate = self.dateForPlist(date: progress.date)
-        if let url = self.pListURL() {
-            if FileManager.default.fileExists(atPath: url.path) {
-                do {
-                    let dataContent = try Data(contentsOf: url)
-                    if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
-                        if var count = dict[progress.goal.title]?[formattedDate] {
-                            if count > 0 {
-                                count -= 1
-                                dict[progress.goal.title]?[formattedDate] = count
-                                self.write(dictionary: dict)
-                            }
-                        }
-                    }
-                } catch {
-                    print("error :\(error.localizedDescription)")
+        let keyValStore = NSUbiquitousKeyValueStore.default
+        if var dict = keyValStore.dictionary(forKey: "heatmap") as? [String : [String : Int]] {
+            if var count = dict[progress.goal.title]?[formattedDate] {
+                if count > 0 {
+                    count -= 1
+                    dict[progress.goal.title]?[formattedDate] = count
+                    keyValStore.set(dict, forKey: "heatmap")
+                    keyValStore.synchronize()
                 }
             }
         }
+        
+//        if let url = self.pListURL() {
+//            if FileManager.default.fileExists(atPath: url.path) {
+//                do {
+//                    let dataContent = try Data(contentsOf: url)
+//                    if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
+//                        if var count = dict[progress.goal.title]?[formattedDate] {
+//                            if count > 0 {
+//                                count -= 1
+//                                dict[progress.goal.title]?[formattedDate] = count
+//                                self.write(dictionary: dict)
+//                            }
+//                        }
+//                    }
+//                } catch {
+//                    print("error :\(error.localizedDescription)")
+//                }
+//            }
+//        }
         
         self.context.delete(progress)
         self.saveContext()
