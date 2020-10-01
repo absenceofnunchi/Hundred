@@ -147,19 +147,7 @@ class EditViewController: UIViewController {
         
         navigationController?.delegate = self
     }
-    
-//    override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
-//        
-//        tabBarController?.tabBar.isHidden = true
-//    }
-//    
-//    override func viewWillDisappear(_ animated: Bool) {
-//        super.viewWillDisappear(animated)
-//        
-//        tabBarController?.tabBar.isHidden = false
-//    }
-//    
+
     func configureStackView() {
         addHeader(text: "Goal Title", stackView: stackView)
         stackView.addArrangedSubview(goalTextField)
@@ -201,17 +189,6 @@ class EditViewController: UIViewController {
         
         metricStackView.translatesAutoresizingMaskIntoConstraints = false
         metricStackView.heightAnchor.constraint(greaterThanOrEqualToConstant: 50).isActive = true
-    }
-    
-    func initializeHideKeyboard(){
-        let tap: UITapGestureRecognizer = UITapGestureRecognizer(
-            target: self,
-            action: #selector(dismissMyKeyboard))
-        view.addGestureRecognizer(tap)
-    }
-    
-    @objc func dismissMyKeyboard(){
-        view.endEditing(true)
     }
     
     @objc func buttonPressed(sender: UIButton!) {

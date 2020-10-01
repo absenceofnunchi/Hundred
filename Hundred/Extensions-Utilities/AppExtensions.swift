@@ -1,12 +1,18 @@
-//
-//  Style.swift
-//  Hundred
-//
-//  Created by jc on 2020-08-18.
-//  Copyright © 2020 J. All rights reserved.
-//
+/*
+See LICENSE folder for this sample’s licensing information.
 
+Abstract:
+Creates extensions for the DateFormatter, ProductIdentifiers, Section, SKDownload, and SKProduct classes. Extends NSView and UIView to the
+ DiscloseView protocol. Extends UIBarButtonItem to conform to the EnableItem protocol.
+*/
+
+#if os (macOS)
+import Cocoa
+#elseif os (iOS)
 import UIKit
+#endif
+import Foundation
+import StoreKit
 import CloudKit
 import MapKit
 import Network
@@ -14,6 +20,134 @@ import AuthenticationServices
 import CoreSpotlight
 import MobileCoreServices
 import CoreData
+
+// MARK: - DateFormatter
+
+extension DateFormatter {
+    /// - returns: A string representation of date using the short time and date style.
+    class func short(_ date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .short
+        dateFormatter.timeStyle = .short
+        return dateFormatter.string(from: date)
+    }
+    
+    /// - returns: A string representation of date using the long time and date style.
+    class func long(_ date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .long
+        dateFormatter.timeStyle = .long
+        return dateFormatter.string(from: date)
+    }
+}
+
+// MARK: - Section
+
+extension Section {
+    /// - returns: A Section object matching the specified name in the data array.
+    static func parse(_ data: [Section], for type: SectionType) -> Section? {
+        let section = (data.filter({ (item: Section) in item.type == type }))
+        return (!section.isEmpty) ? section.first : nil
+    }
+}
+
+// MARK: - SKProduct
+extension SKProduct {
+    /// - returns: The cost of the product formatted in the local currency.
+    var regularPrice: String? {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.locale = self.priceLocale
+        return formatter.string(from: self.price)
+    }
+}
+
+// MARK: - SKDownload
+
+extension SKDownload {
+    /// - returns: A string representation of the downloadable content length.
+    var downloadContentSize: String {
+        return ByteCountFormatter.string(fromByteCount: self.expectedContentLength, countStyle: .file)
+    }
+}
+
+// MARK: - DiscloseView
+
+#if os (macOS)
+extension NSView: DiscloseView {
+    /// Show the view.
+    func show() {
+        self.isHidden = false
+    }
+    
+    /// Hide the view.
+    func hide() {
+        self.isHidden = true
+    }
+}
+#else
+extension UIView: DiscloseView {
+    /// Show the view.
+    func show() {
+        self.isHidden = false
+    }
+    
+    /// Hide the view.
+    func hide() {
+        self.isHidden = true
+    }
+}
+
+// MARK: - EnableItem
+
+extension UIBarItem: EnableItem {
+    /// Enable the bar item.
+    func enable() {
+        self.isEnabled = true
+    }
+    
+    /// Disable the bar item.
+    func disable() {
+        self.isEnabled = false
+    }
+}
+#endif
+
+// MARK: - ProductIdentifiers
+
+extension ProductIdentifiers {
+    var isEmpty: String {
+        return "\(key) from \(store) is empty. \(Messages.updateResource)"
+    }
+    
+    var wasNotFound: String {
+        return "\(Messages.couldNotFind) \(key) from \(store)."
+    }
+    
+    /// - returns: An array with the product identifiers to be queried.
+    var identifiers: [String]? {
+        let keyValStore = NSUbiquitousKeyValueStore.default
+        if let dict = keyValStore.array(forKey: "productIds") as? [String] {
+            print("first dict: \(dict)")
+            return dict
+        } else {
+            let productIDs = [ProductIDs.oneMonth.rawValue, ProductIDs.sixMonths.rawValue, ProductIDs.oneYear.rawValue]
+            print("productIDs arr: \(productIDs)")
+            keyValStore.set(productIDs, forKey: "productIds")
+            if let dict = keyValStore.array(forKey: "productIds") as? [String] {
+                print("second dict: \(dict)")
+                return dict
+            } else {
+                return nil
+            }
+        }
+    }
+
+}
+
+// MARK: - UIViewController
+
+fileprivate var grayBackground: UIView?
 
 extension UIViewController {
     
@@ -72,7 +206,6 @@ extension UIViewController {
         }
     }
     
-    
     func addHeader(text: String, stackView: UIStackView) {
         let label = UILabel()
         label.text = text
@@ -95,12 +228,12 @@ extension UIViewController {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return paths[0]
     }
-//    
+//
 //    func pListURL() -> URL? {
 //        guard let result = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("Heatmap.plist") else { return nil  }
 //        return result
 //    }
-//    
+//
 //    func write(dictionary: [String: [String: Int]]) {
 //        if let url = pListURL() {
 //            do {
@@ -137,7 +270,6 @@ extension UIViewController {
         
         return date
     }
-    
     
     func showSpinner<T: UIView>(container: T) {
         grayBackground = UIView(frame: self.view.bounds)
@@ -233,6 +365,10 @@ extension UIViewController {
         }
     }
     
+    enum Keychain: String {
+        case identifier
+    }
+    
     func iCloudAlert(message: String) {
         let ac = UIAlertController(title: "Requires you to log into your iCloud", message: message, preferredStyle: .alert)
         ac.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
@@ -312,7 +448,7 @@ extension UIViewController {
         monitor.pathUpdateHandler = { path in
             if path.status == .satisfied {
                 // now that the internet is connected, check the status of user discoverability
-                CKContainer.default().status(forApplicationPermission: .userDiscoverability) { (status, error) in
+                CKContainer.default().requestApplicationPermission(.userDiscoverability) { (status, error) in
                     if error != nil {
                         self.permissionDeniedAlert(title: "Permission Error", message: "Sorry! There was an error checking for the permission status for your iCloud user discoverability. Please try again.")
                         monitor.cancel()
@@ -334,7 +470,7 @@ extension UIViewController {
             // this is because the record ID is used in places like subscriptions
             // it also allows fetching an accurate profile from Core Data using the record ID
             let appleIDProvider = ASAuthorizationAppleIDProvider()
-            let currentUserIdentifier = KeychainWrapper.standard.string(forKey: Keychain.userIdentifier.rawValue)
+            let currentUserIdentifier = KeychainWrapper.standard.string(forKey: "userIdentifier")
             appleIDProvider.getCredentialState(forUserID: currentUserIdentifier ?? "") { (credentialState, error) in
                 switch credentialState {
                 case .authorized:
@@ -363,32 +499,32 @@ extension UIViewController {
                     break
                 case .revoked:
                     // The Apple ID credential is revoked, so show the sign-in UI if this is in ProfileVC.
-                    KeychainWrapper.standard.removeObject(forKey: Keychain.userIdentifier.rawValue)
-                    DispatchQueue.main.async {
-                        let fetchRequest = NSFetchRequest<Profile>(entityName: "Profile")
-                        do {
-                            let profiles = try self.context.fetch(fetchRequest)
-                            var emailArr: [String] = []
-                            for profile in profiles {
-                                self.context.delete(profile)
-                                emailArr.append(profile.email)
-                            }
-                            
-                            // deindex the account from Core Spotlight
-                            CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: emailArr) { (error) in
-                                if let error = error {
-                                    print("Deindexing error: \(error.localizedDescription)")
-                                } else {
-                                    print("Goal successfully deindexed")
-                                }
-                            }
-                        } catch {
-                            print("Fetched failed from revoked: \(error.localizedDescription)")
-                            self.permissionDeniedAlert(title: "Fetch Error", message: "Sorry! There was an error fetching your profile. Please try again.")
-                        }
-                    }
-                    monitor.cancel()
-                    completion(nil)
+//                    KeychainWrapper.standard.removeObject(forKey: Keychain.userIdentifier.rawValue)
+//                    DispatchQueue.main.async {
+//                        let fetchRequest = NSFetchRequest<Profile>(entityName: "Profile")
+//                        do {
+//                            let profiles = try self.context.fetch(fetchRequest)
+//                            var emailArr: [String] = []
+//                            for profile in profiles {
+//                                self.context.delete(profile)
+//                                emailArr.append(profile.email)
+//                            }
+//                            
+//                            // deindex the account from Core Spotlight
+//                            CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: emailArr) { (error) in
+//                                if let error = error {
+//                                    print("Deindexing error: \(error.localizedDescription)")
+//                                } else {
+//                                    print("Goal successfully deindexed")
+//                                }
+//                            }
+//                        } catch {
+//                            print("Fetched failed from revoked: \(error.localizedDescription)")
+//                            self.permissionDeniedAlert(title: "Fetch Error", message: "Sorry! There was an error fetching your profile. Please try again.")
+//                        }
+//                    }
+//                    monitor.cancel()
+//                    completion(nil)
                     break
                 case .notFound:
                     DispatchQueue.main.async {
@@ -408,7 +544,6 @@ extension UIViewController {
                     }
                     break
                 default:
-                    print("default")
                     completion(nil)
                     monitor.cancel()
                 }
@@ -416,19 +551,12 @@ extension UIViewController {
         // the iCloud user discoverability is not granted
         case .couldNotComplete, .denied:
             DispatchQueue.main.async {
-                let ac = UIAlertController(title: "", message: "Sorry! You permission is required to obtain the unique record ID from your iCloud account.  You are not required to display the iCloud email or your name on the Public Feed and can be changed to your preference. Please see the FAQ section for more information.", preferredStyle: .alert)
+                let ac = UIAlertController(title: "", message: "Your permission is required to obtain the unique record ID from your iCloud account.  Please see the FAQ section for more information.", preferredStyle: .alert)
                 ac.addAction(UIAlertAction(title: "OK", style: .default, handler: {(_) in
-                    CKContainer.default().requestApplicationPermission(.userDiscoverability) { (status, error) in
-                        // recursive to ensure the integrity
-                        self.processUserDiscoverability(status: status, monitor: monitor, completion: completion)
-                    }
-                }))
-                
-                ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (_) in
                     monitor.cancel()
                     completion(nil)
                 }))
-                
+
                 if let popoverController = ac.popoverPresentationController {
                     popoverController.sourceView = self.view
                     popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
@@ -569,6 +697,42 @@ extension UIViewController {
         
         present(ac, animated: true)
     }
+    
+    func createButton(title: String?, image: String?, cornerRadius: CGFloat, color: UIColor, size: CGFloat?, tag: Int, selector: Selector) -> UIButton {
+        let button = UIButton()
+        button.clipsToBounds = true
+        button.layer.cornerRadius = cornerRadius
+        
+        if title != nil {
+            button.setTitle(title, for: .normal)
+        }
+        
+        if let image = image {
+            if let size = size {
+                let largeConfig = UIImage.SymbolConfiguration(pointSize: size, weight: .medium, scale: .large)
+                let uiImage = UIImage(systemName: image, withConfiguration: largeConfig)
+                
+                button.tintColor = color
+                button.setImage(uiImage, for: .normal)
+            }
+        }
+        
+        button.addTarget(self, action: selector, for: .touchUpInside)
+        button.tag = tag
+        
+        return button
+    }
+    
+    func initializeHideKeyboard(){
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(
+            target: self,
+            action: #selector(dismissMyKeyboard))
+        view.addGestureRecognizer(tap)
+    }
+    
+    @objc func dismissMyKeyboard(){
+        view.endEditing(true)
+    }
 }
 
 struct UILabelTheme {
@@ -586,59 +750,6 @@ extension UILabel {
         self.lineBreakMode = theme.lineBreakMode ?? .byTruncatingTail
         self.textAlignment = theme.textAlignment
         self.text = text
-    }
-}
-
-struct UnitConversion {
-    static func decimalToString(decimalNumber: NSDecimalNumber) -> String {
-        let behavior = NSDecimalNumberHandler(roundingMode: .plain, scale: 1, raiseOnExactness: false, raiseOnOverflow: false, raiseOnUnderflow: false, raiseOnDivideByZero: true)
-        return String(describing: decimalNumber.rounding(accordingToBehavior: behavior))
-    }
-    
-    static func stringToDecimal(string: String) -> NSDecimalNumber {
-        let formatter = NumberFormatter()
-        formatter.generatesDecimalNumbers = true
-        return formatter.number(from: string) as? NSDecimalNumber ?? 0
-    }
-}
-
-struct BorderStyle {
-    static func customShadowBorder<T: UIView>(for object: T) {
-        let borderColor = UIColor.gray
-        object.layer.borderWidth = 1
-        object.layer.masksToBounds = false
-        object.layer.cornerRadius = 7.0;
-        object.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
-        object.layer.shadowColor = UIColor.black.cgColor
-        object.layer.shadowOffset = CGSize(width: 0, height: 0)
-        object.layer.shadowOpacity = 0.2
-        object.layer.shadowRadius = 4.0
-        object.layer.backgroundColor = UIColor.white.cgColor
-    }
-}
-
-fileprivate var grayBackground: UIView?
-
-class CustomTextField: UITextField {
-    let insets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 5)
-    
-    override open func textRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.inset(by: insets)
-    }
-    
-    override open func placeholderRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.inset(by: insets)
-    }
-    
-    override open func editingRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.inset(by: insets)
-    }
-}
-
-class CustomLabel: UILabel {
-    override func drawText(in rect: CGRect) {
-        let insets = UIEdgeInsets(top: 10, left: 15, bottom: 10, right: 15)
-        super.drawText(in: rect.inset(by: insets))
     }
 }
 

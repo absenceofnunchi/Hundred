@@ -35,7 +35,7 @@ class NewViewController: UIViewController {
     }()
     
     private lazy var cameraButton: UIButton = {
-        return createButton(title: nil, image: "camera.circle", cornerRadius: 20, color:  UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 60, tag: 1)
+        return createButton(title: nil, image: "camera.circle", cornerRadius: 20, color:  UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 60, tag: 1, selector: #selector(buttonPressed))
     }()
     
     lazy var goalTextField: CustomTextField = {
@@ -404,14 +404,11 @@ class NewViewController: UIViewController {
     func configureUI() {
         navigationController?.title = "New Entry"
         
-        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 25, weight: .regular, scale: .medium)
-        let uiImage = UIImage(systemName: "person.crop.circle", withConfiguration: symbolConfig)?.withTintColor(.darkGray, renderingMode: .alwaysOriginal)
+        plusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 2, selector: #selector(buttonPressed))
+        minusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 3, selector: #selector(buttonPressed))
         
-        plusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 2)
-        minusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 3)
-        
-        locationPlusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 9)
-        locationMinusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 10)
+        locationPlusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 9, selector: #selector(buttonPressed))
+        locationMinusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 10, selector: #selector(buttonPressed))
         
         stackView.addArrangedSubview(cameraButton)
         stackView.setCustomSpacing(40, after: cameraButton)
@@ -558,41 +555,7 @@ class NewViewController: UIViewController {
         }
     }
     
-    func initializeHideKeyboard(){
-        let tap: UITapGestureRecognizer = UITapGestureRecognizer(
-            target: self,
-            action: #selector(dismissMyKeyboard))
-        view.addGestureRecognizer(tap)
-    }
-    
-    @objc func dismissMyKeyboard(){
-        view.endEditing(true)
-    }
-    
-    func createButton(title: String?, image: String?, cornerRadius: CGFloat, color: UIColor, size: CGFloat?, tag: Int) -> UIButton {
-        let button = UIButton()
-        button.clipsToBounds = true
-        button.layer.cornerRadius = cornerRadius
-        
-        if title != nil {
-            button.setTitle(title, for: .normal)
-        }
-        
-        if let image = image {
-            if let size = size {
-                let largeConfig = UIImage.SymbolConfiguration(pointSize: size, weight: .medium, scale: .large)
-                let uiImage = UIImage(systemName: image, withConfiguration: largeConfig)
-                
-                button.tintColor = color
-                button.setImage(uiImage, for: .normal)
-            }
-        }
-        
-        button.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
-        button.tag = tag
-        
-        return button
-    }
+
     
     @objc func buttonPressed(sender: UIButton!) {
         switch sender.tag {
@@ -897,7 +860,7 @@ class NewViewController: UIViewController {
                 }
             }
             
-            savePList()
+            saveHeatmap()
             
             imagePathString = nil
             goalFromCoreData = nil
@@ -1035,7 +998,7 @@ class NewViewController: UIViewController {
         }
     }
   
-    func savePList() {
+    func saveHeatmap() {
         let dateString = dateForPlist(date: Date())
         let keyValStore = NSUbiquitousKeyValueStore.default
         // if the heatmap key/value already exists
@@ -1257,9 +1220,9 @@ extension NewViewController {
                 progressRecord[MetricAnalytics.comment.rawValue] = comment as CKRecordValue
                 
                 // profile
-                progressRecord[MetricAnalytics.username.rawValue] = profile.username
-                progressRecord[MetricAnalytics.email.rawValue] = profile.email
-                progressRecord[MetricAnalytics.userId.rawValue] = profile.userId
+//                progressRecord[MetricAnalytics.username.rawValue] = profile.username
+//                progressRecord[MetricAnalytics.email.rawValue] = profile.email
+//                progressRecord[MetricAnalytics.userId.rawValue] = profile.userId
                 
                 // analytics
                 progressRecord[MetricAnalytics.longitude.rawValue] = self.location?.longitude

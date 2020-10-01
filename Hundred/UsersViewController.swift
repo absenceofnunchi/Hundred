@@ -54,14 +54,14 @@ class UsersViewController: UITableViewController {
         }))
         
         ac.addAction(UIAlertAction(title: "My Public Entries Only", style: .default, handler: { (_) in
-            self.getCredentials { (profile) in
-                if let profile = profile {
-                    self.fetchData(userId: profile.userId)
-                    DispatchQueue.main.async {
-                        self.title = "My Entries Only"
-                    }
-                }
-            }
+//            self.getCredentials { (profile) in
+//                if let profile = profile {
+//                    self.fetchData(userId: profile.userId)
+//                    DispatchQueue.main.async {
+//                        self.title = "My Entries Only"
+//                    }
+//                }
+//            }
         }))
         
         if let popoverController = ac.popoverPresentationController {

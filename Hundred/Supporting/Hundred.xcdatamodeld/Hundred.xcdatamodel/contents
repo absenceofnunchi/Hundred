@@ -20,9 +20,10 @@
         <relationship name="progress" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Progress" inverseName="metric" inverseEntity="Progress"/>
     </entity>
     <entity name="Profile" representedClassName="Profile" syncable="YES">
-        <attribute name="email" optional="YES" attributeType="String"/>
+        <attribute name="detail" optional="YES" attributeType="String"/>
+        <attribute name="image" optional="YES" attributeType="String"/>
         <attribute name="subscription" optional="YES" attributeType="Transformable" customClassName="[String]"/>
-        <attribute name="userId" optional="YES" attributeType="String"/>
+        <attribute name="userId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="username" optional="YES" attributeType="String"/>
     </entity>
     <entity name="Progress" representedClassName="Progress" syncable="YES">
@@ -49,7 +50,7 @@
     <elements>
         <element name="Goal" positionX="-63" positionY="-18" width="128" height="164"/>
         <element name="Metric" positionX="-45" positionY="99" width="128" height="133"/>
-        <element name="Profile" positionX="-54" positionY="108" width="128" height="89"/>
+        <element name="Profile" positionX="-54" positionY="108" width="128" height="104"/>
         <element name="Progress" positionX="-36" positionY="90" width="128" height="179"/>
         <element name="Subscription" positionX="-54" positionY="117" width="128" height="89"/>
     </elements>

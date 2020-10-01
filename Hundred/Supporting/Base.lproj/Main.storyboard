@@ -78,14 +78,60 @@
                     <view key="view" contentMode="scaleToFill" id="FCP-b5-Pof">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TkF-aX-zMQ">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                            </containerView>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="Cx5-If-I0Z"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="TkF-aX-zMQ" firstAttribute="trailing" secondItem="Cx5-If-I0Z" secondAttribute="trailing" id="4Vl-EF-0uM"/>
+                            <constraint firstItem="TkF-aX-zMQ" firstAttribute="leading" secondItem="Cx5-If-I0Z" secondAttribute="leading" id="Qnz-6L-EjT"/>
+                            <constraint firstAttribute="bottom" secondItem="TkF-aX-zMQ" secondAttribute="bottom" id="TQy-LX-vwL"/>
+                            <constraint firstItem="TkF-aX-zMQ" firstAttribute="top" secondItem="FCP-b5-Pof" secondAttribute="top" id="X7y-pX-6Ch"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="cwC-30-sr7"/>
+                    <connections>
+                        <outlet property="containerView" destination="TkF-aX-zMQ" id="xsV-XA-9bU"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ww8-HG-CQP" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4826" y="-988"/>
+            <point key="canvasLocation" x="4824.6376811594209" y="-988.39285714285711"/>
+        </scene>
+        <!--Create Profile-->
+        <scene sceneID="PEI-VU-inF">
+            <objects>
+                <viewController storyboardIdentifier="createProfile" id="hvs-PU-zBd" customClass="CreateProfile" customModule="Hundred" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="YBn-1N-GOh">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="1Cf-sf-E5o"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <nil key="simulatedTopBarMetrics"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="m3s-h5-RzI" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4522" y="-297"/>
+        </scene>
+        <!--Show Profile-->
+        <scene sceneID="cYf-8B-IAQ">
+            <objects>
+                <viewController storyboardIdentifier="showProfile" id="lp9-N2-JxI" customClass="ShowProfile" customModule="Hundred" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Cgs-cX-kIc">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="uwx-tQ-boV"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <nil key="simulatedTopBarMetrics"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="IN9-6G-K90" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="5190" y="-297"/>
         </scene>
         <!--Parent View Controller-->
         <scene sceneID="IEp-rP-MUw">
@@ -110,7 +156,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="Wc4-SD-uaq">
                         <nil key="title"/>
-                        <segmentedControl key="titleView" opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="QHs-23-9VL" userLabel="SegmentedControl">
+                        <segmentedControl key="titleView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="QHs-23-9VL" userLabel="SegmentedControl">
                             <rect key="frame" x="122.5" y="5.5" width="169" height="33"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <segments>

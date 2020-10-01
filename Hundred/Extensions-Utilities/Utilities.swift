@@ -57,6 +57,7 @@ class Utilities {
         let action = UIAlertAction(title: NSLocalizedString(Messages.okButton, comment: Messages.emptyString),
                                    style: .default, handler: nil)
         alertController.addAction(action)
+        
         return alertController
     }
     #endif

@@ -6,6 +6,7 @@ Handles the application's configuration information.
 */
 
 import Foundation
+import UIKit
 
 // MARK: - Download Information
 
@@ -76,6 +77,7 @@ struct Messages {
     static let useStoreRestore = "Use Store > Restore to restore your previously bought non-consumable products and auto-renewable subscriptions."
     static let viewControllerDoesNotExist = "The main content view controller does not exist."
     static let windowDoesNotExist = "The window does not exist."
+    static let fetchError = "There was an error fetching data. Please try again"
 }
 
 // MARK: - Resource File
@@ -136,6 +138,8 @@ struct ViewControllerIdentifiers {
     static let messages = "messages"
     static let products = "products"
     static let purchases = "purchases"
+    static let createProfile = "createProfile"
+    static let showProfile = "showProfile"
 }
 
 /// An enumeration of view controller names.
@@ -146,5 +150,57 @@ enum ViewControllerNames: String, CustomStringConvertible {
     
     var description: String {
         return self.rawValue
+    }
+}
+
+struct UnitConversion {
+    static func decimalToString(decimalNumber: NSDecimalNumber) -> String {
+        let behavior = NSDecimalNumberHandler(roundingMode: .plain, scale: 1, raiseOnExactness: false, raiseOnOverflow: false, raiseOnUnderflow: false, raiseOnDivideByZero: true)
+        return String(describing: decimalNumber.rounding(accordingToBehavior: behavior))
+    }
+    
+    static func stringToDecimal(string: String) -> NSDecimalNumber {
+        let formatter = NumberFormatter()
+        formatter.generatesDecimalNumbers = true
+        return formatter.number(from: string) as? NSDecimalNumber ?? 0
+    }
+}
+
+struct BorderStyle {
+    static func customShadowBorder<T: UIView>(for object: T) {
+        let borderColor = UIColor.gray
+        object.layer.borderWidth = 1
+        object.layer.masksToBounds = false
+        object.layer.cornerRadius = 7.0;
+        object.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
+        object.layer.shadowColor = UIColor.black.cgColor
+        object.layer.shadowOffset = CGSize(width: 0, height: 0)
+        object.layer.shadowOpacity = 0.2
+        object.layer.shadowRadius = 4.0
+        object.layer.backgroundColor = UIColor.white.cgColor
+    }
+}
+
+
+class CustomTextField: UITextField {
+    let insets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 5)
+    
+    override open func textRect(forBounds bounds: CGRect) -> CGRect {
+        return bounds.inset(by: insets)
+    }
+    
+    override open func placeholderRect(forBounds bounds: CGRect) -> CGRect {
+        return bounds.inset(by: insets)
+    }
+    
+    override open func editingRect(forBounds bounds: CGRect) -> CGRect {
+        return bounds.inset(by: insets)
+    }
+}
+
+class CustomLabel: UILabel {
+    override func drawText(in rect: CGRect) {
+        let insets = UIEdgeInsets(top: 10, left: 15, bottom: 10, right: 15)
+        super.drawText(in: rect.inset(by: insets))
     }
 }

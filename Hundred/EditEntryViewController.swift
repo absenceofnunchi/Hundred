@@ -285,17 +285,6 @@ class EditEntryViewController: UIViewController {
         locationMinusButton.trailingAnchor.constraint(equalTo: mapPanel.trailingAnchor).isActive = true
     }
     
-    func initializeHideKeyboard(){
-        let tap: UITapGestureRecognizer = UITapGestureRecognizer(
-            target: self,
-            action: #selector(dismissMyKeyboard))
-        view.addGestureRecognizer(tap)
-    }
-    
-    @objc func dismissMyKeyboard(){
-        view.endEditing(true)
-    }
-    
     @objc func adjustForKeyboard(notification: Notification) {
         guard let keyboardValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
         
@@ -562,9 +551,9 @@ class EditEntryViewController: UIViewController {
         progressRecord[MetricAnalytics.date.rawValue] = progress.date
         
         // profile
-        progressRecord[MetricAnalytics.username.rawValue] = profile.username
-        progressRecord[MetricAnalytics.email.rawValue] = profile.email
-        progressRecord[MetricAnalytics.userId.rawValue] = profile.userId
+//        progressRecord[MetricAnalytics.username.rawValue] = profile.username
+//        progressRecord[MetricAnalytics.email.rawValue] = profile.email
+//        progressRecord[MetricAnalytics.userId.rawValue] = profile.userId
         
         // location
         if let location = location {

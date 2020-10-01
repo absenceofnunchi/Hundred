@@ -20,6 +20,9 @@
 		494C424E2513DCB200CD0C34 /* KeychainWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494C424D2513DCB200CD0C34 /* KeychainWrapper.swift */; };
 		494F0C2A24D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */; };
 		494F0C2C24D7246A00C5450C /* ManagedObjectContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */; };
+		4958D09D2525274B00703A83 /* ShowProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4958D09C2525274B00703A83 /* ShowProfile.swift */; };
+		4958D0A02525275800703A83 /* CreateProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4958D09F2525275800703A83 /* CreateProfile.swift */; };
+		4958D0A3252527FE00703A83 /* ProfileBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4958D0A2252527FE00703A83 /* ProfileBaseViewController.swift */; };
 		496149CC25007DAF00C5A23B /* BarChartAxisFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 496149CB25007DAE00C5A23B /* BarChartAxisFormatter.swift */; };
 		4964C8ED252372FC0093DAE0 /* StoreObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C8EC252372FC0093DAE0 /* StoreObserver.swift */; };
 		4964C8F02523758B0093DAE0 /* AppProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C8EF2523758B0093DAE0 /* AppProtocols.swift */; };
@@ -32,7 +35,6 @@
 		4964C90625237B240093DAE0 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C90525237B240093DAE0 /* Utilities.swift */; };
 		4964C90A25237B870093DAE0 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C90925237B870093DAE0 /* BaseViewController.swift */; };
 		4964C90E252388C90093DAE0 /* ParentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C90D252388C90093DAE0 /* ParentViewController.swift */; };
-		4964C9232523A4BE0093DAE0 /* ProductIds.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4964C9222523A4BE0093DAE0 /* ProductIds.plist */; };
 		49795B7624DC864000D27111 /* EntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49795B7524DC864000D27111 /* EntryViewController.swift */; };
 		497DC78424EA15A800446178 /* NewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 497DC78324EA15A800446178 /* NewViewController.swift */; };
 		49812F1D2503042900F2BBCB /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49812F1C2503042900F2BBCB /* CloudKit.framework */; };
@@ -71,7 +73,6 @@
 		49C8690524F44D66005D0C4D /* GoalCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C8690424F44D66005D0C4D /* GoalCell.swift */; };
 		49D3B4EB2520196500B714C5 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D3B4EA2520196500B714C5 /* StoreKit.framework */; };
 		49DB486A2520F985004B3747 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DB48692520F985004B3747 /* StoreManager.swift */; };
-		49DB512A24EC453B00857634 /* Extensions-Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DB512924EC453B00857634 /* Extensions-Style.swift */; };
 		49DB512C24ECAA6500857634 /* ButtonCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DB512B24ECAA6500857634 /* ButtonCreator.swift */; };
 		49DE68A624F71838009C886C /* ChartXAxisFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */; };
 		49E9631224FC8FA10041239B /* SpinnerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E9631124FC8FA10041239B /* SpinnerViewController.swift */; };
@@ -96,6 +97,9 @@
 		494C424D2513DCB200CD0C34 /* KeychainWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainWrapper.swift; sourceTree = "<group>"; };
 		494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistingGoalsMenuTableViewController.swift; sourceTree = "<group>"; };
 		494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedObjectContext.swift; sourceTree = "<group>"; };
+		4958D09C2525274B00703A83 /* ShowProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowProfile.swift; sourceTree = "<group>"; };
+		4958D09F2525275800703A83 /* CreateProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateProfile.swift; sourceTree = "<group>"; };
+		4958D0A2252527FE00703A83 /* ProfileBaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileBaseViewController.swift; sourceTree = "<group>"; };
 		496149CB25007DAE00C5A23B /* BarChartAxisFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarChartAxisFormatter.swift; sourceTree = "<group>"; };
 		4964C8EC252372FC0093DAE0 /* StoreObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreObserver.swift; sourceTree = "<group>"; };
 		4964C8EF2523758B0093DAE0 /* AppProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppProtocols.swift; sourceTree = "<group>"; };
@@ -108,7 +112,6 @@
 		4964C90525237B240093DAE0 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		4964C90925237B870093DAE0 /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
 		4964C90D252388C90093DAE0 /* ParentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentViewController.swift; sourceTree = "<group>"; };
-		4964C9222523A4BE0093DAE0 /* ProductIds.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ProductIds.plist; sourceTree = "<group>"; };
 		49795B7524DC864000D27111 /* EntryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryViewController.swift; sourceTree = "<group>"; };
 		497DC78324EA15A800446178 /* NewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewViewController.swift; sourceTree = "<group>"; };
 		49812F1B2503033700F2BBCB /* Hundred.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Hundred.entitlements; sourceTree = "<group>"; };
@@ -151,7 +154,6 @@
 		49C8690424F44D66005D0C4D /* GoalCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalCell.swift; sourceTree = "<group>"; };
 		49D3B4EA2520196500B714C5 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		49DB48692520F985004B3747 /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
-		49DB512924EC453B00857634 /* Extensions-Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extensions-Style.swift"; sourceTree = "<group>"; };
 		49DB512B24ECAA6500857634 /* ButtonCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonCreator.swift; sourceTree = "<group>"; };
 		49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartXAxisFormatter.swift; sourceTree = "<group>"; };
 		49E9631124FC8FA10041239B /* SpinnerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerViewController.swift; sourceTree = "<group>"; };
@@ -193,8 +195,11 @@
 		49026F9024DB41EB00724369 /* Extensions-Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				4964C8F2252377380093DAE0 /* AppDataTypes.swift */,
+				4964C90125237B040093DAE0 /* AppExtensions.swift */,
+				4964C8EF2523758B0093DAE0 /* AppProtocols.swift */,
+				4964C90525237B240093DAE0 /* Utilities.swift */,
 				49026F9124DB423900724369 /* Constraints.swift */,
-				49DB512924EC453B00857634 /* Extensions-Style.swift */,
 				494C424D2513DCB200CD0C34 /* KeychainWrapper.swift */,
 				494C424B2513DC3600CD0C34 /* KeychainItemAccessibility.swift */,
 			);
@@ -214,21 +219,27 @@
 			path = Supporting;
 			sourceTree = "<group>";
 		};
+		4958D09B252526E800703A83 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				49ED332725114BBF006FE080 /* ProfileViewController.swift */,
+				4958D09F2525275800703A83 /* CreateProfile.swift */,
+				4958D09C2525274B00703A83 /* ShowProfile.swift */,
+				4958D0A2252527FE00703A83 /* ProfileBaseViewController.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
 		4964C90C252388A70093DAE0 /* IAP */ = {
 			isa = PBXGroup;
 			children = (
 				4964C90D252388C90093DAE0 /* ParentViewController.swift */,
-				4964C8F2252377380093DAE0 /* AppDataTypes.swift */,
-				4964C8EF2523758B0093DAE0 /* AppProtocols.swift */,
-				4964C90125237B040093DAE0 /* AppExtensions.swift */,
 				4964C8FE25237A620093DAE0 /* IAPViewController.swift */,
 				4964C8FB252379920093DAE0 /* PaymentTransactionDetails.swift */,
 				4964C8F5252378E70093DAE0 /* Products.swift */,
 				4964C8F8252379260093DAE0 /* Purchases.swift */,
 				49DB48692520F985004B3747 /* StoreManager.swift */,
 				4964C8EC252372FC0093DAE0 /* StoreObserver.swift */,
-				4964C90525237B240093DAE0 /* Utilities.swift */,
-				4964C9222523A4BE0093DAE0 /* ProductIds.plist */,
 			);
 			path = IAP;
 			sourceTree = "<group>";
@@ -288,7 +299,6 @@
 				4996BD5B24D48B0700E301B4 /* GoalsTableViewController.swift */,
 				491F5A7B24E458FA0075EDCD /* DetailTableViewController.swift */,
 				497DC78324EA15A800446178 /* NewViewController.swift */,
-				49ED332725114BBF006FE080 /* ProfileViewController.swift */,
 				494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */,
 				49C70D6C25016BF1000BC383 /* MapViewController.swift */,
 				49C70D722501940D000BC383 /* LocationSearchViewController.swift */,
@@ -310,6 +320,7 @@
 				49C70D6825016923000BC383 /* MyAnnotation.swift */,
 				49C70D7025018D12000BC383 /* MyAnnotationView.swift */,
 				493FF0EE250AABA10085EB42 /* MetricCard.swift */,
+				4958D09B252526E800703A83 /* Profile */,
 				4964C91125238FA10093DAE0 /* CustomCells */,
 				4964C90C252388A70093DAE0 /* IAP */,
 				49026F9024DB41EB00724369 /* Extensions-Utilities */,
@@ -391,7 +402,6 @@
 				4996BD5424D485CB00E301B4 /* LaunchScreen.storyboard in Resources */,
 				4996BD5124D485CB00E301B4 /* Assets.xcassets in Resources */,
 				4996BD4C24D485C900E301B4 /* Main.storyboard in Resources */,
-				4964C9232523A4BE0093DAE0 /* ProductIds.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -485,6 +495,7 @@
 				4996BD4524D485C900E301B4 /* AppDelegate.swift in Sources */,
 				49854964251C01F80096444D /* Subscription+CoreDataClass.swift in Sources */,
 				4926509124FF25AF001AA5A3 /* MainDataImporter.swift in Sources */,
+				4958D0A02525275800703A83 /* CreateProfile.swift in Sources */,
 				4964C8FF25237A620093DAE0 /* IAPViewController.swift in Sources */,
 				4996BD4F24D485C900E301B4 /* Hundred.xcdatamodeld in Sources */,
 				4964C8F02523758B0093DAE0 /* AppProtocols.swift in Sources */,
@@ -498,13 +509,14 @@
 				4985495F251C01F80096444D /* Goal+CoreDataProperties.swift in Sources */,
 				49B328FE24E3269F00D9E8D4 /* DataImporter.swift in Sources */,
 				4964C90625237B240093DAE0 /* Utilities.swift in Sources */,
+				4958D0A3252527FE00703A83 /* ProfileBaseViewController.swift in Sources */,
 				494F0C2C24D7246A00C5450C /* ManagedObjectContext.swift in Sources */,
 				491165FF24FAE4A000B2963A /* Test.swift in Sources */,
 				49DE68A624F71838009C886C /* ChartXAxisFormatter.swift in Sources */,
 				4996BD4724D485C900E301B4 /* SceneDelegate.swift in Sources */,
+				4958D09D2525274B00703A83 /* ShowProfile.swift in Sources */,
 				49ED332825114BBF006FE080 /* ProfileViewController.swift in Sources */,
 				49AF207F251EBBF2001EA1DD /* FeedbackViewController.swift in Sources */,
-				49DB512A24EC453B00857634 /* Extensions-Style.swift in Sources */,
 				4964C8F9252379260093DAE0 /* Purchases.swift in Sources */,
 				49DB512C24ECAA6500857634 /* ButtonCreator.swift in Sources */,
 				494C424E2513DCB200CD0C34 /* KeychainWrapper.swift in Sources */,
