@@ -49,3 +49,9 @@ protocol SettingsDelegate: AnyObject {
     /// Tells the delegate that the user has requested the restoration of their purchases.
     func settingDidSelectRestore()
 }
+
+// MARK: - CreateProfileProtocol
+
+protocol CreateProfileProtocol: AnyObject {
+    func runFetchProfile()
+}

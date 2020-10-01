@@ -108,14 +108,29 @@
                     <view key="view" contentMode="scaleToFill" id="YBn-1N-GOh">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qZ7-xI-yAx">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                            </scrollView>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="1Cf-sf-E5o"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="qZ7-xI-yAx" secondAttribute="bottom" id="ERh-ju-4eV"/>
+                            <constraint firstItem="qZ7-xI-yAx" firstAttribute="top" secondItem="YBn-1N-GOh" secondAttribute="top" id="FBH-2h-lHh"/>
+                            <constraint firstItem="qZ7-xI-yAx" firstAttribute="leading" secondItem="1Cf-sf-E5o" secondAttribute="leading" id="HJf-5c-E2g"/>
+                            <constraint firstItem="qZ7-xI-yAx" firstAttribute="trailing" secondItem="1Cf-sf-E5o" secondAttribute="trailing" id="kDP-LV-0xY"/>
+                        </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="XC8-qX-Git"/>
                     <nil key="simulatedTopBarMetrics"/>
+                    <connections>
+                        <outlet property="scrollView" destination="qZ7-xI-yAx" id="2Jj-UX-KT7"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="m3s-h5-RzI" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4522" y="-297"/>
+            <point key="canvasLocation" x="4048" y="-297"/>
         </scene>
         <!--Show Profile-->
         <scene sceneID="cYf-8B-IAQ">
@@ -124,14 +139,57 @@
                     <view key="view" contentMode="scaleToFill" id="Cgs-cX-kIc">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="U3v-aG-1QK">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                            </scrollView>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="uwx-tQ-boV"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="U3v-aG-1QK" firstAttribute="top" secondItem="Cgs-cX-kIc" secondAttribute="top" id="0ry-Ix-OdZ"/>
+                            <constraint firstAttribute="bottom" secondItem="U3v-aG-1QK" secondAttribute="bottom" id="JqG-bF-6Ac"/>
+                            <constraint firstItem="U3v-aG-1QK" firstAttribute="leading" secondItem="uwx-tQ-boV" secondAttribute="leading" id="OWJ-tO-QUz"/>
+                            <constraint firstItem="U3v-aG-1QK" firstAttribute="trailing" secondItem="uwx-tQ-boV" secondAttribute="trailing" id="ZvS-5H-3Aa"/>
+                        </constraints>
                     </view>
                     <nil key="simulatedTopBarMetrics"/>
+                    <connections>
+                        <outlet property="scrollView" destination="U3v-aG-1QK" id="S5f-om-c5g"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="IN9-6G-K90" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="5190" y="-297"/>
+            <point key="canvasLocation" x="4825" y="-297"/>
+        </scene>
+        <!--Edit Profile-->
+        <scene sceneID="AUZ-my-vyJ">
+            <objects>
+                <viewController storyboardIdentifier="editProfile" id="VL9-7R-dgk" customClass="EditProfile" customModule="Hundred" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="iK0-rj-58g">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Syd-fR-18U">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                            </scrollView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Ilo-yB-Uhm"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Syd-fR-18U" firstAttribute="leading" secondItem="Ilo-yB-Uhm" secondAttribute="leading" id="Sie-Qz-en6"/>
+                            <constraint firstAttribute="bottom" secondItem="Syd-fR-18U" secondAttribute="bottom" id="dCB-Qh-z3s"/>
+                            <constraint firstItem="Syd-fR-18U" firstAttribute="top" secondItem="iK0-rj-58g" secondAttribute="top" id="efm-pq-vEt"/>
+                            <constraint firstItem="Syd-fR-18U" firstAttribute="trailing" secondItem="Ilo-yB-Uhm" secondAttribute="trailing" id="rUe-W6-NgW"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="scrollView" destination="Syd-fR-18U" id="tSK-oE-Jzl"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="5n3-HG-8XI" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="5615.9420289855079" y="-297.32142857142856"/>
         </scene>
         <!--Parent View Controller-->
         <scene sceneID="IEp-rP-MUw">

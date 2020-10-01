@@ -297,6 +297,7 @@ class NewViewController: UIViewController {
         textView.text = "Provide a description about your goal"
         textView.font = UIFont.preferredFont(forTextStyle: .body)
         textView.textColor = UIColor.lightGray
+        textView.layer.masksToBounds = true
         addHeader(text: "Goal Description", stackView: self.goalDescContainer)
         self.goalDescContainer.addArrangedSubview(textView)
         BorderStyle.customShadowBorder(for: textView)
@@ -312,6 +313,7 @@ class NewViewController: UIViewController {
         textView.text = "Provide a comment about your first progress"
         textView.font = UIFont.preferredFont(forTextStyle: .body)
         textView.textColor = UIColor.lightGray
+        textView.layer.masksToBounds = true
         BorderStyle.customShadowBorder(for: textView)
         
         return textView

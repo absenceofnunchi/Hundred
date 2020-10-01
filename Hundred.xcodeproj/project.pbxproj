@@ -23,6 +23,7 @@
 		4958D09D2525274B00703A83 /* ShowProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4958D09C2525274B00703A83 /* ShowProfile.swift */; };
 		4958D0A02525275800703A83 /* CreateProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4958D09F2525275800703A83 /* CreateProfile.swift */; };
 		4958D0A3252527FE00703A83 /* ProfileBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4958D0A2252527FE00703A83 /* ProfileBaseViewController.swift */; };
+		495F907A2526624D007ECBCA /* EditProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 495F90792526624D007ECBCA /* EditProfile.swift */; };
 		496149CC25007DAF00C5A23B /* BarChartAxisFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 496149CB25007DAE00C5A23B /* BarChartAxisFormatter.swift */; };
 		4964C8ED252372FC0093DAE0 /* StoreObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C8EC252372FC0093DAE0 /* StoreObserver.swift */; };
 		4964C8F02523758B0093DAE0 /* AppProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C8EF2523758B0093DAE0 /* AppProtocols.swift */; };
@@ -100,6 +101,7 @@
 		4958D09C2525274B00703A83 /* ShowProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowProfile.swift; sourceTree = "<group>"; };
 		4958D09F2525275800703A83 /* CreateProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateProfile.swift; sourceTree = "<group>"; };
 		4958D0A2252527FE00703A83 /* ProfileBaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileBaseViewController.swift; sourceTree = "<group>"; };
+		495F90792526624D007ECBCA /* EditProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfile.swift; sourceTree = "<group>"; };
 		496149CB25007DAE00C5A23B /* BarChartAxisFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarChartAxisFormatter.swift; sourceTree = "<group>"; };
 		4964C8EC252372FC0093DAE0 /* StoreObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreObserver.swift; sourceTree = "<group>"; };
 		4964C8EF2523758B0093DAE0 /* AppProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppProtocols.swift; sourceTree = "<group>"; };
@@ -226,6 +228,7 @@
 				4958D09F2525275800703A83 /* CreateProfile.swift */,
 				4958D09C2525274B00703A83 /* ShowProfile.swift */,
 				4958D0A2252527FE00703A83 /* ProfileBaseViewController.swift */,
+				495F90792526624D007ECBCA /* EditProfile.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -457,6 +460,7 @@
 				49026F9B24DB4FBF00724369 /* ProgressCell.swift in Sources */,
 				49795B7624DC864000D27111 /* EntryViewController.swift in Sources */,
 				49854965251C01F80096444D /* Subscription+CoreDataProperties.swift in Sources */,
+				495F907A2526624D007ECBCA /* EditProfile.swift in Sources */,
 				49E9631224FC8FA10041239B /* SpinnerViewController.swift in Sources */,
 				49854962251C01F80096444D /* Profile+CoreDataClass.swift in Sources */,
 				49C70D732501940D000BC383 /* LocationSearchViewController.swift in Sources */,

@@ -8,38 +8,58 @@
 
 import UIKit
 
-class CreateProfile: ProfileBaseViewController {
+class EditProfile: ProfileBaseViewController {
     @IBOutlet weak var scrollView: UIScrollView!
-    lazy fileprivate var imageButton = createButton(title: nil, image: "camera.circle", cornerRadius: 0, color:  .darkGray, size: 60, tag: 2, selector: #selector(buttonPressed))
-    fileprivate let userTextField: CustomTextField = {
+    var profile: Profile!
+    lazy fileprivate var imageButton: UIButton = {
+        var button: UIButton!
+        if let image = profile.image {
+            imageName = image
+            let imagePath = getDocumentsDirectory().appendingPathComponent(image)
+            if let data = try? Data(contentsOf: imagePath) {
+                button = UIButton()
+                button.clipsToBounds = true
+                button.imageView?.layer.masksToBounds = true
+                button.tag = 2
+                button.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
+                button.setImage(UIImage(data: data), for: .normal)
+            }
+        } else {
+            button = createButton(title: nil, image: "camera.circle", cornerRadius: 0, color:  .darkGray, size: 60, tag: 2, selector: #selector(buttonPressed))
+        }
+        return button
+    }()
+    lazy fileprivate var userTextField: CustomTextField = {
         let textField = CustomTextField()
-        textField.placeholder = "Enter your username"
         textField.textAlignment = .left
+        textField.text = profile.username
         textField.autocorrectionType = .no
         BorderStyle.customShadowBorder(for: textField)
         return textField
     }()
     lazy fileprivate var descTextView: UITextView = {
         let textView = UITextView()
+        textView.text = profile.detail
         textView.isEditable = true
         textView.isSelectable = true
         textView.isScrollEnabled = true
         textView.font = UIFont.preferredFont(forTextStyle: .body)
         textView.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 0, right: 15)
-        textView.layer.masksToBounds = true
         BorderStyle.customShadowBorder(for: textView)
+        textView.layer.masksToBounds = true
+        textView.delegate = self
         return textView
     }()
     fileprivate var imageName: String!
     fileprivate var firstResponder: UIView? /// To handle textField position when keyboard is visible.
     fileprivate var isKeyboardVisible = false
-    fileprivate lazy var doneButton: UIButton = {
+    lazy fileprivate var doneButton: UIButton = {
         let dButton = UIButton()
         dButton.setTitle("Done", for: .normal)
         dButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .body)
         dButton.layer.cornerRadius = 7
         dButton.tag = 1
-        dButton.backgroundColor = .systemGray3
+        dButton.backgroundColor = .black
         dButton.addTarget(self, action: #selector(buttonPressed) , for: .touchUpInside)
         return dButton
     }()
@@ -55,6 +75,12 @@ class CreateProfile: ProfileBaseViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        imageButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: imageButton.bounds.width - imageButton.bounds.height)
+        imageButton.imageView?.layer.cornerRadius = imageButton.bounds.height/2.0
     }
     
     func configureUI() {
@@ -132,18 +158,15 @@ class CreateProfile: ProfileBaseViewController {
         switch sender.tag {
         case 1:
             if let usernameText = userTextField.text, !usernameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                let profile = Profile(context: self.context)
-                if let imageName = imageName {
-                    profile.image = imageName
-                }
+                profile.image = imageName ?? ""
                 profile.username = userTextField.text
                 if let desc = descTextView.text {
                     profile.detail = desc
                 }
-                profile.userId = UUID()
 
                 self.saveContext()
                 
+//                _ = navigationController?.popViewController(animated: true)
                 delegate?.runFetchProfile()
                 
             } else {
@@ -242,7 +265,7 @@ class CreateProfile: ProfileBaseViewController {
 }
 
 
-extension CreateProfile: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension EditProfile: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         guard let image = info[.editedImage] as? UIImage else { return }
@@ -267,10 +290,11 @@ extension CreateProfile: UIImagePickerControllerDelegate, UINavigationController
     }
 }
 
-extension CreateProfile {
+extension EditProfile: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         let newText = (textView.text as NSString).replacingCharacters(in: range, with: text)
         let numberOfChars = newText.count
-        return numberOfChars < 500
+        return numberOfChars < 300
     }
 }
+

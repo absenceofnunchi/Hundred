@@ -11,7 +11,7 @@ import UIKit
 class ProfileBaseViewController: UIViewController {
     var imageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)
-        imageView.image = UIImage(named: "mountain")
+        imageView.image = UIImage(named: "tree")
         imageView.contentMode = .scaleToFill
         imageView.alpha = 0
         return imageView
@@ -29,6 +29,7 @@ class ProfileBaseViewController: UIViewController {
             self.view.insertSubview(self.imageView, at: 0)
             self.imageView.pin(to: self.view)
         }
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -37,5 +38,4 @@ class ProfileBaseViewController: UIViewController {
             self.imageView.alpha = 1
         })
     }
-
 }

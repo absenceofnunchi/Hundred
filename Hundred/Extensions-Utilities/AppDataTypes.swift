@@ -77,7 +77,11 @@ struct Messages {
     static let useStoreRestore = "Use Store > Restore to restore your previously bought non-consumable products and auto-renewable subscriptions."
     static let viewControllerDoesNotExist = "The main content view controller does not exist."
     static let windowDoesNotExist = "The window does not exist."
-    static let fetchError = "There was an error fetching data. Please try again"
+    static let fetchError = "There was an error fetching data. Please try again."
+    static let emptyUsername = "Username cannot be empty."
+    static let delete = "Delete"
+    static let deleteProfile = "Are you sure you want to delete your profile?"
+    static let cancel = "Cancel"
 }
 
 // MARK: - Resource File

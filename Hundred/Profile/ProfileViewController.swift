@@ -16,6 +16,7 @@ class ProfileViewController: UIViewController {
         let identifier = ViewControllerIdentifiers.createProfile
         guard let controller = storyboard?.instantiateViewController(withIdentifier: identifier) as? CreateProfile
             else { fatalError("\(Messages.unableToInstantiateProducts)") }
+        controller.delegate = self
         return controller
     }()
     
@@ -23,11 +24,11 @@ class ProfileViewController: UIViewController {
         let identifier = ViewControllerIdentifiers.showProfile
         guard let controller = storyboard?.instantiateViewController(withIdentifier: identifier) as? ShowProfile
             else { fatalError("\(Messages.unableToInstantiatePurchases)") }
+        controller.delegate = self
         return controller
     }()
     
     fileprivate var utility = Utilities()
-    
     fileprivate var isProfileCreated: Bool = false {
         didSet {
             if isProfileCreated == true {
@@ -39,25 +40,11 @@ class ProfileViewController: UIViewController {
             }
         }
     }
-
-    var firstResponder: UIView? /// To handle textField position when keyboard is visible.
-    var isKeyboardVisible = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-//        getCredentials { (profile) in
-//            if let profile = profile {
-//                self.isAuthenticated = true
-//                self.usernameLabel.text = profile.username
-//                self.emailLabel.text = profile.email
-//            } else {
-//                self.isAuthenticated = false
-//            }
-//        }
-//        fetchProfile()
-        isProfileCreated = true
-
+        
+        fetchProfile()
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Upgrade", style: .plain, target: self, action: #selector(goToUpgrade))
     }
     
@@ -77,7 +64,7 @@ class ProfileViewController: UIViewController {
         containerView.addSubview(viewController.view)
         
         NSLayoutConstraint.activate([viewController.view.topAnchor.constraint(equalTo: containerView.topAnchor),
-                                     viewController.view.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+                                     viewController.view.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor),
                                      viewController.view.leadingAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.leadingAnchor),
                                      viewController.view.trailingAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.trailingAnchor)])
         viewController.didMove(toParent: self)
@@ -97,11 +84,16 @@ class ProfileViewController: UIViewController {
         let request = NSFetchRequest<Profile>(entityName: "Profile")
         do {
             let results = try self.context.fetch(request)
+//            print("results: ----- \(results.first?.username)")
+//            for result in results {
+//                self.context.delete(result)
+//                self.saveContext()
+//            }
             if results.count > 0 {
                 isProfileCreated = true
-                print("results--------------------: \(results)")
+
+                showProfile.profile = results.first
             } else {
-                print("isProfileCreated false")
                 isProfileCreated = false
             }
         } catch {
@@ -116,11 +108,17 @@ class ProfileViewController: UIViewController {
                 _ = self.navigationController?.popViewController(animated: true)
             }))
             
-            present(ac, animated: true)
+            present(ac, animated: true) 
         }
     }
+
 }
 
+extension ProfileViewController: CreateProfileProtocol {
+    func runFetchProfile() {
+        fetchProfile()
+    }
+}
 
 // newVC filter
 // newVC new public cloud post
