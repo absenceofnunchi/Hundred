@@ -39,7 +39,7 @@ class CreateProfile: ProfileBaseViewController {
         dButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .body)
         dButton.layer.cornerRadius = 7
         dButton.tag = 1
-        dButton.backgroundColor = .systemGray3
+        dButton.backgroundColor = .black
         dButton.addTarget(self, action: #selector(buttonPressed) , for: .touchUpInside)
         return dButton
     }()
@@ -140,12 +140,11 @@ class CreateProfile: ProfileBaseViewController {
                 if let desc = descTextView.text {
                     profile.detail = desc
                 }
-                profile.userId = UUID()
+                profile.userId = UUID().uuidString
 
                 self.saveContext()
                 
                 delegate?.runFetchProfile()
-                
             } else {
                 alert(with: Messages.status, message: Messages.emptyUsername)
             }

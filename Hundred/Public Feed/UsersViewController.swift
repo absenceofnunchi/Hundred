@@ -14,22 +14,23 @@ import Network
 class UsersViewController: UITableViewController {
     var users = [CKRecord]()
     var userId: String?
+    var utility = Utilities()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureUI()
         if userId != nil {
-            fetchData(userId: userId)
+            fetchPublicFeed(userId: userId)
         } else {
-            fetchData(userId: nil)
+            fetchPublicFeed(userId: nil)
         }
     }
 
     func configureUI() {
         title = "Public Feed"
         
-        tableView.register(UserCell.self, forCellReuseIdentifier: "UserCell")
+        tableView.register(UserCell.self, forCellReuseIdentifier: Cells.userCell)
         tableView.separatorStyle = .none
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 250
@@ -46,7 +47,7 @@ class UsersViewController: UITableViewController {
     @objc func filterFeed() {
         let ac = UIAlertController(title: "Filter", message: nil, preferredStyle: .actionSheet)
         ac.addAction(UIAlertAction(title: "All", style: .default, handler: { (_) in
-            self.fetchData(userId: nil)
+            self.fetchPublicFeed(userId: nil)
             DispatchQueue.main.async {
                 self.title = "Public Feed"
             }
@@ -54,19 +55,19 @@ class UsersViewController: UITableViewController {
         }))
         
         ac.addAction(UIAlertAction(title: "My Public Entries Only", style: .default, handler: { (_) in
-//            self.getCredentials { (profile) in
-//                if let profile = profile {
-//                    self.fetchData(userId: profile.userId)
-//                    DispatchQueue.main.async {
-//                        self.title = "My Entries Only"
-//                    }
-//                }
-//            }
+            if let profile = self.fetchProfile() {
+                self.fetchPublicFeed(userId: profile.userId)
+                DispatchQueue.main.async {
+                    self.title = "My Entries Only"
+                }
+            } else {
+                self.alert(with: Messages.status, message: Messages.noProfileCreated)
+            }
         }))
         
         if let popoverController = ac.popoverPresentationController {
             popoverController.sourceView = self.view
-            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+            popoverController.sourceRect = CGRect(x: self.view.bounds.minX, y: 0, width: 0, height: 0)
             popoverController.permittedArrowDirections = []
         }
         
@@ -76,7 +77,7 @@ class UsersViewController: UITableViewController {
         })
     }
     
-    func fetchData(userId: String?) {
+    func fetchPublicFeed(userId: String?) {
         let monitor = NWPathMonitor()
         let queue = DispatchQueue(label: "Monitor")
         monitor.start(queue: queue)
@@ -97,7 +98,7 @@ class UsersViewController: UITableViewController {
                 configuration.qualityOfService = .userInitiated
                 
                 let queryOperation = CKQueryOperation(query: query)
-                queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image", "longitude", "latitude", "username", "email", "userId"]
+                queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image", "longitude", "latitude", "username", "userId"]
                 queryOperation.queuePriority = .veryHigh
                 queryOperation.configuration = configuration
                 queryOperation.resultsLimit = 50
@@ -123,15 +124,28 @@ class UsersViewController: UITableViewController {
                         self.tableView.reloadData()
                     }
                 }
-           
-        //                    self.tableView.layoutIfNeeded()
-        //                    self.tableView.beginUpdates()
-        //                    self.tableView.endUpdates()
-                
                 publicDatabase.add(queryOperation)
                 monitor.cancel()
+            } else {
+                // if the network is absent
+                DispatchQueue.main.async {
+                    self.alert(with: Messages.networkError, message: Messages.noNetwork)
+                }
             }
         }
+    }
+    
+    // MARK: - Display Alert
+    
+    /// Creates and displays an alert.
+    fileprivate func alert(with title: String, message: String) {
+        let alertController = utility.alert(title, message: message)
+        if let popoverController = alertController.popoverPresentationController {
+            popoverController.sourceView = self.view
+            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+            popoverController.permittedArrowDirections = []
+        }
+        self.navigationController?.present(alertController, animated: true, completion: nil)
     }
 }
 
@@ -249,7 +263,7 @@ extension UsersViewController: UIContextMenuInteractionDelegate {
     
     @objc func refreshFetch() {
         self.users.removeAll()
-        fetchData(userId: userId)
+        fetchPublicFeed(userId: userId)
         
         let spinner = UIActivityIndicatorView(style: .medium)
         spinner.tintColor = UIColor.black
@@ -275,11 +289,5 @@ extension UINavigationController {
         }
 
         coordinator.animate(alongsideTransition: nil) { _ in completion() }
-    }
-}
-
-extension CKRecord{
-    var wasCreatedByThisUser: Bool{
-        return (creatorUserRecordID == nil) || (creatorUserRecordID?.recordName == "__defaultOwner__")
     }
 }

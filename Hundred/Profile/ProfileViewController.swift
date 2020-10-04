@@ -44,7 +44,7 @@ class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        fetchProfile()
+        processFetch()
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Upgrade", style: .plain, target: self, action: #selector(goToUpgrade))
     }
     
@@ -80,43 +80,19 @@ class ProfileViewController: UIViewController {
     // MARK: - Fetch Profile
     
     /// Gets an existing profile from Core Data if there is one
-    fileprivate func fetchProfile() {
-        let request = NSFetchRequest<Profile>(entityName: "Profile")
-        do {
-            let results = try self.context.fetch(request)
-//            print("results: ----- \(results.first?.username)")
-//            for result in results {
-//                self.context.delete(result)
-//                self.saveContext()
-//            }
-            if results.count > 0 {
-                isProfileCreated = true
-
-                showProfile.profile = results.first
-            } else {
-                isProfileCreated = false
-            }
-        } catch {
-            let ac = UIAlertController(title: "Error", message: Messages.fetchError, preferredStyle: .alert)
-            if let popoverController = ac.popoverPresentationController {
-                popoverController.sourceView = self.view
-                popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-                popoverController.permittedArrowDirections = []
-            }
-            
-            ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { (_) in
-                _ = self.navigationController?.popViewController(animated: true)
-            }))
-            
-            present(ac, animated: true) 
+    fileprivate func processFetch() {
+        if let profile = fetchProfile() {
+            isProfileCreated = true
+            showProfile.profile = profile
+        } else {
+            isProfileCreated = false
         }
     }
-
 }
 
 extension ProfileViewController: CreateProfileProtocol {
     func runFetchProfile() {
-        fetchProfile()
+        processFetch()
     }
 }
 

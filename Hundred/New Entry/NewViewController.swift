@@ -12,6 +12,7 @@ import MobileCoreServices
 import MapKit
 import CoreData
 import CloudKit
+import StoreKit
 
 class NewViewController: UIViewController {
     var imagePathString: String?
@@ -379,6 +380,15 @@ class NewViewController: UIViewController {
     }()
     
     var contentInset: CGFloat?
+    var profile: Profile!
+    let utility = Utilities()
+    struct Endpoint {
+        static let sandbox = "https://sandbox.itunes.apple.com/verifyReceipt"
+        static let itunes = "https://buy.itunes.apple.com/verifyReceipt"
+    }
+    
+    let appStoreReceiptURL = Bundle.main.appStoreReceiptURL
+    var isReceiptValid: Bool! = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -396,13 +406,13 @@ class NewViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-
+        
         if let tabBarHeight = tabBarController?.tabBar.frame.size.height {
             view.endEditing(true)
             doneButton.frame = CGRect(x: 0, y: view.frame.size.height - CGFloat(tabBarHeight + 50), width: view.frame.size.width, height: 50)
         }
     }
-
+    
     func configureUI() {
         navigationController?.title = "New Entry"
         
@@ -524,40 +534,41 @@ class NewViewController: UIViewController {
         metricStackView.heightAnchor.constraint(greaterThanOrEqualToConstant: 50).isActive = true
     }
     
-    func fetchProfileInfo() -> [Profile]? {
-        var result: [Any]?
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Profile")
-        do {
-            result = try self.context.fetch(fetchRequest)
-        } catch {
-            print("Goal Data Importer error: \(error.localizedDescription)")
-        }
-        
-        return result as? [Profile]
-    }
-
-    
+    // a switch for posting on the Public Feed
     @objc func switchValueDidChange(sender: UISwitch!) {
+        // toggle on
         if sender.isOn {
-            getCredentials { (profile) in
-                if let _ = profile {
-                    DispatchQueue.main.async {
-                        self.isPublic = true
-                    }
-                } else {
-                    DispatchQueue.main.async {
-                        self.isPublic = false
-                        self.switchControl.setOn(false, animated: false)
-                        self.alertForUsername()
-                    }
-                }
+            getAppReceipt()
+            if isReceiptValid {
+                print("valid receipt")
+            } else {
+                print("not valid")
             }
+            
+            //            // check if any purchased products already exists
+            //            if utility.dataSourceForPurchasesUI.count > 0 {
+            //                print("utility.dataSourceForPurchasesUI: \(utility.dataSourceForPurchasesUI)")
+            //                if let profile = fetchProfile() {
+            //                    self.profile = profile
+            //                    isPublic = true
+            //                } else {
+            //                    isPublic = false
+            //                    switchControl.setOn(false, animated: false)
+            //                    alertForUsername()
+            //                }
+            //            } else {
+            //                // if no purchased products exist, navigate to the IAP VC and set the toggle off
+            //                isPublic = false
+            //                switchControl.setOn(false, animated: false)
+            //                if let vc = storyboard?.instantiateViewController(identifier: "parent") as? ParentViewController {
+            //                    navigationController?.pushViewController(vc, animated: true)
+            //                }
+            //            }
         } else{
+            // toggle off
             isPublic = false
         }
     }
-    
-
     
     @objc func buttonPressed(sender: UIButton!) {
         switch sender.tag {
@@ -873,7 +884,7 @@ class NewViewController: UIViewController {
             commentTextView.text = "Provide a comment about your first progress"
             commentTextView.textColor = UIColor.lightGray
             switchControl.setOn(false, animated: true)
-
+            
             if self.metricStackView.arrangedSubviews.count > 0 {
                 for subView in self.metricStackView.arrangedSubviews {
                     self.metricStackView.removeArrangedSubview(subView)
@@ -973,8 +984,8 @@ class NewViewController: UIViewController {
             picker.delegate = self
             present(picker, animated: true)
         } else {
-            let ac = UIAlertController(title: "Photo Library Not Available", message: nil, preferredStyle: .alert)
-            ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+            let ac = UIAlertController(title: Messages.noPhotoLibrary, message: nil, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: Messages.okButton, style: .cancel, handler: nil))
             present(ac, animated: true)
         }
     }
@@ -987,8 +998,8 @@ class NewViewController: UIViewController {
             picker.delegate = self
             present(picker, animated: true)
         } else {
-            let ac = UIAlertController(title: "Camera Not Available", message: nil, preferredStyle: .alert)
-            ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+            let ac = UIAlertController(title: Messages.noCamera, message: nil, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: Messages.okButton, style: .cancel, handler: nil))
             
             if let popoverController = ac.popoverPresentationController {
                 popoverController.sourceView = self.view
@@ -999,111 +1010,111 @@ class NewViewController: UIViewController {
             present(ac, animated: true)
         }
     }
-  
+    
     func saveHeatmap() {
         let dateString = dateForPlist(date: Date())
         let keyValStore = NSUbiquitousKeyValueStore.default
         // if the heatmap key/value already exists
         if var dict = keyValStore.dictionary(forKey: "heatmap") as? [String : [String : Int]] {
-                // if the goal already exists, update the heatmap key/value for the existing goal
-                if let oldGoalTitle = existingGoal?.title {
-                    if let oldGoalData = dict[oldGoalTitle] {
-                        if var count = oldGoalData[dateString] {
-                            count += 1
-                            dict.updateValue([dateString: count], forKey: oldGoalTitle)
-                            keyValStore.set(dict, forKey: "heatmap")
-                            keyValStore.synchronize()
-                        } else {
-                            dict.updateValue([dateString: 1], forKey: oldGoalTitle)
-                            keyValStore.set(dict, forKey: "heatmap")
-                            keyValStore.synchronize()
-                        }
+            // if the goal already exists, update the heatmap key/value for the existing goal
+            if let oldGoalTitle = existingGoal?.title {
+                if let oldGoalData = dict[oldGoalTitle] {
+                    if var count = oldGoalData[dateString] {
+                        count += 1
+                        dict.updateValue([dateString: count], forKey: oldGoalTitle)
+                        keyValStore.set(dict, forKey: "heatmap")
+                        keyValStore.synchronize()
                     } else {
-                        dict[oldGoalTitle] = [dateString: 1]
+                        dict.updateValue([dateString: 1], forKey: oldGoalTitle)
                         keyValStore.set(dict, forKey: "heatmap")
                         keyValStore.synchronize()
                     }
                 } else {
-                    // if this is a brand new goal, create a new key/value dictionary for heatmap
-                    if let newGoalTitle = goalTextField.text {
-                        dict.updateValue([dateString: 1], forKey: newGoalTitle)
-                        print("new dict: \(dict)")
-                        keyValStore.set(dict, forKey: "heatmap")
-                        keyValStore.synchronize()
-                    } else {
-                        let ac = UIAlertController(title: "Error", message: "The goal title cannot be empty", preferredStyle: .alert)
-                        ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-                        
-                        if let popoverController = ac.popoverPresentationController {
-                            popoverController.sourceView = self.view
-                            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-                            popoverController.permittedArrowDirections = []
-                        }
-                        
-                        present(ac, animated: true)
-                        return
-                    }
+                    dict[oldGoalTitle] = [dateString: 1]
+                    keyValStore.set(dict, forKey: "heatmap")
+                    keyValStore.synchronize()
                 }
-            // if the heatmap key/value doesn't exist
             } else {
-                if let oldGoalTitle = existingGoal?.title {
-                    keyValStore.set([oldGoalTitle: [dateString: 1]], forKey: "heatmap")
+                // if this is a brand new goal, create a new key/value dictionary for heatmap
+                if let newGoalTitle = goalTextField.text {
+                    dict.updateValue([dateString: 1], forKey: newGoalTitle)
+                    print("new dict: \(dict)")
+                    keyValStore.set(dict, forKey: "heatmap")
                     keyValStore.synchronize()
-                } else if let newGoalTitle = goalTextField.text {
-                    keyValStore.set([newGoalTitle: [dateString: 1]], forKey: "heatmap")
-                    keyValStore.synchronize()
+                } else {
+                    let ac = UIAlertController(title: "Error", message: "The goal title cannot be empty", preferredStyle: .alert)
+                    ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                    
+                    if let popoverController = ac.popoverPresentationController {
+                        popoverController.sourceView = self.view
+                        popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                        popoverController.permittedArrowDirections = []
+                    }
+                    
+                    present(ac, animated: true)
+                    return
                 }
             }
+            // if the heatmap key/value doesn't exist
+        } else {
+            if let oldGoalTitle = existingGoal?.title {
+                keyValStore.set([oldGoalTitle: [dateString: 1]], forKey: "heatmap")
+                keyValStore.synchronize()
+            } else if let newGoalTitle = goalTextField.text {
+                keyValStore.set([newGoalTitle: [dateString: 1]], forKey: "heatmap")
+                keyValStore.synchronize()
+            }
+        }
         
-//        if let url = pListURL() {
-//            if FileManager.default.fileExists(atPath: url.path) {
-//                do {
-//                    let dataContent = try Data(contentsOf: url)
-//                    if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
-//                        if let oldGoalTitle = existingGoal?.title {
-//                            if let oldGoalData = dict[oldGoalTitle] {
-//                                if var count = oldGoalData[dateString] {
-//                                    count += 1
-//                                    dict.updateValue([dateString: count], forKey: oldGoalTitle)
-//                                    write(dictionary: dict)
-//                                } else {
-//                                    dict.updateValue([dateString: 1], forKey: oldGoalTitle)
-//                                    write(dictionary: dict)
-//                                }
-//                            } else {
-//                                dict[oldGoalTitle] = [dateString: 1]
-//                                write(dictionary: dict)
-//                            }
-//                        } else {
-//                            if let newGoalTitle = goalTextField.text {
-//                                dict.updateValue([dateString: 1], forKey: newGoalTitle)
-//                                write(dictionary: dict)
-//                            } else {
-//                                let ac = UIAlertController(title: "Error", message: "The goal title cannot be empty", preferredStyle: .alert)
-//                                ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-//
-//                                if let popoverController = ac.popoverPresentationController {
-//                                    popoverController.sourceView = self.view
-//                                    popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-//                                    popoverController.permittedArrowDirections = []
-//                                }
-//
-//                                present(ac, animated: true)
-//                                return
-//                            }
-//                        }
-//                    }
-//                } catch {
-//                    print(error)
-//                }
-//            } else {
-//                if let oldGoalTitle = existingGoal?.title {
-//                    write(dictionary: [oldGoalTitle: [dateString: 1]])
-//                } else if let newGoalTitle = goalTextField.text {
-//                    write(dictionary: [newGoalTitle: [dateString: 1]])
-//                }
-//            }
-//        }
+        //        if let url = pListURL() {
+        //            if FileManager.default.fileExists(atPath: url.path) {
+        //                do {
+        //                    let dataContent = try Data(contentsOf: url)
+        //                    if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
+        //                        if let oldGoalTitle = existingGoal?.title {
+        //                            if let oldGoalData = dict[oldGoalTitle] {
+        //                                if var count = oldGoalData[dateString] {
+        //                                    count += 1
+        //                                    dict.updateValue([dateString: count], forKey: oldGoalTitle)
+        //                                    write(dictionary: dict)
+        //                                } else {
+        //                                    dict.updateValue([dateString: 1], forKey: oldGoalTitle)
+        //                                    write(dictionary: dict)
+        //                                }
+        //                            } else {
+        //                                dict[oldGoalTitle] = [dateString: 1]
+        //                                write(dictionary: dict)
+        //                            }
+        //                        } else {
+        //                            if let newGoalTitle = goalTextField.text {
+        //                                dict.updateValue([dateString: 1], forKey: newGoalTitle)
+        //                                write(dictionary: dict)
+        //                            } else {
+        //                                let ac = UIAlertController(title: "Error", message: "The goal title cannot be empty", preferredStyle: .alert)
+        //                                ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+        //
+        //                                if let popoverController = ac.popoverPresentationController {
+        //                                    popoverController.sourceView = self.view
+        //                                    popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+        //                                    popoverController.permittedArrowDirections = []
+        //                                }
+        //
+        //                                present(ac, animated: true)
+        //                                return
+        //                            }
+        //                        }
+        //                    }
+        //                } catch {
+        //                    print(error)
+        //                }
+        //            } else {
+        //                if let oldGoalTitle = existingGoal?.title {
+        //                    write(dictionary: [oldGoalTitle: [dateString: 1]])
+        //                } else if let newGoalTitle = goalTextField.text {
+        //                    write(dictionary: [newGoalTitle: [dateString: 1]])
+        //                }
+        //            }
+        //        }
         
         if let mainVC = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? ViewController {
             let dataImporter = DataImporter(goalTitle: nil)
@@ -1115,19 +1126,9 @@ class NewViewController: UIViewController {
         
         //        let vc = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? DetailTableViewController
     }
-    
-    func fetchProfileInfo() -> [Profile] {
-        let request = Profile.createFetchRequest()
-        var profiles: [Profile] = []
-        do {
-            profiles = try self.context.fetch(request)
-        } catch {
-            print("Fetch failed")
-        }
-        
-        return profiles
-    }
 }
+
+// MARK: - UITextViewDelegate, UITextFieldDelegate
 
 extension NewViewController: UITextViewDelegate, UITextFieldDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
@@ -1152,6 +1153,8 @@ extension NewViewController: UITextViewDelegate, UITextFieldDelegate {
     //    }
     
 }
+
+// MARK: - UIImagePickerControllerDelegate
 
 extension NewViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -1184,20 +1187,7 @@ extension NewViewController: UIImagePickerControllerDelegate, UINavigationContro
     }
 }
 
-extension Sequence where Element: Hashable {
-    /// Returns true if no element is equal to any other element.
-    func isDistinct() -> Bool {
-        var set = Set<Element>()
-        for e in self {
-            if set.insert(e).inserted == false { return false }
-        }
-        return true
-    }
-}
-
-protocol HandleLocation {
-    func fetchPlacemark(placemark: MKPlacemark)
-}
+// MARK: - HandleLocation
 
 extension NewViewController: HandleLocation {
     func fetchPlacemark(placemark: MKPlacemark) {
@@ -1206,6 +1196,8 @@ extension NewViewController: HandleLocation {
     }
 }
 
+// MARK: - publicCloudSave
+
 extension NewViewController {
     func publicCloudSave(goal: Goal, progress: Progress, comment: String, metricDict: [String: String], isNew: Bool) {
         guard isICloudContainerAvailable() == true else {
@@ -1213,113 +1205,206 @@ extension NewViewController {
             return
         }
         
-        getCredentials { (profile) in
-            if let profile = profile {
-                
-                // public cloud database
-                let progressRecord = CKRecord(recordType: MetricAnalytics.Progress.rawValue)
-                progressRecord[MetricAnalytics.goal.rawValue] = goal.title as CKRecordValue
-                progressRecord[MetricAnalytics.comment.rawValue] = comment as CKRecordValue
-                
-                // profile
-//                progressRecord[MetricAnalytics.username.rawValue] = profile.username
-//                progressRecord[MetricAnalytics.email.rawValue] = profile.email
-//                progressRecord[MetricAnalytics.userId.rawValue] = profile.userId
-                
-                // analytics
-                progressRecord[MetricAnalytics.longitude.rawValue] = self.location?.longitude
-                progressRecord[MetricAnalytics.latitude.rawValue] = self.location?.latitude
-                
-                try? progressRecord.encode(metricDict, forKey: MetricAnalytics.metrics.rawValue)
-                progressRecord[MetricAnalytics.date.rawValue] = Date()
-                
-                if let imagePath = self.imagePath {
-                    progressRecord[MetricAnalytics.image.rawValue] = CKAsset(fileURL: imagePath)
-                }
+        // public cloud database
+        let progressRecord = CKRecord(recordType: MetricAnalytics.Progress.rawValue)
+        progressRecord[MetricAnalytics.goal.rawValue] = goal.title as CKRecordValue
+        progressRecord[MetricAnalytics.comment.rawValue] = comment as CKRecordValue
+        
+        // profile
+        progressRecord[MetricAnalytics.username.rawValue] = profile.username
+        progressRecord[MetricAnalytics.detail.rawValue] = profile.detail
+        progressRecord[MetricAnalytics.userId.rawValue] = profile.userId
+        
+        // analytics
+        progressRecord[MetricAnalytics.longitude.rawValue] = self.location?.longitude
+        progressRecord[MetricAnalytics.latitude.rawValue] = self.location?.latitude
+        
+        try? progressRecord.encode(metricDict, forKey: MetricAnalytics.metrics.rawValue)
+        progressRecord[MetricAnalytics.date.rawValue] = Date()
+        
+        if let imagePath = self.imagePath {
+            progressRecord[MetricAnalytics.image.rawValue] = CKAsset(fileURL: imagePath)
+        }
+        
+        if isNew {
+            progressRecord[MetricAnalytics.entryCount.rawValue] = 1
+        } else {
+            let entryCount = MetricCard.getEntryCount(progress: goal.progress)
+            progressRecord[MetricAnalytics.entryCount.rawValue] = entryCount + 1
+        }
+        
+        progressRecord[MetricAnalytics.longestStreak.rawValue] = goal.longestStreak
+        progressRecord[MetricAnalytics.currentStreak.rawValue] = goal.streak
+        
+        progress.recordName = progressRecord.recordID.recordName
+        goal.progress.insert(progress)
+        self.saveContext()
+        
+        let publicCloudDatabase = CKContainer.default().publicCloudDatabase
+        publicCloudDatabase.save(progressRecord) { (record, error) in
+            if let error = error {
+                print("public cloud database error======================================================: \(error)")
+                return
+            }
+            print("Sucessfully uploaded to Public Cloud DB==================================================== \(String(describing: record))")
+            if let record = record {
+                var recordsArr: [CKRecord] = []
                 
                 if isNew {
-                    progressRecord[MetricAnalytics.entryCount.rawValue] = 1
-                } else {
-                    let entryCount = MetricCard.getEntryCount(progress: goal.progress)
-                    progressRecord[MetricAnalytics.entryCount.rawValue] = entryCount + 1
-                }
-                
-                progressRecord[MetricAnalytics.longestStreak.rawValue] = goal.longestStreak
-                progressRecord[MetricAnalytics.currentStreak.rawValue] = goal.streak
-                
-                progress.recordName = progressRecord.recordID.recordName
-                goal.progress.insert(progress)
-                self.saveContext()
-                
-                let publicCloudDatabase = CKContainer.default().publicCloudDatabase
-                publicCloudDatabase.save(progressRecord) { (record, error) in
-                    if let error = error {
-                        print("public cloud database error======================================================: \(error)")
-                        return
+                    for metricPair in metricDict {
+                        let analyticsRecord = CKRecord(recordType: MetricAnalytics.analytics.rawValue)
+                        let reference = CKRecord.Reference(recordID: record.recordID, action: .deleteSelf)
+                        analyticsRecord["owningProgress"] = reference as CKRecordValue
+                        analyticsRecord[MetricAnalytics.metricTitle.rawValue] = metricPair.key
+                        analyticsRecord[MetricAnalytics.Min.rawValue] = metricPair.value
+                        analyticsRecord[MetricAnalytics.Max.rawValue] = metricPair.value
+                        analyticsRecord[MetricAnalytics.Average.rawValue] = metricPair.value
+                        analyticsRecord[MetricAnalytics.Sum.rawValue] = metricPair.value
+                        recordsArr.append(analyticsRecord)
                     }
-                    print("Sucessfully uploaded to Public Cloud DB==================================================== \(String(describing: record))")
-                    if let record = record {
-                        var recordsArr: [CKRecord] = []
-                        
-                        if isNew {
-                            for metricPair in metricDict {
-                                let analyticsRecord = CKRecord(recordType: MetricAnalytics.analytics.rawValue)
-                                let reference = CKRecord.Reference(recordID: record.recordID, action: .deleteSelf)
-                                analyticsRecord["owningProgress"] = reference as CKRecordValue
-                                analyticsRecord[MetricAnalytics.metricTitle.rawValue] = metricPair.key
-                                analyticsRecord[MetricAnalytics.Min.rawValue] = metricPair.value
-                                analyticsRecord[MetricAnalytics.Max.rawValue] = metricPair.value
-                                analyticsRecord[MetricAnalytics.Average.rawValue] = metricPair.value
-                                analyticsRecord[MetricAnalytics.Sum.rawValue] = metricPair.value
-                                recordsArr.append(analyticsRecord)
-                            }
-                        } else {
-                            if let metrics = goal.metrics {
-                                for metric in metrics {
-                                    DispatchQueue.main.async {
-                                        if let dict = MetricCard.getAnalytics(metric: metric) {
-                                            let convertedDict = dict.mapValues { UnitConversion.decimalToString(decimalNumber: $0)}
-                                            let analyticsRecord = CKRecord(recordType: MetricAnalytics.analytics.rawValue)
-                                            let reference = CKRecord.Reference(recordID: record.recordID, action: .deleteSelf)
-                                            analyticsRecord["owningProgress"] = reference as CKRecordValue
-                                            analyticsRecord[MetricAnalytics.metricTitle.rawValue] = metric
-                                            analyticsRecord[MetricAnalytics.Min.rawValue] = convertedDict[MetricAnalytics.Min.rawValue]
-                                            analyticsRecord[MetricAnalytics.Max.rawValue] = convertedDict[MetricAnalytics.Max.rawValue]
-                                            analyticsRecord[MetricAnalytics.Average.rawValue] = convertedDict[MetricAnalytics.Average.rawValue]
-                                            analyticsRecord[MetricAnalytics.Sum.rawValue] = convertedDict[MetricAnalytics.Sum.rawValue]
-                                            recordsArr.append(analyticsRecord)
-                                        }
-                                    }
+                } else {
+                    if let metrics = goal.metrics {
+                        for metric in metrics {
+                            DispatchQueue.main.async {
+                                if let dict = MetricCard.getAnalytics(metric: metric) {
+                                    let convertedDict = dict.mapValues { UnitConversion.decimalToString(decimalNumber: $0)}
+                                    let analyticsRecord = CKRecord(recordType: MetricAnalytics.analytics.rawValue)
+                                    let reference = CKRecord.Reference(recordID: record.recordID, action: .deleteSelf)
+                                    analyticsRecord["owningProgress"] = reference as CKRecordValue
+                                    analyticsRecord[MetricAnalytics.metricTitle.rawValue] = metric
+                                    analyticsRecord[MetricAnalytics.Min.rawValue] = convertedDict[MetricAnalytics.Min.rawValue]
+                                    analyticsRecord[MetricAnalytics.Max.rawValue] = convertedDict[MetricAnalytics.Max.rawValue]
+                                    analyticsRecord[MetricAnalytics.Average.rawValue] = convertedDict[MetricAnalytics.Average.rawValue]
+                                    analyticsRecord[MetricAnalytics.Sum.rawValue] = convertedDict[MetricAnalytics.Sum.rawValue]
+                                    recordsArr.append(analyticsRecord)
                                 }
                             }
                         }
-                        
-                        self.modifyRecords(recordsToSave: recordsArr, recordIDsToDelete: nil)
                     }
                 }
-            } else {
-                DispatchQueue.main.async {
-                    self.switchControl.setOn(false, animated: true)
-                    self.alertForUsername()
-                }
+                
+                self.modifyRecords(recordsToSave: recordsArr, recordIDsToDelete: nil)
             }
         }
     }
 }
 
-private let encoder: JSONEncoder = .init()
-private let decoder: JSONDecoder = .init()
-
-extension CKRecord {
-    func decode<T>(forKey key: FieldKey) throws -> T where T: Decodable {
-        guard let data = self[key] as? Data else {
-            throw CocoaError(.coderValueNotFound)
+extension NewViewController: SKRequestDelegate {
+    func getAppReceipt() {
+        if let appStoreReceiptURL = appStoreReceiptURL, FileManager.default.fileExists(atPath: appStoreReceiptURL.path) {
+            do {
+                let receiptData = try! Data(contentsOf: appStoreReceiptURL, options: .alwaysMapped)
+                try validateReceipt(receiptData)
+            } catch ReceiptValidationError.receiptNotFound {
+                // There is no receipt on the device 😱
+                print("There is no receipt on the device")
+                let appReceiptRefreshRequest = SKReceiptRefreshRequest(receiptProperties: nil)
+                appReceiptRefreshRequest.delegate = self
+                appReceiptRefreshRequest.start()
+                // If all goes well control will land in the requestDidFinish() delegate method.
+                // If something bad happens control will land in didFailWithError.
+            } catch ReceiptValidationError.jsonResponseIsNotValid(let description) {
+                // unable to parse the json 🤯
+                print("unable to parse the json \(description)")
+            } catch ReceiptValidationError.notBought {
+                // the subscription hasn't being purchased 😒
+                print("the subscription hasn't being purchased")
+            } catch ReceiptValidationError.expired {
+                // the subscription is expired 😵
+                print("the subscription is expired")
+            } catch {
+                print("Unexpected error: \(error).")
+            }
         }
-        
-        return try decoder.decode(T.self, from: data)
     }
     
-    func encode<T>(_ encodable: T, forKey key: FieldKey) throws where T: Encodable {
-        self[key] = try encoder.encode(encodable)
+    func validateReceipt(_ receiptData: Data) throws {
+        let base64encodedReceipt = receiptData.base64EncodedString()
+        let requestDictionary = ["receipt-data":base64encodedReceipt, "password": "373aadbe71f24b4683da337912748a3c"]
+        guard JSONSerialization.isValidJSONObject(requestDictionary) else {  print("requestDictionary is not valid JSON");  return }
+        do {
+            let requestData = try JSONSerialization.data(withJSONObject: requestDictionary)
+            #if DEBUG
+            let validationURLString = Endpoint.sandbox
+            #else
+            let validationURLString = Endpoint.itunes
+            #endif
+            guard let validationURL = URL(string: validationURLString) else { print("the validation url could not be created, unlikely error"); return }
+            let session = URLSession(configuration: URLSessionConfiguration.default)
+            var request = URLRequest(url: validationURL)
+            request.httpMethod = "POST"
+            request.cachePolicy = URLRequest.CachePolicy.reloadIgnoringCacheData
+            let task = session.uploadTask(with: request, from: requestData) { (data, response, error) in
+                guard let data = data, let httpResponse = response as? HTTPURLResponse, error == nil, httpResponse.statusCode == 200 else { return }
+                guard let jsonResponse = (try? JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.mutableContainers)) as? [AnyHashable: Any] else { return }
+                guard let receiptInfo = (jsonResponse["latest_receipt_info"] as? [[AnyHashable: Any]]) else { return }
+                guard let lastReceipt = receiptInfo.last else { return }
+                        
+                let formatter = DateFormatter()
+                formatter.dateFormat = "yyyy-MM-dd HH:mm:ss VV"
+                
+                if let expiresString = lastReceipt["expires_date"] as? String {
+                    if let formattedDate = formatter.date(from: expiresString) {
+                        print("formattedDate: \(formattedDate)")
+                        let soon = formattedDate.addingTimeInterval(10000)
+                        self.isReceiptValid = soon < Date()
+//                        self.isReceiptValid = formattedDate > Date()
+
+                    }
+                }
+                
+//                if let expirationDate = self.expirationDate(jsonResponse: jsonResponse, forProductId: ""), expirationDate > Date() {
+//                    self.isReceiptValid = true
+//                } else {
+//                    self.isReceiptValid = false
+//                }
+            }
+            task.resume()
+        } catch let error as NSError {
+            print("json serialization failed with error: \(error)")
+        }
+    }
+    
+    func expirationDate(jsonResponse: [AnyHashable: Any], forProductId productId :String) -> Date? {
+        guard let receiptInfo = (jsonResponse["latest_receipt_info"] as? [[AnyHashable: Any]]) else {
+            return nil
+        }
+        
+        print("receiptInfo: \(receiptInfo)")
+        //        let filteredReceipts = receiptInfo.filter{ return ($0["product_id"] as? String) == productId }
+        //
+        //        guard let lastReceipt = filteredReceipts.last else {
+        //            return nil
+        //        }
+        
+        guard let lastReceipt = receiptInfo.last else {
+            return nil
+        }
+                
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss VV"
+        
+        if let expiresString = lastReceipt["expires_date"] as? String {
+            print("expiresString: \(expiresString)")
+            
+            return formatter.date(from: expiresString)
+        }
+        
+        return nil
+    }
+    
+    func requestDidFinish(_ request: SKRequest) {
+        // a fresh receipt should now be present at the url
+        do {
+            let receiptData = try Data(contentsOf: appStoreReceiptURL!) //force unwrap is safe here, control can't land here if receiptURL is nil
+            try validateReceipt(receiptData)
+        } catch {
+            // still no receipt, possible but unlikely to occur since this is the "success" delegate method
+        }
+    }
+    
+    func request(_ request: SKRequest, didFailWithError error: Error) {
+        print("app receipt refresh request did fail with error: \(error)")
+        // for some clues see here: https://samritchie.net/2015/01/29/the-operation-couldnt-be-completed-sserrordomain-error-100/
     }
 }

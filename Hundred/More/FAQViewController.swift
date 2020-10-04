@@ -13,8 +13,6 @@ struct QandA {
     var answer: String
 }
 
-private let reuseIdentifier = "FAQCell"
-
 class FAQViewController: UITableViewController {
     let qanda1 = QandA(question: "How do I sign out?", answer: "The app uses the Sign in with Apple technology and in order to sign out you have to follow this simple procedure: \n \n1. Open the iOS Settings (outside of the app) \n2. Enter your iCloud settings \n3. Password & Security \n4. Apps using Apple ID \n5. Select the current app \n6. Stop using Apple ID")
     let qanda2 = QandA(question: "How do I change my username?", answer: "In the same way as above! You'll have to sign out first and you will be asked to create another username when you sign back in.")
@@ -56,7 +54,7 @@ class FAQViewController: UITableViewController {
     func configureUI() {
         title = "FAQ"
         
-        tableView.register(FAQTableViewCell.self, forCellReuseIdentifier: reuseIdentifier)
+        tableView.register(FAQTableViewCell.self, forCellReuseIdentifier: Cells.FAQCell)
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 300
         tableView.separatorStyle = .none
@@ -71,7 +69,7 @@ extension FAQViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! FAQTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: Cells.FAQCell, for: indexPath) as! FAQTableViewCell
         cell.data = FAQarr[indexPath.row]
         return cell
     }

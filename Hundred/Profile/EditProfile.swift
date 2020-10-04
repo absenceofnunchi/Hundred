@@ -10,36 +10,39 @@ import UIKit
 
 class EditProfile: ProfileBaseViewController {
     @IBOutlet weak var scrollView: UIScrollView!
-    var profile: Profile!
+    var profile: Profile?
     lazy fileprivate var imageButton: UIButton = {
         var button: UIButton!
-        if let image = profile.image {
+        if let image = profile?.image  {
             imageName = image
             let imagePath = getDocumentsDirectory().appendingPathComponent(image)
+            button = UIButton()
+            button.tag = 2
+
             if let data = try? Data(contentsOf: imagePath) {
-                button = UIButton()
                 button.clipsToBounds = true
                 button.imageView?.layer.masksToBounds = true
-                button.tag = 2
                 button.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
                 button.setImage(UIImage(data: data), for: .normal)
+                return button
             }
+            return button
         } else {
             button = createButton(title: nil, image: "camera.circle", cornerRadius: 0, color:  .darkGray, size: 60, tag: 2, selector: #selector(buttonPressed))
+            return button
         }
-        return button
     }()
     lazy fileprivate var userTextField: CustomTextField = {
         let textField = CustomTextField()
         textField.textAlignment = .left
-        textField.text = profile.username
+        textField.text = profile?.username
         textField.autocorrectionType = .no
         BorderStyle.customShadowBorder(for: textField)
         return textField
     }()
     lazy fileprivate var descTextView: UITextView = {
         let textView = UITextView()
-        textView.text = profile.detail
+        textView.text = profile?.detail
         textView.isEditable = true
         textView.isSelectable = true
         textView.isScrollEnabled = true
@@ -64,7 +67,7 @@ class EditProfile: ProfileBaseViewController {
         return dButton
     }()
     fileprivate var utility = Utilities()
-    weak var delegate: CreateProfileProtocol? = nil
+    var delegate: PassProfileProtocol? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -73,8 +76,10 @@ class EditProfile: ProfileBaseViewController {
         setConstraints()
         initializeHideKeyboard()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        if UIDevice.current.userInterfaceIdiom != .pad {
+            NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -158,16 +163,19 @@ class EditProfile: ProfileBaseViewController {
         switch sender.tag {
         case 1:
             if let usernameText = userTextField.text, !usernameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                profile.image = imageName ?? ""
-                profile.username = userTextField.text
+                profile?.image = imageName ?? ""
+                profile?.username = userTextField.text
                 if let desc = descTextView.text {
-                    profile.detail = desc
+                    profile?.detail = desc
                 }
 
                 self.saveContext()
                 
-//                _ = navigationController?.popViewController(animated: true)
-                delegate?.runFetchProfile()
+                if let profile = profile {
+                    delegate?.passProfile(profile: profile)
+                    _ = navigationController?.popViewController(animated: true)
+                }
+                
                 
             } else {
                 alert(with: Messages.status, message: Messages.emptyUsername)

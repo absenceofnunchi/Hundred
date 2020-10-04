@@ -12,10 +12,6 @@ import CoreSpotlight
 import MobileCoreServices
 
 class GoalsTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
-    struct Cells {
-        static let goalCell = "GoalCell"
-    }
-    
     var fetchedResultsController: NSFetchedResultsController<Goal>?
     var pullControl = UIRefreshControl()
 

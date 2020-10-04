@@ -23,7 +23,7 @@
         <attribute name="detail" optional="YES" attributeType="String"/>
         <attribute name="image" optional="YES" attributeType="String"/>
         <attribute name="subscription" optional="YES" attributeType="Transformable" customClassName="[String]"/>
-        <attribute name="userId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="userId" optional="YES" attributeType="String"/>
         <attribute name="username" optional="YES" attributeType="String"/>
     </entity>
     <entity name="Progress" representedClassName="Progress" syncable="YES">
@@ -42,7 +42,6 @@
         </fetchIndex>
     </entity>
     <entity name="Subscription" representedClassName="Subscription" syncable="YES">
-        <attribute name="email" optional="YES" attributeType="String"/>
         <attribute name="subscriptionId" optional="YES" attributeType="String"/>
         <attribute name="userId" optional="YES" attributeType="String"/>
         <attribute name="username" optional="YES" attributeType="String"/>
@@ -52,6 +51,6 @@
         <element name="Metric" positionX="-45" positionY="99" width="128" height="133"/>
         <element name="Profile" positionX="-54" positionY="108" width="128" height="104"/>
         <element name="Progress" positionX="-36" positionY="90" width="128" height="179"/>
-        <element name="Subscription" positionX="-54" positionY="117" width="128" height="89"/>
+        <element name="Subscription" positionX="-54" positionY="117" width="128" height="74"/>
     </elements>
 </model>

@@ -29,7 +29,7 @@ class UserDetailViewController: UIViewController {
     var subTitleLabel: CustomLabel!
     var goalTitle: String?
     var userId: String?
-    var email: String?
+    var detail: String?
     var date: Date?
     var username: String?
     var comment: String?
@@ -93,7 +93,7 @@ class UserDetailViewController: UIViewController {
         if let user = user {
             self.title = user.object(forKey: MetricAnalytics.goal.rawValue) as? String
             userId = user.object(forKey: MetricAnalytics.userId.rawValue) as? String
-            email = user.object(forKey: MetricAnalytics.email.rawValue) as? String
+            detail = user.object(forKey: MetricAnalytics.detail.rawValue) as? String
             date = user.object(forKey: MetricAnalytics.date.rawValue) as? Date
             username = user.object(forKey: MetricAnalytics.username.rawValue) as? String
             comment = user.object(forKey: MetricAnalytics.comment.rawValue) as? String
@@ -411,7 +411,6 @@ class UserDetailViewController: UIViewController {
                                                     // create a new subscription in Core Data since none exists
                                                     if fetchedSubscriptions.count == 0 {
                                                         let newSubscription = Subscription(context: self.context)
-                                                        newSubscription.email = self.email ?? ""
                                                         newSubscription.userId = userId
                                                         newSubscription.username = self.username ?? ""
                                                         newSubscription.subscriptionId = result.subscriptionID
@@ -423,7 +422,6 @@ class UserDetailViewController: UIViewController {
                                                             self.context.delete(fetchedSubscription)
                                                         }
                                                         let newSubscription = Subscription(context: self.context)
-                                                        newSubscription.email = self.email ?? ""
                                                         newSubscription.userId = userId
                                                         newSubscription.username = self.username ?? ""
                                                         newSubscription.subscriptionId = result.subscriptionID
@@ -507,7 +505,6 @@ class UserDetailViewController: UIViewController {
                             // create a new subscription in Core Data since none exists
                             if fetchedSubscriptions.count == 0 {
                                 let newSubscription = Subscription(context: self.context)
-                                newSubscription.email = self.email ?? ""
                                 newSubscription.userId = userId
                                 newSubscription.username = self.username ?? ""
                                 newSubscription.subscriptionId = result.subscriptionID
@@ -519,7 +516,6 @@ class UserDetailViewController: UIViewController {
                                     self.context.delete(fetchedSubscription)
                                 }
                                 let newSubscription = Subscription(context: self.context)
-                                newSubscription.email = self.email ?? ""
                                 newSubscription.userId = userId
                                 newSubscription.username = self.username ?? ""
                                 newSubscription.subscriptionId = result.subscriptionID

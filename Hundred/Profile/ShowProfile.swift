@@ -15,19 +15,22 @@ class ShowProfile: ProfileBaseViewController {
     fileprivate let titleLabel = UILabel()
     fileprivate let descTitleLabel = UILabel()
     fileprivate let borderColor = UIColor.gray
-    var profile: Profile? {
+    var profile: Profile! {
         didSet {
-            if let image = profile?.image {
+            if let image = profile?.image, image != "" {
+                print("image: \(image)")
                 let imagePath = getDocumentsDirectory().appendingPathComponent(image)
                 if let data = try? Data(contentsOf: imagePath) {
                     profileImageView.image = UIImage(data: data)
+                    profileImageView.layer.borderWidth = 1.0
                 }
             } else {
                 let config = UIImage.SymbolConfiguration(pointSize: 10, weight: .regular, scale: .medium)
-                let uiImage = UIImage(systemName: "photo.on.rectangle", withConfiguration: config)
+                let uiImage = UIImage(systemName: "camera.circle", withConfiguration: config)
                 profileImageView.image = uiImage
                 profileImageView.tintColor = .black
                 profileImageView.contentMode = .scaleAspectFit
+                profileImageView.layer.borderWidth = 0
             }
             usernameLabel.text = profile?.username
             descLabel.text = profile?.detail ?? ""
@@ -69,7 +72,6 @@ class ShowProfile: ProfileBaseViewController {
         profileImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         profileImageView.layer.borderColor = UIColor.white.cgColor
         profileImageView.layer.cornerRadius = profileImageView.frame.size.height / 2
-        profileImageView.layer.borderWidth = 1.0
         profileImageView.layer.masksToBounds = false
         profileImageView.clipsToBounds = true
         scrollView.addSubview(profileImageView)
@@ -162,7 +164,7 @@ class ShowProfile: ProfileBaseViewController {
         descLabel.centerXAnchor.constraint(equalTo: descContainer.centerXAnchor).isActive = true
         
         buttonContainer.translatesAutoresizingMaskIntoConstraints = false
-        buttonContainer.topAnchor.constraint(equalTo: descContainer.bottomAnchor, constant: 30).isActive = true
+        buttonContainer.topAnchor.constraint(equalTo: descContainer.bottomAnchor, constant: 50).isActive = true
         buttonContainer.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 0.40).isActive = true
         buttonContainer.heightAnchor.constraint(equalToConstant: 50).isActive = true
         buttonContainer.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor).isActive = true
@@ -181,7 +183,7 @@ class ShowProfile: ProfileBaseViewController {
         case 1:
             if let vc = storyboard?.instantiateViewController(identifier: "editProfile") as? EditProfile {
                 vc.profile = profile
-                vc.delegate = delegate
+                vc.delegate = self
                 self.navigationController?.pushViewController(vc, animated: true)
             }
         case 2:
@@ -204,6 +206,12 @@ class ShowProfile: ProfileBaseViewController {
         default:
             print("default")
         }
+    }
+}
+
+extension ShowProfile: PassProfileProtocol {
+    func passProfile(profile: Profile) {
+        self.profile = profile
     }
 }
 

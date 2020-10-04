@@ -12,10 +12,6 @@ import StoreKit
 class Purchases: IAPViewController {
     // MARK: - Types
     
-    fileprivate struct CellIdentifiers {
-        static let purchase = "purchase"
-    }
-    
     fileprivate struct SegueIdentifiers {
         static let showPaymentTransaction = "showPaymentTransaction"
     }
@@ -23,14 +19,13 @@ class Purchases: IAPViewController {
     // MARK: - UITable​View​Data​Source
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        return tableView.dequeueReusableCell(withIdentifier: CellIdentifiers.purchase, for: indexPath)
+        return tableView.dequeueReusableCell(withIdentifier: Cells.purchases, for: indexPath)
     }
     
     // MARK: - UITableViewDelegate
     
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let section = data[indexPath.section]
-        
         if let purchases = section.elements  as? [SKPaymentTransaction] {
             let transaction = purchases[indexPath.row]
             let title = StoreManager.shared.title(matchingIdentifier: transaction.payment.productIdentifier)
@@ -38,6 +33,18 @@ class Purchases: IAPViewController {
             // Display the product's title associated with the payment's product identifier if it exists or the product identifier, otherwise.
             cell.textLabel?.text = title ?? transaction.payment.productIdentifier
         }
+    }
+    
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 20)) //set these values as necessary
+        returnedView.backgroundColor = UIColor.white
+        
+        let label = UILabel(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 20))
+        label.text = data[section].type.description
+        label.textAlignment = .center
+        returnedView.addSubview(label)
+        
+        return returnedView
     }
     
     // MARK: - Navigation

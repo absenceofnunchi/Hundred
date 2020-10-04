@@ -96,7 +96,6 @@ class ParentViewController: UIViewController {
             restoreButton.enable()
             
             let resourceFile = ProductIdentifiers()
-
             guard let identifiers = resourceFile.identifiers else {
                 // Warn the user that the resource file could not be found.
                 alert(with: Messages.status, message: resourceFile.wasNotFound)
@@ -149,7 +148,7 @@ class ParentViewController: UIViewController {
             else { fatalError("\(Messages.unknownSelectedSegmentIndex)\(sender.selectedSegmentIndex)).") }
         
         switchToViewController(segment: segment)
-        
+        print("utility.dataSourceForPurchasesUI: \(utility.dataSourceForPurchasesUI)")
         switch segment {
         case .products: fetchProductInformation()
         case .purchases: purchases.reload(with: utility.dataSourceForPurchasesUI)

@@ -9,16 +9,18 @@
 import UIKit
 import MapKit
 import CoreData
+import Network
 
 class EditEntryViewController: UIViewController {
     @IBOutlet weak var scrollView: UIScrollView!
     var progress: Progress!
-    var imagePathString: URL?
-    var imageBinary: UIImage?
-    var imageName: String!
+    fileprivate var imagePathString: URL?
+    fileprivate var imageBinary: UIImage?
+    fileprivate var imageName: String!
     var delegate: CallBackDelegate? = nil
+    let utility = Utilities()
     
-    lazy var stackView: UIStackView = {
+    lazy fileprivate var stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
         stackView.distribution = .fill
@@ -32,7 +34,7 @@ class EditEntryViewController: UIViewController {
         return stackView
     }()
     
-    lazy var imageButton: UIButton = {
+    lazy fileprivate var imageButton: UIButton = {
         let button = UIButton()
         button.clipsToBounds = true
         
@@ -76,7 +78,7 @@ class EditEntryViewController: UIViewController {
         return button
     }()
     
-    lazy var commentTextView: UITextView = {
+    lazy fileprivate var commentTextView: UITextView = {
         let textView = UITextView()
         textView.isEditable = true
         textView.isSelectable = true
@@ -104,7 +106,7 @@ class EditEntryViewController: UIViewController {
             }
         }
     }
-    var locationLabel = CustomLabel()
+    fileprivate var locationLabel = CustomLabel()
     
     var location: CLLocationCoordinate2D?
     //    var location: CLLocationCoordinate2D? {
@@ -122,11 +124,11 @@ class EditEntryViewController: UIViewController {
     //        }
     //    }
     
-    var locationPlusButton: UIButton!
-    var locationMinusButton: UIButton!
-    var mapPanel = UIView()
+    fileprivate var locationPlusButton: UIButton!
+    fileprivate var locationMinusButton: UIButton!
+    fileprivate var mapPanel = UIView()
     
-    lazy var metricStackView: UIStackView = {
+    lazy fileprivate var metricStackView: UIStackView = {
         let mStackView = UIStackView()
         mStackView.axis = .vertical
         mStackView.alignment = .fill
@@ -149,7 +151,7 @@ class EditEntryViewController: UIViewController {
         return mStackView
     }()
     
-    func displayMetrics(metricString: String?, metric: Metric?, mStackView: UIStackView) {
+    fileprivate func displayMetrics(metricString: String?, metric: Metric?, mStackView: UIStackView) {
         let metricView = UIView()
         let metricLabel = UILabel()
         
@@ -198,7 +200,7 @@ class EditEntryViewController: UIViewController {
         metricView.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
     
-    lazy var doneButton: UIButton = {
+    lazy fileprivate var doneButton: UIButton = {
         let dButton = UIButton()
         dButton.setTitle("Done", for: .normal)
         dButton.layer.cornerRadius = 0
@@ -216,8 +218,8 @@ class EditEntryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        locationPlusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 3)
-        locationMinusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 4)
+        locationPlusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 3, selector: #selector(buttonPressed))
+        locationMinusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 4, selector: #selector(buttonPressed))
         
         initializeHideKeyboard()
         configureView()
@@ -344,41 +346,56 @@ class EditEntryViewController: UIViewController {
             // done button is pressed
             // first case is when there's a corresponding entry on Public Feed
             if progress.recordName != nil {
-                let ac = UIAlertController(title: "No Profile", message: "Looks like you've posted this entry on Public Feed as well. Would you like to modify both the local entry and the public entry?", preferredStyle: .alert)
-                ac.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (_) in
-                    self.getCredentials { (profile) in
-                        if let profile = profile {
-                            self.done(profile: profile, isPublic: true)
-                        } else {
-                            let ac = UIAlertController(title: "No Profile", message: "You need to either log in or create a profile.  Would you like to login/create a profile?", preferredStyle: .alert)
-                            ac.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (_) in
-                                if let vc = self.storyboard?.instantiateViewController(identifier: "Profile") as? ProfileViewController {
-                                    DispatchQueue.main.async {
-                                        self.navigationController?.pushViewController(vc, animated: true)
+                let ac = UIAlertController(title: Messages.status, message: Messages.modifyPublicEntry, preferredStyle: .alert)
+                // modify both local and public
+                ac.addAction(UIAlertAction(title: Messages.okButton, style: .default, handler: { (_) in
+                    let monitor = NWPathMonitor()
+                    let queue = DispatchQueue(label: "Monitor")
+                    monitor.start(queue: queue)
+                    monitor.pathUpdateHandler = { path in
+                        // check for the internet connection
+                        if path.status == .satisfied {
+                            if let profile = self.fetchProfile() {
+                                // profile exists
+                                self.done(profile: profile, isPublic: true)
+                            } else {
+                                // profile doesn't exist
+                                let ac = UIAlertController(title: Messages.noProfileCreated, message: Messages.createProfile, preferredStyle: .alert)
+                                ac.addAction(UIAlertAction(title: Messages.okButton, style: .default, handler: { (_) in
+                                    if let vc = self.storyboard?.instantiateViewController(identifier: ViewControllerIdentifiers.profile) as? ProfileViewController {
+                                        DispatchQueue.main.async {
+                                            self.navigationController?.pushViewController(vc, animated: true)
+                                        }
                                     }
+                                }))
+                                ac.addAction(UIAlertAction(title: Messages.cancelButton, style: .cancel, handler: nil))
+                                
+                                if let popoverController = ac.popoverPresentationController {
+                                    popoverController.sourceView = self.view
+                                    popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                                    popoverController.permittedArrowDirections = []
                                 }
-                            }))
-                            ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-                            
-                            if let popoverController = ac.popoverPresentationController {
-                                popoverController.sourceView = self.view
-                                popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-                                popoverController.permittedArrowDirections = []
+                                
+                                self.present(ac, animated: true, completion: {() -> Void in
+                                    let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
+                                    ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
+                                })
                             }
-                            
-                            self.present(ac, animated: true, completion: {() -> Void in
-                                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
-                                ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
-                            })
+                        } else {
+                            // if the network is absent
+                            DispatchQueue.main.async {
+                                self.alert(with: Messages.networkError, message: Messages.noNetwork)
+                            }
                         }
                     }
                 }))
-                ac.addAction(UIAlertAction(title: "Only the local entry", style: .default, handler: { (_) in
+                // modify only the local entry
+                ac.addAction(UIAlertAction(title: Messages.onlyLocal, style: .default, handler: { (_) in
                     self.done(profile: nil, isPublic: false)
                 }))
-                
-                ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-                
+                // cancel
+                ac.addAction(UIAlertAction(title: Messages.cancelButton, style: .cancel, handler: nil))
+                // ipad alert
                 if let popoverController = ac.popoverPresentationController {
                     popoverController.sourceView = self.view
                     popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
@@ -390,10 +407,8 @@ class EditEntryViewController: UIViewController {
                     ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
                 })
             }
-            
-            
         case 3:
-            if let vc = storyboard?.instantiateViewController(withIdentifier: "Map") as? MapViewController {
+            if let vc = storyboard?.instantiateViewController(withIdentifier: ViewControllerIdentifiers.map) as? MapViewController {
                 vc.editPlacemarkDelegate = self
                 navigationController?.pushViewController(vc, animated: true)
             }
@@ -419,7 +434,6 @@ class EditEntryViewController: UIViewController {
                     if let jpegData = imageBinary.jpegData(compressionQuality: 0.8) {
                         try? jpegData.write(to: imagePathString)
                     }
-                    
                     // delete the previous image from the directory
                     if let fetchedImagePath = fetchedProgress.first?.image {
                         print("fetchedImagePath1: \(fetchedImagePath)")
@@ -537,6 +551,7 @@ class EditEntryViewController: UIViewController {
         }
     }
     
+    // Edit the public entry
     func publicEdit(progress: Progress, profile: Profile, metricDict: [String: String]) {
         // public cloud database
         let progressRecord = CKRecord(recordType: MetricAnalytics.Progress.rawValue)
@@ -551,9 +566,9 @@ class EditEntryViewController: UIViewController {
         progressRecord[MetricAnalytics.date.rawValue] = progress.date
         
         // profile
-//        progressRecord[MetricAnalytics.username.rawValue] = profile.username
-//        progressRecord[MetricAnalytics.email.rawValue] = profile.email
-//        progressRecord[MetricAnalytics.userId.rawValue] = profile.userId
+        progressRecord[MetricAnalytics.username.rawValue] = profile.username
+        progressRecord[MetricAnalytics.detail.rawValue] = profile.detail
+        progressRecord[MetricAnalytics.userId.rawValue] = profile.userId
         
         // location
         if let location = location {
@@ -679,29 +694,17 @@ class EditEntryViewController: UIViewController {
         }
     }
     
-    func createButton(title: String?, image: String?, cornerRadius: CGFloat, color: UIColor, size: CGFloat?, tag: Int) -> UIButton {
-        let button = UIButton()
-        button.clipsToBounds = true
-        button.layer.cornerRadius = cornerRadius
-        
-        if title != nil {
-            button.setTitle(title, for: .normal)
+    // MARK: - Display Alert
+    
+    /// Creates and displays an alert.
+    fileprivate func alert(with title: String, message: String) {
+        let alertController = utility.alert(title, message: message)
+        if let popoverController = alertController.popoverPresentationController {
+            popoverController.sourceView = self.view
+            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+            popoverController.permittedArrowDirections = []
         }
-        
-        if let image = image {
-            if let size = size {
-                let largeConfig = UIImage.SymbolConfiguration(pointSize: size, weight: .medium, scale: .large)
-                let uiImage = UIImage(systemName: image, withConfiguration: largeConfig)
-                
-                button.tintColor = color
-                button.setImage(uiImage, for: .normal)
-            }
-        }
-        
-        button.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
-        button.tag = tag
-        
-        return button
+        self.navigationController?.present(alertController, animated: true, completion: nil)
     }
 }
 

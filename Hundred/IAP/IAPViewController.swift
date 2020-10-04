@@ -1,9 +1,9 @@
 /*
-See LICENSE folder for this sample’s licensing information.
-
-Abstract:
-A base table view controller to share a data model between subclasses. Allows its subclasses to display product and purchase information.
-*/
+ See LICENSE folder for this sample’s licensing information.
+ 
+ Abstract:
+ A base table view controller to share a data model between subclasses. Allows its subclasses to display product and purchase information.
+ */
 
 import UIKit
 
@@ -23,11 +23,6 @@ class IAPViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // Returns the number of rows in the section.
         return data[section].elements.count
-    }
-    
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        // Returns the header title for this section.
-        return data[section].type.description
     }
 }
 

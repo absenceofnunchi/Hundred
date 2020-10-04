@@ -123,8 +123,6 @@ class ViewController: UIViewController {
         }
     }
     
-
-    
     func setupPieChart(goals: [Goal]?) {
         pieChartView.chartDescription?.enabled = false
         pieChartView.drawHoleEnabled = true
@@ -229,7 +227,7 @@ extension ViewController: CalendarHeatmapDelegate {
             let month = dateComponents.month,
             let day = dateComponents.day else { return }
         
-        if let vc = storyboard?.instantiateViewController(withIdentifier: "CalendarDetail") as? CalendarDetailTableViewController {
+        if let vc = storyboard?.instantiateViewController(withIdentifier: ViewControllerIdentifiers.calenderDetail) as? CalendarDetailTableViewController {
             let date = [year, month, day]
             let startDate = "\(date[0])-\(date[1])-\(date[2]) 00:00"
             let endDate = "\(date[0])-\(date[1])-\(date[2]) 23:59"

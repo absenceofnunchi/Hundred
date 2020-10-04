@@ -127,15 +127,12 @@ extension ProductIdentifiers {
     /// - returns: An array with the product identifiers to be queried.
     var identifiers: [String]? {
         let keyValStore = NSUbiquitousKeyValueStore.default
-        if let dict = keyValStore.array(forKey: "productIds") as? [String] {
-            print("first dict: \(dict)")
+        if let dict = keyValStore.array(forKey: key) as? [String] {
             return dict
         } else {
             let productIDs = [ProductIDs.oneMonth.rawValue, ProductIDs.sixMonths.rawValue, ProductIDs.oneYear.rawValue]
-            print("productIDs arr: \(productIDs)")
-            keyValStore.set(productIDs, forKey: "productIds")
-            if let dict = keyValStore.array(forKey: "productIds") as? [String] {
-                print("second dict: \(dict)")
+            keyValStore.set(productIDs, forKey: key)
+            if let dict = keyValStore.array(forKey: key) as? [String] {
                 return dict
             } else {
                 return nil
@@ -453,7 +450,7 @@ extension UIViewController {
                         self.permissionDeniedAlert(title: "Permission Error", message: "Sorry! There was an error checking for the permission status for your iCloud user discoverability. Please try again.")
                         monitor.cancel()
                     } else {
-                        self.processUserDiscoverability(status: status, monitor: monitor, completion: completion)
+//                        self.processUserDiscoverability(status: status, monitor: monitor, completion: completion)
                     }
                 }
             } else {
@@ -463,117 +460,117 @@ extension UIViewController {
         }
     }
     
-    func processUserDiscoverability(status: CKContainer_Application_PermissionStatus, monitor: NWPathMonitor, completion: @escaping (Profile?) -> Void) {
-        switch status {
-        case .granted:
-            // only if the user grants the permission to obtain the iCloud ID, allow Sign in with Apple ID
-            // this is because the record ID is used in places like subscriptions
-            // it also allows fetching an accurate profile from Core Data using the record ID
-            let appleIDProvider = ASAuthorizationAppleIDProvider()
-            let currentUserIdentifier = KeychainWrapper.standard.string(forKey: "userIdentifier")
-            appleIDProvider.getCredentialState(forUserID: currentUserIdentifier ?? "") { (credentialState, error) in
-                switch credentialState {
-                case .authorized:
-                    CKContainer.default().fetchUserRecordID { (record, error) in
-                        if error != nil {
-                            self.permissionDeniedAlert(title: "Error", message: "Sorry! There was an error fetching the Record ID of your iCloud account. Please try again")
-                            completion(nil)
-                            monitor.cancel()
-                        }
-                        if let record = record {
-                            // get the user's profile that has the current iCloud's record name in case there are multiple profiles
-                            DispatchQueue.main.async {
-                                let fetchRequest = NSFetchRequest<Profile>(entityName: "Profile")
-                                fetchRequest.predicate = NSPredicate(format: "userId == %@", record.recordName)
-                                do {
-                                    let profiles = try self.context.fetch(fetchRequest)
-                                    completion(profiles.first)
-                                } catch {
-                                    print("Failed to fetch the user profile: \(error.localizedDescription)")
-                                    self.permissionDeniedAlert(title: "Fetch Error", message: "Sorry! There was an error fetching your profile. Please try again.")
-                                }
-                            }
-                            monitor.cancel()
-                        }
-                    }
-                    break
-                case .revoked:
-                    // The Apple ID credential is revoked, so show the sign-in UI if this is in ProfileVC.
-//                    KeychainWrapper.standard.removeObject(forKey: Keychain.userIdentifier.rawValue)
-//                    DispatchQueue.main.async {
-//                        let fetchRequest = NSFetchRequest<Profile>(entityName: "Profile")
-//                        do {
-//                            let profiles = try self.context.fetch(fetchRequest)
-//                            var emailArr: [String] = []
-//                            for profile in profiles {
-//                                self.context.delete(profile)
-//                                emailArr.append(profile.email)
-//                            }
-//                            
-//                            // deindex the account from Core Spotlight
-//                            CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: emailArr) { (error) in
-//                                if let error = error {
-//                                    print("Deindexing error: \(error.localizedDescription)")
-//                                } else {
-//                                    print("Goal successfully deindexed")
+//    func processUserDiscoverability(status: CKContainer_Application_PermissionStatus, monitor: NWPathMonitor, completion: @escaping (Profile?) -> Void) {
+//        switch status {
+//        case .granted:
+//            // only if the user grants the permission to obtain the iCloud ID, allow Sign in with Apple ID
+//            // this is because the record ID is used in places like subscriptions
+//            // it also allows fetching an accurate profile from Core Data using the record ID
+//            let appleIDProvider = ASAuthorizationAppleIDProvider()
+//            let currentUserIdentifier = KeychainWrapper.standard.string(forKey: "userIdentifier")
+//            appleIDProvider.getCredentialState(forUserID: currentUserIdentifier ?? "") { (credentialState, error) in
+//                switch credentialState {
+//                case .authorized:
+//                    CKContainer.default().fetchUserRecordID { (record, error) in
+//                        if error != nil {
+//                            self.permissionDeniedAlert(title: "Error", message: "Sorry! There was an error fetching the Record ID of your iCloud account. Please try again")
+//                            completion(nil)
+//                            monitor.cancel()
+//                        }
+//                        if let record = record {
+//                            // get the user's profile that has the current iCloud's record name in case there are multiple profiles
+//                            DispatchQueue.main.async {
+//                                let fetchRequest = NSFetchRequest<Profile>(entityName: "Profile")
+//                                fetchRequest.predicate = NSPredicate(format: "userId == %@", record.recordName)
+//                                do {
+//                                    let profiles = try self.context.fetch(fetchRequest)
+//                                    completion(profiles.first)
+//                                } catch {
+//                                    print("Failed to fetch the user profile: \(error.localizedDescription)")
+//                                    self.permissionDeniedAlert(title: "Fetch Error", message: "Sorry! There was an error fetching your profile. Please try again.")
 //                                }
 //                            }
-//                        } catch {
-//                            print("Fetched failed from revoked: \(error.localizedDescription)")
-//                            self.permissionDeniedAlert(title: "Fetch Error", message: "Sorry! There was an error fetching your profile. Please try again.")
+//                            monitor.cancel()
 //                        }
 //                    }
+//                    break
+//                case .revoked:
+//                    // The Apple ID credential is revoked, so show the sign-in UI if this is in ProfileVC.
+////                    KeychainWrapper.standard.removeObject(forKey: Keychain.userIdentifier.rawValue)
+////                    DispatchQueue.main.async {
+////                        let fetchRequest = NSFetchRequest<Profile>(entityName: "Profile")
+////                        do {
+////                            let profiles = try self.context.fetch(fetchRequest)
+////                            var emailArr: [String] = []
+////                            for profile in profiles {
+////                                self.context.delete(profile)
+////                                emailArr.append(profile.email)
+////                            }
+////
+////                            // deindex the account from Core Spotlight
+////                            CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: emailArr) { (error) in
+////                                if let error = error {
+////                                    print("Deindexing error: \(error.localizedDescription)")
+////                                } else {
+////                                    print("Goal successfully deindexed")
+////                                }
+////                            }
+////                        } catch {
+////                            print("Fetched failed from revoked: \(error.localizedDescription)")
+////                            self.permissionDeniedAlert(title: "Fetch Error", message: "Sorry! There was an error fetching your profile. Please try again.")
+////                        }
+////                    }
+////                    monitor.cancel()
+////                    completion(nil)
+//                    break
+//                case .notFound:
+//                    DispatchQueue.main.async {
+//                        let ac = UIAlertController(title: "iCloud Keychain", message: "Please ensure that your iCloud Keychain is not enabled in case it's not enabled. iCloud Keychain allows you to post on Public Feed as well as use the app in multiple devices.", preferredStyle: .alert)
+//                        ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: {(_) in
+//                            monitor.cancel()
+//                            completion(nil)
+//                        }))
+//
+//                        if let popoverController = ac.popoverPresentationController {
+//                            popoverController.sourceView = self.view
+//                            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+//                            popoverController.permittedArrowDirections = []
+//                        }
+//
+//                        self.present(ac, animated: true)
+//                    }
+//                    break
+//                default:
+//                    completion(nil)
+//                    monitor.cancel()
+//                }
+//            }
+//        // the iCloud user discoverability is not granted
+//        case .couldNotComplete, .denied:
+//            DispatchQueue.main.async {
+//                let ac = UIAlertController(title: "", message: "Your permission is required to obtain the unique record ID from your iCloud account.  Please see the FAQ section for more information.", preferredStyle: .alert)
+//                ac.addAction(UIAlertAction(title: "OK", style: .default, handler: {(_) in
 //                    monitor.cancel()
 //                    completion(nil)
-                    break
-                case .notFound:
-                    DispatchQueue.main.async {
-                        let ac = UIAlertController(title: "iCloud Keychain", message: "Please ensure that your iCloud Keychain is not enabled in case it's not enabled. iCloud Keychain allows you to post on Public Feed as well as use the app in multiple devices.", preferredStyle: .alert)
-                        ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: {(_) in
-                            monitor.cancel()
-                            completion(nil)
-                        }))
-                        
-                        if let popoverController = ac.popoverPresentationController {
-                            popoverController.sourceView = self.view
-                            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
-                            popoverController.permittedArrowDirections = []
-                        }
-                        
-                        self.present(ac, animated: true)
-                    }
-                    break
-                default:
-                    completion(nil)
-                    monitor.cancel()
-                }
-            }
-        // the iCloud user discoverability is not granted
-        case .couldNotComplete, .denied:
-            DispatchQueue.main.async {
-                let ac = UIAlertController(title: "", message: "Your permission is required to obtain the unique record ID from your iCloud account.  Please see the FAQ section for more information.", preferredStyle: .alert)
-                ac.addAction(UIAlertAction(title: "OK", style: .default, handler: {(_) in
-                    monitor.cancel()
-                    completion(nil)
-                }))
-
-                if let popoverController = ac.popoverPresentationController {
-                    popoverController.sourceView = self.view
-                    popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
-                    popoverController.permittedArrowDirections = []
-                }
-                
-                self.present(ac, animated: true)
-            }
-
-            break
-        case .initialState:
-            completion(nil)
-            monitor.cancel()
-        default:
-            print("default")
-        }
-    }
+//                }))
+//
+//                if let popoverController = ac.popoverPresentationController {
+//                    popoverController.sourceView = self.view
+//                    popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+//                    popoverController.permittedArrowDirections = []
+//                }
+//
+//                self.present(ac, animated: true)
+//            }
+//
+//            break
+//        case .initialState:
+//            completion(nil)
+//            monitor.cancel()
+//        default:
+//            print("default")
+//        }
+//    }
     
     // GoalVC, DetailVC, EntryVC
     func modifyRecords(recordsToSave: [CKRecord]?, recordIDsToDelete: [CKRecord.ID]?) {
@@ -733,7 +730,39 @@ extension UIViewController {
     @objc func dismissMyKeyboard(){
         view.endEditing(true)
     }
+    
+    // MARK: - Fetch Profile
+
+    /// Gets an existing profile from Core Data if there is one
+    func fetchProfile() -> Profile? {
+        var result: Any?
+        let request = NSFetchRequest<Profile>(entityName: "Profile")
+        do {
+            let results = try self.context.fetch(request)
+            if results.count > 0 {
+                result = results.first
+            } else {
+                result = nil
+            }
+        } catch {
+            let ac = UIAlertController(title: "Error", message: Messages.fetchError, preferredStyle: .alert)
+            if let popoverController = ac.popoverPresentationController {
+                popoverController.sourceView = self.view
+                popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                popoverController.permittedArrowDirections = []
+            }
+            
+            ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { (_) in
+                _ = self.navigationController?.popViewController(animated: true)
+            }))
+            
+            present(ac, animated: true)
+        }
+        return result as? Profile
+    }
 }
+
+// MARK: - UILabelTheme
 
 struct UILabelTheme {
     var font: UIFont?
@@ -741,6 +770,8 @@ struct UILabelTheme {
     var lineBreakMode: NSLineBreakMode?
     var textAlignment: NSTextAlignment = .left
 }
+
+// MARK: - UILabel
 
 extension UILabel {
     convenience init(theme: UILabelTheme, text: String) {
@@ -752,6 +783,8 @@ extension UILabel {
         self.text = text
     }
 }
+
+// MARK: - UITableView
 
 extension UITableView {
     func reloadWithAnimation() {
@@ -772,6 +805,8 @@ extension UITableView {
         }
     }
 }
+
+// MARK: - UIFont
 
 extension UIFont {
     
@@ -796,6 +831,8 @@ extension UIFont {
     }
 }
 
+// MARK: - UIView
+
 extension UIView {
     func addShadow(offset: CGSize, color: UIColor, radius: CGFloat, opacity: Float, bgColor: UIColor) {
         layer.masksToBounds = false
@@ -806,5 +843,43 @@ extension UIView {
         
         backgroundColor = .white
         layer.backgroundColor =  bgColor.cgColor
+    }
+}
+
+// MARK: - CKRecord
+
+extension CKRecord{
+    var wasCreatedByThisUser: Bool{
+        return (creatorUserRecordID == nil) || (creatorUserRecordID?.recordName == "__defaultOwner__")
+    }
+}
+
+private let encoder: JSONEncoder = .init()
+private let decoder: JSONDecoder = .init()
+
+extension CKRecord {
+    func decode<T>(forKey key: FieldKey) throws -> T where T: Decodable {
+        guard let data = self[key] as? Data else {
+            throw CocoaError(.coderValueNotFound)
+        }
+        
+        return try decoder.decode(T.self, from: data)
+    }
+    
+    func encode<T>(_ encodable: T, forKey key: FieldKey) throws where T: Encodable {
+        self[key] = try encoder.encode(encodable)
+    }
+}
+
+// MARK: - Sequence
+
+extension Sequence where Element: Hashable {
+    /// Returns true if no element is equal to any other element.
+    func isDistinct() -> Bool {
+        var set = Set<Element>()
+        for e in self {
+            if set.insert(e).inserted == false { return false }
+        }
+        return true
     }
 }

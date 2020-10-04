@@ -20,11 +20,7 @@ class DetailTableViewController: UITableViewController, UIContextMenuInteraction
         }
     }
     var pullControl = UIRefreshControl()
-    
-    struct Cells {
-        static let progressCell = "ProgressCell"
-    }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
  
@@ -180,11 +176,6 @@ extension DetailTableViewController {
     override func tableView(_ tableView: UITableView,contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         let progress = progresses[indexPath.row]
         
-        // Create a UIAction for sharing
-        let share = UIAction(title: "Share", image: UIImage(systemName: "square.and.arrow.up")) { action in
-            // Show system share sheet
-        }
-        
         let edit = UIAction(title: "Edit", image: UIImage(systemName: "square.and.pencil")) { action in
             self.setEditAction(progress: progress)
         }
@@ -208,7 +199,7 @@ extension DetailTableViewController {
         }
         
         return UIContextMenuConfiguration(identifier: "DetailPreview" as NSString, previewProvider: { getPreviewVC(indexPath: indexPath) }) { _ in
-            UIMenu(title: "", children: [share, edit, delete])
+            UIMenu(title: "", children: [edit, delete])
         }
     }
 }

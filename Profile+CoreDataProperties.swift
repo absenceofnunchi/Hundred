@@ -20,7 +20,7 @@ extension Profile {
     @NSManaged public var username: String!
     @NSManaged public var detail: String?
     @NSManaged public var image: String?
-    @NSManaged public var userId: UUID!
+    @NSManaged public var userId: String!
     @NSManaged public var subscription: [String]?
 
 }

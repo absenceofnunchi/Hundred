@@ -8,8 +8,6 @@
 
 import UIKit
 
-private let reuseIdentifier = "MoreCell"
-
 struct Menu {
     var title: String
     var image: String
@@ -41,7 +39,7 @@ class MoreCollectionViewController: UICollectionViewController, UICollectionView
         // self.clearsSelectionOnViewWillAppear = false
 
         // Register cell classes
-        self.collectionView!.register(MoreCollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        self.collectionView!.register(MoreCollectionViewCell.self, forCellWithReuseIdentifier: Cells.moreCell)
 
     }
 
@@ -53,7 +51,7 @@ class MoreCollectionViewController: UICollectionViewController, UICollectionView
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! MoreCollectionViewCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Cells.moreCell, for: indexPath) as! MoreCollectionViewCell
         cell.data = menus[indexPath.row]
         
         return cell

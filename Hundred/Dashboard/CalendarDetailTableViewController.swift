@@ -9,11 +9,7 @@
 import UIKit
 import CoreData
 
-class CalendarDetailTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
-    struct Cells {
-        static let calendarDetailCell = "CalendarDetailCell"
-    }
-    
+class CalendarDetailTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {   
     var fetchedResultsController: NSFetchedResultsController<Progress>?
     
     var progressPredicate: NSPredicate! {

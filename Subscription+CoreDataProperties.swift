@@ -18,7 +18,6 @@ extension Subscription {
     }
 
     @NSManaged public var userId: String
-    @NSManaged public var email: String
     @NSManaged public var username: String
     @NSManaged public var subscriptionId: String
 

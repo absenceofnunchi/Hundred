@@ -59,4 +59,9 @@ class PaymentTransactionDetails: IAPViewController {
             cell.textLabel!.text = details.first
         }
     }
+    
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        // Returns the header title for this section.
+        return data[section].type.description
+    }
 }

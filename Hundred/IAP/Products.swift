@@ -18,38 +18,59 @@ class Products: IAPViewController {
         static let invalidIdentifier = "invalid"
     }
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        tableView.register(PriceCell.self, forCellReuseIdentifier: Cells.priceCell)
+        tableView.rowHeight = 150
+        tableView.separatorStyle = .none
+    }
+    
     // MARK: - UITable​View​Data​Source
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: Cells.priceCell, for: indexPath) as! PriceCell
         let section = data[indexPath.section]
         
-        if section.type == .availableProducts {
-            return tableView.dequeueReusableCell(withIdentifier: CellIdentifiers.availableProduct, for: indexPath)
-        } else {
-            return tableView.dequeueReusableCell(withIdentifier: CellIdentifiers.invalidIdentifier, for: indexPath)
+        if section.type == .availableProducts, let content = section.elements as? [SKProduct]  {
+            let product = content[indexPath.row]
+            cell.set(product: product, invalidProduct: nil)
+            return cell
+        } else if section.type == .invalidProductIdentifiers, let content = section.elements as? [String] {
+            let invalidProduct = content[indexPath.row]
+            cell.set(product: nil, invalidProduct: invalidProduct)
+            return cell
         }
+        return cell
     }
     
     // MARK: - UITableViewDelegate
     
-    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let section = data[indexPath.section]
+//    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+//        let section = data[indexPath.section]
+//        
+//        // If there are available products, show them.
+//        if section.type == .availableProducts, let content = section.elements as? [SKProduct] {
+//            let product = content[indexPath.row]
+//
+//            cell.set(product: product)
+//
+//        } else if section.type == .invalidProductIdentifiers, let content = section.elements as? [String] {
+//            // if there are invalid product identifiers, show them.
+////            cell.textLabel!.text = content[indexPath.row]
+//        }
+//    }
+    
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 20)) //set these values as necessary
+        returnedView.backgroundColor = UIColor.white
         
-        // If there are available products, show them.
-        if section.type == .availableProducts, let content = section.elements as? [SKProduct] {
-            let product = content[indexPath.row]
-            
-            // Show the localized title of the product.
-            cell.textLabel!.text = product.localizedTitle
-
-            // Show the product's price in the locale and currency returned by the App Store.
-            if let formattedPrice = product.regularPrice {
-                cell.detailTextLabel?.text = "\(formattedPrice)"
-            }
-        } else if section.type == .invalidProductIdentifiers, let content = section.elements as? [String] {
-            // if there are invalid product identifiers, show them.
-            cell.textLabel!.text = content[indexPath.row]
-        }
+        let label = UILabel(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 20))
+        label.text = data[section].type.description
+        label.textAlignment = .center
+        returnedView.addSubview(label)
+        
+        return returnedView
     }
     
     /// Starts a purchase when the user taps an available product row.

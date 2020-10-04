@@ -50,6 +50,7 @@ struct Messages {
     static let noPurchasesAvailable = "No purchases available."
     static let notAuthorized = "You are not authorized to make payments."
     static let okButton = "OK"
+    static let cancelButton = "Cancel"
     static let previouslyBought = "Only previously bought non-consumable products and auto-renewable subscriptions can be restored."
     static let productRequestStatus = "Product Request Status"
     static let purchaseOf = "Purchase of"
@@ -80,8 +81,16 @@ struct Messages {
     static let fetchError = "There was an error fetching data. Please try again."
     static let emptyUsername = "Username cannot be empty."
     static let delete = "Delete"
-    static let deleteProfile = "Are you sure you want to delete your profile?"
+    static let deleteProfile = "Are you sure you want to delete your profile? You will lose all your entries on Public Feed and your followers."
     static let cancel = "Cancel"
+    static let networkError = "Network Error"
+    static let noNetwork = "You're currently not connected to the internet. This section requires an Internet access."
+    static let noProfileCreated = "You don't have a profile created"
+    static let modifyPublicEntry = "Looks like you've posted this entry on Public Feed as well. Would you like to modify both the local entry and the public entry?"
+    static let onlyLocal = "Only the local entry"
+    static let createProfile = "You need to either log in or create a profile.  Would you like to login/create a profile?"
+    static let noCamera = "Camera Not Available"
+    static let noPhotoLibrary = "Photo Library Not Available"
 }
 
 // MARK: - Resource File
@@ -94,7 +103,7 @@ enum ProductIDs: String {
 /// A structure that specifies the property name and NSUbiquitousKeyValueStore from iCloud, which contains the product identifiers to be queried.
 struct ProductIdentifiers {
     /// Name of the key for the array of product identifiers.
-    let key = "ProductIds"
+    let key = "productIds"
     /// iCloud key/value store
     let store = "NSUbiquitousKeyValueStore"
 }
@@ -144,6 +153,9 @@ struct ViewControllerIdentifiers {
     static let purchases = "purchases"
     static let createProfile = "createProfile"
     static let showProfile = "showProfile"
+    static let map = "Map"
+    static let profile = "Profile"
+    static let calenderDetail = "CalendarDetail"
 }
 
 /// An enumeration of view controller names.
@@ -155,6 +167,20 @@ enum ViewControllerNames: String, CustomStringConvertible {
     var description: String {
         return self.rawValue
     }
+}
+
+// MARK: - Custom Cells
+
+/// Custom cells for table views
+struct Cells {
+    static let goalCell = "GoalCell"
+    static let calendarDetailCell = "CalendarDetailCell"
+    static let userCell = "UserCell"
+    static let progressCell = "ProgressCell"
+    static let moreCell = "MoreCell"
+    static let FAQCell = "FAQCell"
+    static let priceCell = "PriceCell"
+    static let purchases = "purchases"
 }
 
 struct UnitConversion {
@@ -173,7 +199,7 @@ struct UnitConversion {
 struct BorderStyle {
     static func customShadowBorder<T: UIView>(for object: T) {
         let borderColor = UIColor.gray
-        object.layer.borderWidth = 1
+//        object.layer.borderWidth = 1
         object.layer.masksToBounds = false
         object.layer.cornerRadius = 7.0;
         object.layer.borderColor = borderColor.withAlphaComponent(0.3).cgColor
@@ -207,4 +233,11 @@ class CustomLabel: UILabel {
         let insets = UIEdgeInsets(top: 10, left: 15, bottom: 10, right: 15)
         super.drawText(in: rect.inset(by: insets))
     }
+}
+
+enum ReceiptValidationError: Error {
+    case receiptNotFound
+    case jsonResponseIsNotValid(description: String)
+    case notBought
+    case expired
 }

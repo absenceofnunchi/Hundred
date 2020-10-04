@@ -16,8 +16,6 @@
 		491F5A7C24E458FA0075EDCD /* DetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 491F5A7B24E458FA0075EDCD /* DetailTableViewController.swift */; };
 		4926509124FF25AF001AA5A3 /* MainDataImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4926509024FF25AF001AA5A3 /* MainDataImporter.swift */; };
 		493FF0EF250AABA10085EB42 /* MetricCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493FF0EE250AABA10085EB42 /* MetricCard.swift */; };
-		494C424C2513DC3600CD0C34 /* KeychainItemAccessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494C424B2513DC3600CD0C34 /* KeychainItemAccessibility.swift */; };
-		494C424E2513DCB200CD0C34 /* KeychainWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494C424D2513DCB200CD0C34 /* KeychainWrapper.swift */; };
 		494F0C2A24D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */; };
 		494F0C2C24D7246A00C5450C /* ManagedObjectContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */; };
 		4958D09D2525274B00703A83 /* ShowProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4958D09C2525274B00703A83 /* ShowProfile.swift */; };
@@ -36,6 +34,7 @@
 		4964C90625237B240093DAE0 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C90525237B240093DAE0 /* Utilities.swift */; };
 		4964C90A25237B870093DAE0 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C90925237B870093DAE0 /* BaseViewController.swift */; };
 		4964C90E252388C90093DAE0 /* ParentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C90D252388C90093DAE0 /* ParentViewController.swift */; };
+		4969912A2527C31400DC86F7 /* PriceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 496991292527C31400DC86F7 /* PriceCell.swift */; };
 		49795B7624DC864000D27111 /* EntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49795B7524DC864000D27111 /* EntryViewController.swift */; };
 		497DC78424EA15A800446178 /* NewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 497DC78324EA15A800446178 /* NewViewController.swift */; };
 		49812F1D2503042900F2BBCB /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49812F1C2503042900F2BBCB /* CloudKit.framework */; };
@@ -52,6 +51,7 @@
 		4985496A251D9BF10096444D /* MoreCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49854969251D9BF10096444D /* MoreCollectionViewController.swift */; };
 		4985496D251D9EF70096444D /* MoreCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4985496C251D9EF70096444D /* MoreCollectionViewCell.swift */; };
 		498AC32924FD524C003FDBF2 /* PieChartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498AC32824FD524C003FDBF2 /* PieChartViewController.swift */; };
+		498B77BC25291CB5002B5B4F /* IAPValidation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498B77BB25291CB5002B5B4F /* IAPValidation.swift */; };
 		4996BD4524D485C900E301B4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD4424D485C900E301B4 /* AppDelegate.swift */; };
 		4996BD4724D485C900E301B4 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD4624D485C900E301B4 /* SceneDelegate.swift */; };
 		4996BD4924D485C900E301B4 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4996BD4824D485C900E301B4 /* ViewController.swift */; };
@@ -94,8 +94,6 @@
 		491F5A7B24E458FA0075EDCD /* DetailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailTableViewController.swift; sourceTree = "<group>"; };
 		4926509024FF25AF001AA5A3 /* MainDataImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainDataImporter.swift; sourceTree = "<group>"; };
 		493FF0EE250AABA10085EB42 /* MetricCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricCard.swift; sourceTree = "<group>"; };
-		494C424B2513DC3600CD0C34 /* KeychainItemAccessibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainItemAccessibility.swift; sourceTree = "<group>"; };
-		494C424D2513DCB200CD0C34 /* KeychainWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainWrapper.swift; sourceTree = "<group>"; };
 		494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistingGoalsMenuTableViewController.swift; sourceTree = "<group>"; };
 		494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedObjectContext.swift; sourceTree = "<group>"; };
 		4958D09C2525274B00703A83 /* ShowProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowProfile.swift; sourceTree = "<group>"; };
@@ -114,6 +112,7 @@
 		4964C90525237B240093DAE0 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		4964C90925237B870093DAE0 /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
 		4964C90D252388C90093DAE0 /* ParentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentViewController.swift; sourceTree = "<group>"; };
+		496991292527C31400DC86F7 /* PriceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceCell.swift; sourceTree = "<group>"; };
 		49795B7524DC864000D27111 /* EntryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryViewController.swift; sourceTree = "<group>"; };
 		497DC78324EA15A800446178 /* NewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewViewController.swift; sourceTree = "<group>"; };
 		49812F1B2503033700F2BBCB /* Hundred.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Hundred.entitlements; sourceTree = "<group>"; };
@@ -131,6 +130,7 @@
 		49854969251D9BF10096444D /* MoreCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreCollectionViewController.swift; sourceTree = "<group>"; };
 		4985496C251D9EF70096444D /* MoreCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreCollectionViewCell.swift; sourceTree = "<group>"; };
 		498AC32824FD524C003FDBF2 /* PieChartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PieChartViewController.swift; sourceTree = "<group>"; };
+		498B77BB25291CB5002B5B4F /* IAPValidation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPValidation.swift; sourceTree = "<group>"; };
 		4996BD4124D485C900E301B4 /* Hundred.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hundred.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4996BD4424D485C900E301B4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4996BD4624D485C900E301B4 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -202,8 +202,13 @@
 				4964C8EF2523758B0093DAE0 /* AppProtocols.swift */,
 				4964C90525237B240093DAE0 /* Utilities.swift */,
 				49026F9124DB423900724369 /* Constraints.swift */,
-				494C424D2513DCB200CD0C34 /* KeychainWrapper.swift */,
-				494C424B2513DC3600CD0C34 /* KeychainItemAccessibility.swift */,
+				49E9631124FC8FA10041239B /* SpinnerViewController.swift */,
+				494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */,
+				493FF0EE250AABA10085EB42 /* MetricCard.swift */,
+				49B328FD24E3269F00D9E8D4 /* DataImporter.swift */,
+				4926509024FF25AF001AA5A3 /* MainDataImporter.swift */,
+				49DB512B24ECAA6500857634 /* ButtonCreator.swift */,
+				491165FE24FAE4A000B2963A /* Test.swift */,
 			);
 			path = "Extensions-Utilities";
 			sourceTree = "<group>";
@@ -243,6 +248,7 @@
 				4964C8F8252379260093DAE0 /* Purchases.swift */,
 				49DB48692520F985004B3747 /* StoreManager.swift */,
 				4964C8EC252372FC0093DAE0 /* StoreObserver.swift */,
+				498B77BB25291CB5002B5B4F /* IAPValidation.swift */,
 			);
 			path = IAP;
 			sourceTree = "<group>";
@@ -256,8 +262,81 @@
 				491A6621250997B200B659CB /* UserCell.swift */,
 				4985496C251D9EF70096444D /* MoreCollectionViewCell.swift */,
 				49AF2085251EF7DE001EA1DD /* FAQTableViewCell.swift */,
+				496991292527C31400DC86F7 /* PriceCell.swift */,
 			);
 			path = CustomCells;
+			sourceTree = "<group>";
+		};
+		4969912C2528186300DC86F7 /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				4996BD4824D485C900E301B4 /* ViewController.swift */,
+				49F1B1E924FB21B8006D6887 /* CalendarDetailTableViewController.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		4969912D2528187B00DC86F7 /* Goals */ = {
+			isa = PBXGroup;
+			children = (
+				4996BD5B24D48B0700E301B4 /* GoalsTableViewController.swift */,
+				491F5A7B24E458FA0075EDCD /* DetailTableViewController.swift */,
+				499E8B2E24F0CC1700C829C8 /* EditViewController.swift */,
+				49795B7524DC864000D27111 /* EntryViewController.swift */,
+				4906B77424F2FEA700417574 /* EditEntryViewController.swift */,
+			);
+			path = Goals;
+			sourceTree = "<group>";
+		};
+		4969912F252818C600DC86F7 /* New Entry */ = {
+			isa = PBXGroup;
+			children = (
+				497DC78324EA15A800446178 /* NewViewController.swift */,
+				494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */,
+			);
+			path = "New Entry";
+			sourceTree = "<group>";
+		};
+		49699130252818DC00DC86F7 /* More */ = {
+			isa = PBXGroup;
+			children = (
+				49854969251D9BF10096444D /* MoreCollectionViewController.swift */,
+				49AF2078251EBB25001EA1DD /* SubscriptionViewController.swift */,
+				49AF207B251EBBA4001EA1DD /* FAQViewController.swift */,
+				49AF207E251EBBF2001EA1DD /* FeedbackViewController.swift */,
+			);
+			path = More;
+			sourceTree = "<group>";
+		};
+		49699131252818EA00DC86F7 /* Map */ = {
+			isa = PBXGroup;
+			children = (
+				49C70D6C25016BF1000BC383 /* MapViewController.swift */,
+				49C70D6825016923000BC383 /* MyAnnotation.swift */,
+				49C70D7025018D12000BC383 /* MyAnnotationView.swift */,
+				49C70D722501940D000BC383 /* LocationSearchViewController.swift */,
+			);
+			path = Map;
+			sourceTree = "<group>";
+		};
+		49699133252818FA00DC86F7 /* Public Feed */ = {
+			isa = PBXGroup;
+			children = (
+				491A661F2509947300B659CB /* UsersViewController.swift */,
+				49FD8FFE250EF7B100B60360 /* UserDetailViewController.swift */,
+			);
+			path = "Public Feed";
+			sourceTree = "<group>";
+		};
+		496991352528193B00DC86F7 /* Pie Chart */ = {
+			isa = PBXGroup;
+			children = (
+				498AC32824FD524C003FDBF2 /* PieChartViewController.swift */,
+				4964C90925237B870093DAE0 /* BaseViewController.swift */,
+				49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */,
+				496149CB25007DAE00C5A23B /* BarChartAxisFormatter.swift */,
+			);
+			path = "Pie Chart";
 			sourceTree = "<group>";
 		};
 		4996BD3824D485C900E301B4 = {
@@ -293,36 +372,13 @@
 				4985495D251C01F80096444D /* Metric+CoreDataProperties.swift */,
 				49A0B96C2512D0D40032DA41 /* HundredDebug.entitlements */,
 				49812F1B2503033700F2BBCB /* Hundred.entitlements */,
-				4996BD4824D485C900E301B4 /* ViewController.swift */,
-				498AC32824FD524C003FDBF2 /* PieChartViewController.swift */,
-				4964C90925237B870093DAE0 /* BaseViewController.swift */,
-				49F1B1E924FB21B8006D6887 /* CalendarDetailTableViewController.swift */,
-				491A661F2509947300B659CB /* UsersViewController.swift */,
-				49FD8FFE250EF7B100B60360 /* UserDetailViewController.swift */,
-				4996BD5B24D48B0700E301B4 /* GoalsTableViewController.swift */,
-				491F5A7B24E458FA0075EDCD /* DetailTableViewController.swift */,
-				497DC78324EA15A800446178 /* NewViewController.swift */,
-				494F0C2924D70BAC00C5450C /* ExistingGoalsMenuTableViewController.swift */,
-				49C70D6C25016BF1000BC383 /* MapViewController.swift */,
-				49C70D722501940D000BC383 /* LocationSearchViewController.swift */,
-				49795B7524DC864000D27111 /* EntryViewController.swift */,
-				491165FE24FAE4A000B2963A /* Test.swift */,
-				4906B77424F2FEA700417574 /* EditEntryViewController.swift */,
-				499E8B2E24F0CC1700C829C8 /* EditViewController.swift */,
-				49854969251D9BF10096444D /* MoreCollectionViewController.swift */,
-				49AF2078251EBB25001EA1DD /* SubscriptionViewController.swift */,
-				49AF207B251EBBA4001EA1DD /* FAQViewController.swift */,
-				49AF207E251EBBF2001EA1DD /* FeedbackViewController.swift */,
-				49E9631124FC8FA10041239B /* SpinnerViewController.swift */,
-				494F0C2B24D7246A00C5450C /* ManagedObjectContext.swift */,
-				49B328FD24E3269F00D9E8D4 /* DataImporter.swift */,
-				4926509024FF25AF001AA5A3 /* MainDataImporter.swift */,
-				49DB512B24ECAA6500857634 /* ButtonCreator.swift */,
-				49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */,
-				496149CB25007DAE00C5A23B /* BarChartAxisFormatter.swift */,
-				49C70D6825016923000BC383 /* MyAnnotation.swift */,
-				49C70D7025018D12000BC383 /* MyAnnotationView.swift */,
-				493FF0EE250AABA10085EB42 /* MetricCard.swift */,
+				4969912C2528186300DC86F7 /* Dashboard */,
+				4969912D2528187B00DC86F7 /* Goals */,
+				4969912F252818C600DC86F7 /* New Entry */,
+				49699133252818FA00DC86F7 /* Public Feed */,
+				49699130252818DC00DC86F7 /* More */,
+				49699131252818EA00DC86F7 /* Map */,
+				496991352528193B00DC86F7 /* Pie Chart */,
 				4958D09B252526E800703A83 /* Profile */,
 				4964C91125238FA10093DAE0 /* CustomCells */,
 				4964C90C252388A70093DAE0 /* IAP */,
@@ -467,8 +523,8 @@
 				49AF2079251EBB25001EA1DD /* SubscriptionViewController.swift in Sources */,
 				49C70D7125018D12000BC383 /* MyAnnotationView.swift in Sources */,
 				49C70D6D25016BF1000BC383 /* MapViewController.swift in Sources */,
-				494C424C2513DC3600CD0C34 /* KeychainItemAccessibility.swift in Sources */,
 				49854967251C01F80096444D /* Metric+CoreDataProperties.swift in Sources */,
+				498B77BC25291CB5002B5B4F /* IAPValidation.swift in Sources */,
 				491A6622250997B200B659CB /* UserCell.swift in Sources */,
 				4996BD5C24D48B0700E301B4 /* GoalsTableViewController.swift in Sources */,
 				4964C8FC252379920093DAE0 /* PaymentTransactionDetails.swift in Sources */,
@@ -503,6 +559,7 @@
 				4964C8FF25237A620093DAE0 /* IAPViewController.swift in Sources */,
 				4996BD4F24D485C900E301B4 /* Hundred.xcdatamodeld in Sources */,
 				4964C8F02523758B0093DAE0 /* AppProtocols.swift in Sources */,
+				4969912A2527C31400DC86F7 /* PriceCell.swift in Sources */,
 				49C8690524F44D66005D0C4D /* GoalCell.swift in Sources */,
 				496149CC25007DAF00C5A23B /* BarChartAxisFormatter.swift in Sources */,
 				4964C90A25237B870093DAE0 /* BaseViewController.swift in Sources */,
@@ -523,7 +580,6 @@
 				49AF207F251EBBF2001EA1DD /* FeedbackViewController.swift in Sources */,
 				4964C8F9252379260093DAE0 /* Purchases.swift in Sources */,
 				49DB512C24ECAA6500857634 /* ButtonCreator.swift in Sources */,
-				494C424E2513DCB200CD0C34 /* KeychainWrapper.swift in Sources */,
 				4985496D251D9EF70096444D /* MoreCollectionViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

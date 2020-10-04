@@ -8,6 +8,7 @@ Creates the DiscloseView, EnableItem, SettingsDelegate, StoreManagerDelegate, an
 */
 
 import Foundation
+import MapKit
 
 // MARK: - DiscloseView
 
@@ -54,4 +55,16 @@ protocol SettingsDelegate: AnyObject {
 
 protocol CreateProfileProtocol: AnyObject {
     func runFetchProfile()
+}
+
+// MARK: - PassProfileProtocol
+
+protocol PassProfileProtocol: AnyObject {
+    func passProfile(profile: Profile)
+}
+
+// MARK: - HandleLocation
+
+protocol HandleLocation {
+    func fetchPlacemark(placemark: MKPlacemark)
 }

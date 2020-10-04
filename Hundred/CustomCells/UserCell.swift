@@ -213,8 +213,6 @@ class UserCell: UITableViewCell {
                 coverImageView.heightAnchor.constraint(equalTo: coverImageView.widthAnchor, multiplier: 9/16),
                 containerView.topAnchor.constraint(equalTo: coverImageView.bottomAnchor, constant: 30),
                 containerView.heightAnchor.constraint(greaterThanOrEqualToConstant: commentLabel.frame.size.height + 20)
-//                containerView.heightAnchor.constraint(greaterThanOrEqualToConstant: 200)
-                //                self.outerContainerView.heightAnchor.constraint(equalToConstant: (outerContainerView.frame.size.width * 9/16) + containerView.frame.height + 30)
             ]
             NSLayoutConstraint.activate(imageConstraints)
             
