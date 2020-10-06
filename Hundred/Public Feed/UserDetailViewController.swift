@@ -29,6 +29,7 @@ class UserDetailViewController: UIViewController {
     var subTitleLabel: CustomLabel!
     var goalTitle: String?
     var userId: String?
+    var profileImageView = UIImageView()
     var detail: String?
     var date: Date?
     var username: String?
@@ -38,7 +39,7 @@ class UserDetailViewController: UIViewController {
     var currentStreak: Int?
     var longestStreak: Int?
     var currentMetricsContainer: UIStackView!
-    var barChart: BarChartView!
+    var barChart: HorizontalBarChartView!
     let borderColor = UIColor.gray
     var longitude: Double?
     var latitude: Double?
@@ -67,6 +68,8 @@ class UserDetailViewController: UIViewController {
         setConstraints()
     }
     
+    // MARK: - Configure UI
+    
     func configureUI() {
         scrollView.addSubview(coverImageView)
         
@@ -84,16 +87,22 @@ class UserDetailViewController: UIViewController {
             metricCard.loadCoverPhoto(imageAsset: imageAsset) { (image) in
                 if let image = image {
                     self.coverImageView.image = image
-                    self.coverImageView.contentMode = .scaleAspectFill
+                    if image.size.width > image.size.height {
+                        self.coverImageView.contentMode = .scaleAspectFit
+                    } else {
+                        self.coverImageView.contentMode = .scaleAspectFill
+                    }
+//                    self.coverImageView.contentMode = .scaleAspectFill
                     self.coverImageView.clipsToBounds = true
                 }
             }
         }
         
         if let user = user {
+            // get the records from the public cloud container
             self.title = user.object(forKey: MetricAnalytics.goal.rawValue) as? String
             userId = user.object(forKey: MetricAnalytics.userId.rawValue) as? String
-            detail = user.object(forKey: MetricAnalytics.detail.rawValue) as? String
+            detail = user.object(forKey: MetricAnalytics.profileDetail.rawValue) as? String
             date = user.object(forKey: MetricAnalytics.date.rawValue) as? Date
             username = user.object(forKey: MetricAnalytics.username.rawValue) as? String
             comment = user.object(forKey: MetricAnalytics.comment.rawValue) as? String
@@ -112,7 +121,6 @@ class UserDetailViewController: UIViewController {
                     let subscriptionRequest = NSFetchRequest<Subscription>(entityName: "Subscription")
                     subscriptionRequest.predicate = NSPredicate(format: "userId == %@", userId as CVarArg)
                     if let fetchedSubscriptions = try? self.context.fetch(subscriptionRequest) {
-                        print("fetchedSubscriptions-------------------: \(fetchedSubscriptions)")
                         if fetchedSubscriptions.count > 0 {
                             isSubscribed = true
                         } else {
@@ -126,25 +134,67 @@ class UserDetailViewController: UIViewController {
             }
         }
         
+        // profile user button
+        let frame = CGRect(x: 0, y: 0, width: scrollView.frame.width * 0.5, height: 100)
+        let buttonStackView = UIStackView(frame: frame)
+        buttonStackView.axis = .vertical
+        buttonStackView.isUserInteractionEnabled = false
+        let profileButton = UIButton(frame: frame)
+        stackView.addArrangedSubview(profileButton)
+        profileButton.addSubview(buttonStackView)
+//        profileButton.sendSubviewToBack(buttonStackView)
+        profileButton.addTarget(self, action: #selector(goToUserProfile), for: .touchUpInside)
+        profileButton.translatesAutoresizingMaskIntoConstraints = false
+        profileButton.heightAnchor.constraint(equalToConstant: 100).isActive = true
+        
         // date
         if let date = date {
-            let dateLabelTheme = UILabelTheme(font: UIFont.body.with(weight: .regular), color: .gray, lineBreakMode: .byTruncatingTail, textAlignment: .right)
+            let dateLabelTheme = UILabelTheme(font: UIFont.body.with(weight: .regular), color: .gray, lineBreakMode: .byTruncatingTail, textAlignment: .left)
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MMM d y"
             let dateLabel = UILabel(theme: dateLabelTheme, text: dateFormatter.string(from: date))
-            stackView.addArrangedSubview(dateLabel)
+            buttonStackView.addArrangedSubview(dateLabel)
             dateLabel.translatesAutoresizingMaskIntoConstraints = false
             dateLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
-            stackView.setCustomSpacing(0, after: dateLabel)
+            buttonStackView.setCustomSpacing(0, after: dateLabel)
         }
         
         // username
         if let username = username {
-            let usernameLabelTheme = UILabelTheme(font: UIFont.body.with(weight: .bold), color: .darkGray, lineBreakMode: .byTruncatingTail, textAlignment: .right)
+            let usernameLabelTheme = UILabelTheme(font: UIFont.body.with(weight: .bold), color: .darkGray, lineBreakMode: .byTruncatingTail, textAlignment: .left)
             let usernameLabel = UILabel(theme: usernameLabelTheme, text: username)
-            stackView.addArrangedSubview(usernameLabel)
+            buttonStackView.addArrangedSubview(usernameLabel)
             usernameLabel.translatesAutoresizingMaskIntoConstraints = false
             usernameLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
+            buttonStackView.setCustomSpacing(5, after: usernameLabel)
+        }
+        
+        // profile image
+        if let user = user, let profileImageAsset = user.object(forKey: MetricAnalytics.profileImage.rawValue) as? CKAsset {
+            metricCard.loadCoverPhoto(imageAsset: profileImageAsset) { (image) in
+                if let image = image {
+                    self.profileImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 45, height: 45))
+                    self.profileImageView.image = image
+                    self.profileImageView.layer.borderColor = UIColor.white.cgColor
+                    self.profileImageView.layer.cornerRadius = self.profileImageView.frame.size.height / 2
+                    self.profileImageView.layer.masksToBounds = false
+                    self.profileImageView.clipsToBounds = true
+                    let profileImageContainer = UIView()
+                    profileImageContainer.addSubview(self.profileImageView)
+                    self.profileImageView.translatesAutoresizingMaskIntoConstraints = false
+                    self.profileImageView.leadingAnchor.constraint(equalTo: profileImageContainer.leadingAnchor).isActive = true
+                    self.profileImageView.widthAnchor.constraint(equalToConstant: 45).isActive = true
+                    self.profileImageView.heightAnchor.constraint(equalToConstant: 45).isActive = true
+                    buttonStackView.addArrangedSubview(profileImageContainer)
+                    profileImageContainer.translatesAutoresizingMaskIntoConstraints = false
+                    profileImageContainer.heightAnchor.constraint(equalToConstant: 45).isActive = true
+                }
+            }
+        } else {
+            let placeholder = UIView()
+            buttonStackView.addArrangedSubview(placeholder)
+            placeholder.translatesAutoresizingMaskIntoConstraints = false
+            placeholder.heightAnchor.constraint(equalToConstant: 45).isActive = true
         }
         
         // comment
@@ -182,8 +232,8 @@ class UserDetailViewController: UIViewController {
         streakContainer.addSubview(longestStreakTitle)
         
         // bar chart
-        barChart = BarChartView()
-        barChart = metricCard.setupBarChart(entryCount: entryCount ?? 0)
+        barChart = HorizontalBarChartView()
+        barChart = metricCard.setupBarChart(entryCount: entryCount ?? 0, hBarChartView: barChart)
         addCard(text: "Progress Chart", subItem: barChart, stackView: stackView, containerHeight: 100, bottomSpacing: nil, insert: nil, tag: nil, topInset: nil, bottomInset: nil, widthMultiplier: nil, isShadowBorder: false)
         
         // current metrics
@@ -328,6 +378,8 @@ class UserDetailViewController: UIViewController {
         }
     }
     
+    // MARK: - Set Constrants
+    
     func setConstraints() {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
@@ -370,6 +422,8 @@ class UserDetailViewController: UIViewController {
         longestStreakTitle.topAnchor.constraint(equalTo: longestStreakLabel.bottomAnchor).isActive = true
         longestStreakTitle.bottomAnchor.constraint(greaterThanOrEqualTo: streakContainer.bottomAnchor, constant: -10).isActive = true
     }
+    
+    // MARK: - Subscribe
     
     @objc func subscribe() {
         if let userId = userId {
@@ -532,6 +586,8 @@ class UserDetailViewController: UIViewController {
         }
     }
     
+    // MARK: - Unsubscribe
+    
     @objc func unsubscribe() {
         if let userId = userId {
             let subscriptionRequest = NSFetchRequest<Subscription>(entityName: "Subscription")
@@ -568,6 +624,8 @@ class UserDetailViewController: UIViewController {
         }
     }
     
+    // MARK: - Show Alert
+    
     func showAlert(title: String, message: String, action: UIAlertAction?) {
         DispatchQueue.main.async {
             let ac = UIAlertController(title: title, message: message, preferredStyle: .alert)
@@ -588,7 +646,20 @@ class UserDetailViewController: UIViewController {
             })
         }
     }
+    
+    @objc func goToUserProfile() {
+        if let vc = storyboard?.instantiateViewController(identifier: ViewControllerIdentifiers.userProfile) as? UserProfileViewController {
+            vc.username = username
+            vc.detail = detail
+            vc.image = profileImageView.image
+//            vc.image = nil
+            vc.userId = userId
+            navigationController?.pushViewController(vc, animated: true)
+        }
+    }
 }
+
+// MARK: - MKMapViewDelegate
 
 extension UserDetailViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -606,17 +677,5 @@ extension UserDetailViewController: MKMapViewDelegate {
         }
         
         return annotationView
-    }
-}
-
-extension String {
-
-    func slice(from: String, to: String) -> String? {
-
-        return (range(of: from)?.upperBound).flatMap { substringFrom in
-            (range(of: to, range: substringFrom..<endIndex)?.lowerBound).map { substringTo in
-                String(self[substringFrom..<substringTo])
-            }
-        }
     }
 }

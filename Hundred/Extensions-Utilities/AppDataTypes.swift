@@ -91,6 +91,7 @@ struct Messages {
     static let createProfile = "You need to either log in or create a profile.  Would you like to login/create a profile?"
     static let noCamera = "Camera Not Available"
     static let noPhotoLibrary = "Photo Library Not Available"
+    static let subscriptionExpired = "Looks like your renewable subscription has expired. Would you like to renew it?"
 }
 
 // MARK: - Resource File
@@ -156,6 +157,8 @@ struct ViewControllerIdentifiers {
     static let map = "Map"
     static let profile = "Profile"
     static let calenderDetail = "CalendarDetail"
+    static let userProfile = "userProfile"
+    static let history = "history"
 }
 
 /// An enumeration of view controller names.
@@ -211,7 +214,6 @@ struct BorderStyle {
     }
 }
 
-
 class CustomTextField: UITextField {
     let insets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 5)
     
@@ -240,4 +242,24 @@ enum ReceiptValidationError: Error {
     case jsonResponseIsNotValid(description: String)
     case notBought
     case expired
+}
+
+// MARK: - MetricAnalytics
+
+/// for public cloud container
+enum MetricAnalytics: String {
+    case Progress
+    case goal
+    case comment
+    case metrics
+    case image
+    case longitude, latitude
+    case date
+    case Min, Max, Average, Sum
+    case analytics
+    case entryCount
+    case longestStreak, currentStreak
+    case metricTitle
+    case username, detail, userId
+    case profileImage, profileDetail
 }

@@ -15,7 +15,7 @@ class CalendarDetailTableViewController: UITableViewController, NSFetchedResults
     var progressPredicate: NSPredicate! {
         didSet {
             if fetchedResultsController == nil {
-                let request = Progress.createFetchRequest()
+                let request = NSFetchRequest<Progress>(entityName: "Progress")
                 let sort = NSSortDescriptor(key: "date", ascending: false)
                 request.sortDescriptors = [sort]
                 request.fetchBatchSize = 20

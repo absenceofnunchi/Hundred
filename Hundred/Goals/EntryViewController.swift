@@ -365,40 +365,19 @@ class EntryViewController: UIViewController, ChartViewDelegate {
                 self.navigationController?.pushViewController(vc, animated: true)
             }
         case 2:
-            // check to see if the entry is within the streak and if it is, end the streak
-            if let lastUpdatedDate = self.progress.goal.lastUpdatedDate {
-                if self.dayVariance(date: lastUpdatedDate, value: -Int(self.progress.goal.streak)) < self.progress.date && self.progress.date < lastUpdatedDate && progress.goal.streak > 0 {
-                    
-                    let ac = UIAlertController(title: "Delete", message: "Deletion of this entry will end the streak it belongs to. Are you sure you want to proceed?", preferredStyle: .alert)
-                    ac.addAction(UIAlertAction(title: "Delete", style: .default, handler: { action in
-                        self.progress.goal.streak = 0
-                        self.deleteEntry()
-                    }))
-                    ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-                    
-                    if let popoverController = ac.popoverPresentationController {
-                        popoverController.sourceView = self.view
-                        popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-                        popoverController.permittedArrowDirections = []
-                    }
-                    
-                    present(ac, animated: true)
-                } else {
-                    let ac = UIAlertController(title: "Delete", message: "Are you sure you want to delete your entry?", preferredStyle: .alert)
-                    ac.addAction(UIAlertAction(title: "Delete", style: .default, handler: { action in
-                        self.deleteEntry()
-                    }))
-                    ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-                    
-                    if let popoverController = ac.popoverPresentationController {
-                        popoverController.sourceView = self.view
-                        popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-                        popoverController.permittedArrowDirections = []
-                    }
-                    
-                    present(ac, animated: true)
-                }
+            let ac = UIAlertController(title: "Delete", message: "Are you sure you want to delete your entry?", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "Delete", style: .default, handler: { action in
+                self.deleteEntry()
+            }))
+            ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            
+            if let popoverController = ac.popoverPresentationController {
+                popoverController.sourceView = self.view
+                popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                popoverController.permittedArrowDirections = []
             }
+            
+            present(ac, animated: true)
         default:
             print("default")
         }

@@ -11,34 +11,13 @@ import Charts
 import CoreData
 import CloudKit
 
-enum MetricAnalytics: String {
-    case Progress
-    case goal
-    case comment
-    case metrics
-    case image
-    case longitude, latitude
-    case date
-    case Min, Max, Average, Sum
-    case analytics
-    case entryCount
-    case longestStreak, currentStreak
-    case metricTitle
-    case username, detail, userId
-}
-
 struct MetricCard {
-    func createMetricCard(entryCount: Int?, goal: Goal?, metricsDict: [String: String]?, fetchedAnalytics: [[String: [String: String]]]?, currentStreak: Int?, longestStreak: Int?) -> (UIView, CGFloat) {
+    func createMetricCard(goal: Goal) -> (UIView, CGFloat) {
         let containerView = UIView()
-        let currentStreakTitle  = self.createStreakCard(containerView: containerView, goal: goal, currentStreak: nil, longestStreak: nil)
+        let currentStreakTitle  = self.createStreakCard(containerView: containerView, goal: goal)
         
-        var barChart = BarChartView()
-        if let entryCount = entryCount {
-            barChart = self.setupBarChart(entryCount: entryCount)
-        } else if let goal = goal {
-            let entryCount = MetricCard.getEntryCount(progress: goal.progress)
-            barChart = self.setupBarChart(entryCount: entryCount)
-        }
+        var barChart = HorizontalBarChartView()
+        barChart = self.setupBarChart(entryCount: goal.progress.count, hBarChartView: barChart)
         
         containerView.addSubview(barChart)
         barChart.translatesAutoresizingMaskIntoConstraints = false
@@ -47,23 +26,25 @@ struct MetricCard {
         barChart.topAnchor.constraint(equalTo: currentStreakTitle.bottomAnchor, constant: 30).isActive = true
         barChart.heightAnchor.constraint(equalToConstant: 100).isActive = true
         
-        if let metricsDict = metricsDict {
-            var metricsArr: [String] = []
-            for singleMetric in metricsDict {
-                metricsArr.append(singleMetric.key)
-            }
-            
-            let metricsStackView = self.calculateMetrics(metrics: nil, metricDict: metricsDict)
-            containerView.addSubview(metricsStackView)
-            metricsStackView.translatesAutoresizingMaskIntoConstraints = false
-            metricsStackView.widthAnchor.constraint(equalTo: containerView.widthAnchor).isActive = true
-            metricsStackView.topAnchor.constraint(equalTo: barChart.bottomAnchor, constant: 40).isActive = true
-            
-            containerView.layoutIfNeeded()
-            
-            return (containerView, metricsStackView.frame.size.height + barChart.frame.size.height + 200)
-            
-        } else if let metrics = goal?.metrics {
+//        if let metricsDict = metricsDict {
+//            var metricsArr: [String] = []
+//            for singleMetric in metricsDict {
+//                metricsArr.append(singleMetric.key)
+//            }
+//            
+//            let metricsStackView = self.calculateMetrics(metrics: nil, metricDict: metricsDict)
+//            containerView.addSubview(metricsStackView)
+//            metricsStackView.translatesAutoresizingMaskIntoConstraints = false
+//            metricsStackView.widthAnchor.constraint(equalTo: containerView.widthAnchor).isActive = true
+//            metricsStackView.topAnchor.constraint(equalTo: barChart.bottomAnchor, constant: 40).isActive = true
+//            
+//            containerView.layoutIfNeeded()
+//            
+//            return (containerView, metricsStackView.frame.size.height + barChart.frame.size.height + 200)
+//            
+//        } 
+        
+        if let metrics = goal.metrics {
             let metricsStackView = self.calculateMetrics(metrics: metrics, metricDict: nil)
             containerView.addSubview(metricsStackView)
             metricsStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -73,163 +54,13 @@ struct MetricCard {
             containerView.layoutIfNeeded()
             
             return (containerView, metricsStackView.frame.size.height + barChart.frame.size.height + 200)
-            //            addCard(text: goal.title, subItem: containerView, stackView: stackView, containerHeight: metricsStackView.frame.size.height + barChart.frame.size.height + 200, bottomSpacing: 30, tag: 5)
         } else {
             containerView.layoutIfNeeded()
             
             return (containerView, barChart.frame.size.height + 150)
-            //            addCard(text: goal.title, subItem: containerView, stackView: stackView, containerHeight: barChart.frame.size.height + 150 , bottomSpacing: 30, tag: 5)
         }
     }
-    
-    func createPublicMetricCard(user: CKRecord, cell: UITableViewCell) {
-//        let imageAsset = user.object(forKey: MetricAnalytics.image.rawValue) as? CKAsset
-//        let imageAsset = user.object(forKey: "") as? CKAsset
-//        let title = user.object(forKey: MetricAnalytics.goal.rawValue) as? String
-////        let comment = user.object(forKey: "comment") as? String
-//        let entryCount = user.object(forKey: MetricAnalytics.entryCount.rawValue) as? Int
-//        
-//        // today's metric/value pair, not the analytics
-//        let metricsDict = try? user.decode(forKey: MetricAnalytics.metrics.rawValue) as [String: String]
-//        let currentStreak = user.object(forKey: MetricAnalytics.currentStreak.rawValue) as? Int
-//        let longestStreak = user.object(forKey: MetricAnalytics.longestStreak.rawValue) as? Int
-//
-//        let fetchedAnalytics = try? user.decode(forKey: MetricAnalytics.analytics.rawValue) as [String : [String : String]]
-// 
-//        let outerContainerView = UIView()
-//        cell.addSubview(outerContainerView)
-//        inset(view: outerContainerView, insets: UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20))
-//        BorderStyle.customShadowBorder(for: outerContainerView)
-//        
-//        // outer container so that the image can span the entire width
-//        // and the inner container with metrics can have paddings
-//        let outerContainerView = UIView()
-//        BorderStyle.customShadowBorder(for: outerContainerView)
-//        cell.addSubview(outerContainerView)
-//
-//        let imageView = UIImageView()
-//        if let imageAsset = imageAsset {
-//            loadCoverPhoto(imageAsset: imageAsset) { (image) in
-//                if let image = image {
-//                    imageView.image = image
-//                }
-//            }
-//
-//            outerContainerView.addSubview(imageView)
-//            imageView.translatesAutoresizingMaskIntoConstraints = false
-//            imageView.topAnchor.constraint(equalTo: outerContainerView.topAnchor).isActive = true
-//            imageView.widthAnchor.constraint(equalTo: outerContainerView.widthAnchor).isActive = true
-//            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 9/16).isActive = true
-//        }
-//
-//        let containerView = UIView()
-//        outerContainerView.addSubview(containerView)
-//
-//        let titleLabelTheme = UILabelTheme(font: UIFont.body.with(weight: .bold), color: UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0), lineBreakMode: .byTruncatingTail, textAlignment: .left)
-//        let titleLabel = UILabel(theme: titleLabelTheme, text: title ?? "")
-//
-//        containerView.addSubview(titleLabel)
-//        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-//        titleLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor).isActive = true
-//
-//        if imageAsset != nil {
-//            containerView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20).isActive = true
-//        } else {
-//            containerView.topAnchor.constraint(equalTo: outerContainerView.topAnchor).isActive = true
-//        }
-//
-////        let currentStreakTitle  = self.createStreakCard(containerView: containerView, goal: nil, currentStreak: currentStreak ?? 0, longestStreak: longestStreak ?? 0)
-//
-//        let unitLabelTheme = UILabelTheme(font: UIFont.caption.with(weight: .bold), color: .lightGray, lineBreakMode: .byTruncatingTail)
-//        let currentStreakTitle = UILabel(theme: unitLabelTheme, text: "Current Streak")
-//        let longestStreakTitle = UILabel(theme: unitLabelTheme, text: "Longest Streak")
-//
-//        let currentStreakLabel = UILabel()
-//        currentStreakLabel.text = String(currentStreak ?? 0)
-//
-//        let longestStreakLabel = UILabel()
-//        longestStreakLabel.text = String(longestStreak ?? 0)
-//
-//        containerView.addSubview(currentStreakLabel)
-//        containerView.addSubview(longestStreakLabel)
-//        containerView.addSubview(currentStreakTitle)
-//        containerView.addSubview(longestStreakTitle)
-//
-//        currentStreakLabel.translatesAutoresizingMaskIntoConstraints = false
-//        currentStreakLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 30).isActive = true
-//        currentStreakLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
-//        currentStreakLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor).isActive = true
-//
-//        longestStreakLabel.translatesAutoresizingMaskIntoConstraints = false
-//        longestStreakLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20).isActive = true
-//        longestStreakLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
-//        longestStreakLabel.leadingAnchor.constraint(equalTo: currentStreakLabel.trailingAnchor).isActive = true
-//
-//        currentStreakTitle.translatesAutoresizingMaskIntoConstraints = false
-//        currentStreakTitle.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
-//        currentStreakTitle.topAnchor.constraint(equalTo: currentStreakLabel.bottomAnchor).isActive = true
-//
-//        longestStreakTitle.translatesAutoresizingMaskIntoConstraints = false
-//        longestStreakTitle.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.5).isActive = true
-//        longestStreakTitle.leadingAnchor.constraint(equalTo: currentStreakTitle.trailingAnchor).isActive = true
-//        longestStreakTitle.topAnchor.constraint(equalTo: longestStreakLabel.bottomAnchor).isActive = true
-//
-//        var barChart = BarChartView()
-//        barChart = self.setupBarChart(entryCount: entryCount ?? 0)
-//        containerView.addSubview(barChart)
-//        barChart.translatesAutoresizingMaskIntoConstraints = false
-//        barChart.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: -10).isActive = true
-//        barChart.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: 10).isActive = true
-//        barChart.topAnchor.constraint(equalTo: currentStreakTitle.bottomAnchor, constant: 20).isActive = true
-//        barChart.heightAnchor.constraint(equalToConstant: 100).isActive = true
-//
-//        let metricsStackView = UIStackView()
-//
-//        if let fetchedAnalytics = fetchedAnalytics {
-//            metricsStackView.axis = .vertical
-//            metricsStackView.spacing = 20
-//
-//            for analytics in fetchedAnalytics {
-//
-//                let converetdAnalytics = analytics.value.mapValues { UnitConversion.stringToDecimal(string: $0)}
-//                displayMetrics(metricStackView: metricsStackView, metric: analytics.key, dict: converetdAnalytics)
-//            }
-//
-//            containerView.addSubview(metricsStackView)
-//            metricsStackView.translatesAutoresizingMaskIntoConstraints = false
-//            metricsStackView.widthAnchor.constraint(equalTo: containerView.widthAnchor).isActive = true
-//            metricsStackView.topAnchor.constraint(equalTo: barChart.bottomAnchor, constant: 40).isActive = true
-//        }
-//
-//        containerView.backgroundColor = .white
-//        containerView.translatesAutoresizingMaskIntoConstraints = false
-//        if imageAsset != nil {
-//            containerView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 30).isActive = true
-//        } else {
-//            containerView.topAnchor.constraint(equalTo: outerContainerView.bottomAnchor, constant: 30).isActive = true
-//        }
-//
-//        containerView.widthAnchor.constraint(equalTo: outerContainerView.widthAnchor, multiplier: 0.8).isActive = true
-//        containerView.bottomAnchor.constraint(equalTo: outerContainerView.bottomAnchor, constant: -30).isActive = true
-//        containerView.centerXAnchor.constraint(equalTo: outerContainerView.centerXAnchor).isActive = true
-//        containerView.layoutIfNeeded()
-//
-//        inset(view: outerContainerView, insets: UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20))
-//
-//
-//        print("metricsStackView.frame.size.height: \(metricsStackView.frame.size.height)")
-//        print("barChart.frame.size.height: \(barChart.frame.size.height)")
-//
-//        if imageAsset != nil {
-//            imageView.layoutIfNeeded()
-//            outerContainerView.heightAnchor.constraint(greaterThanOrEqualToConstant: imageView.frame.height + metricsStackView.frame.size.height + barChart.frame.size.height + 150).isActive = true
-//        } else {
-//            outerContainerView.heightAnchor.constraint(greaterThanOrEqualToConstant: metricsStackView.frame.size.height + barChart.frame.size.height + 150).isActive = true
-//        }
-//
 
-    }
-    
     func loadCoverPhoto(imageAsset: CKAsset, completion: @escaping (_ photo: UIImage?) -> ()) {
       // 1.
       DispatchQueue.global(qos: .utility).async {
@@ -268,7 +99,7 @@ struct MetricCard {
       }
     }
     
-    func setupBarChart(entryCount: Int) -> BarChartView {
+    func setupBarChart(entryCount: Int, hBarChartView: HorizontalBarChartView) -> HorizontalBarChartView {
         let hBarChartview = HorizontalBarChartView()
         hBarChartview.drawBarShadowEnabled = false
         hBarChartview.drawValueAboveBarEnabled = true
@@ -368,23 +199,96 @@ struct MetricCard {
         return hBarChartview
     }
     
-    func createStreakCard(containerView: UIView, goal: Goal?, currentStreak: Int?, longestStreak: Int?) -> UILabel {
+    // MARK: - Calculate streaks
+    
+    // fetches dates since last streak
+    func fetchLatestDates(lastDate: Date, goal: Goal) -> [Date] {
+        var dates = [Date]()
+        let fetchRequest = NSFetchRequest<Progress>(entityName: "Progress")
+        let datePredicate = NSPredicate(format: "date < %@", lastDate as CVarArg)
+        let goalPredicate = NSPredicate(format: "goal.title == %@", goal.title)
+        let andPredicate = NSCompoundPredicate(type: .and, subpredicates: [datePredicate, goalPredicate])
+        fetchRequest.predicate = andPredicate
+
+        do {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let context = appDelegate.persistentCloudKitContainer.viewContext
+            context.automaticallyMergesChangesFromParent = true
+            let results = try context.fetch(fetchRequest)
+            if results.count > 0 {
+                for result in results {
+                    let convertedDate = changeDateTime(userDate: result.date)
+                    dates.append(convertedDate)
+                }
+            }
+        } catch {
+            fatalError()
+        }
+        return dates
+    }
+
+    // set date time to the end of the day so the user has 24hrs to add to the streak
+    func changeDateTime(userDate: Date) -> Date {
+        if let nextDate = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: userDate)),
+           let returnDate = Calendar.current.date(byAdding: .second, value: -1, to: Calendar.current.startOfDay(for: nextDate)) {
+            return returnDate.toLocalTime()
+        }
+
+        return userDate
+    }
+
+    // this method returns the total of the streak and sets the ending date of the last streak
+    func calculateStreak(lastDate: Date, goal: Goal) -> Int {
+        let dateList = fetchLatestDates(lastDate: lastDate, goal: goal)
+        // remove any entries made more than once in a day
+        let uniqueList = dateList.removingDuplicates()
+        // reverse the order so that the latest date is in the beginning to be removed
+        var reversed = uniqueList.sorted { $0 > $1 }
+        guard reversed.count > 0 else { return 0 }
+        var streakDateList = [Date]()
+        var yesterday = reversed[0].subtractDay()
+        // remove the first day since there has to be more than one date to have a streak and the streak is calculated by determining existence of the day before
+        reversed.removeFirst()
+
+        for date in reversed {
+            if date == yesterday {
+                streakDateList.append(date)
+            }
+            yesterday = yesterday.subtractDay()
+        }
+        return streakDateList.count
+    }
+    
+    // MARK: - createStreakCard
+    
+    func createStreakCard(containerView: UIView, goal: Goal) -> UILabel {
         let unitLabelTheme = UILabelTheme(font: UIFont.caption.with(weight: .bold), color: .lightGray, lineBreakMode: .byTruncatingTail)
         let currentStreakTitle = UILabel(theme: unitLabelTheme, text: "Current Streak")
         let longestStreakTitle = UILabel(theme: unitLabelTheme, text: "Longest Streak")
-        
+
+        let currentStreak = calculateStreak(lastDate: Date(), goal: goal)
+
         let currentStreakLabel = UILabel()
-        if let goalStreak = goal?.streak {
-            currentStreakLabel.text = String(goalStreak)
-        } else if let currentStreak = currentStreak {
-            currentStreakLabel.text = String(currentStreak)
-        }
+        currentStreakLabel.text = String(currentStreak)
         
         let longestStreakLabel = UILabel()
-        if let lStreak = goal?.longestStreak {
-            longestStreakLabel.text = String(lStreak)
-        } else if let lstreak = longestStreak {
-            longestStreakLabel.text = String(lstreak)
+        
+        // check if the new streak is longer than the saved longest streak
+        if goal.longestStreak >= currentStreak {
+            longestStreakLabel.text = String(goal.longestStreak)
+        } else {
+            longestStreakLabel.text = String(currentStreak)
+        
+            // save the new longest streak into Core Data
+            goal.longestStreak = Int16(currentStreak)
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let context = appDelegate.persistentCloudKitContainer.viewContext
+            context.automaticallyMergesChangesFromParent = true
+            do {
+                try context.save()
+            } catch {
+                print("streak saving error: \(error.localizedDescription)")
+            }
         }
         
         containerView.addSubview(currentStreakLabel)
@@ -414,6 +318,8 @@ struct MetricCard {
         
         return currentStreakTitle
     }
+    
+    // MARK: - displayMetrics
     
     func displayMetrics(metricStackView: UIStackView, metric: String, dict: [String: NSDecimalNumber]) {
         let metricTitleTheme = UILabelTheme(font: UIFont.body.with(weight: .bold), color: .lightGray, lineBreakMode: .byTruncatingTail, textAlignment: .left)
@@ -619,9 +525,7 @@ struct MetricCard {
         }
         return nil
     }
-        
-    
-    
+          
     static func getEntryCount(progress: Set<Progress>) -> Int {
         var dateArr: Set<String> = []
         let dateFormatter = DateFormatter()
@@ -634,27 +538,3 @@ struct MetricCard {
         return dateArr.count
     }
 }
-
-extension NSUIColor {
-    
-    convenience init(red: Int, green: Int, blue: Int) {
-        assert(red >= 0 && red <= 255, "Invalid red cmoponent")
-        assert(green >= 0 && green <= 255, "Invalid green cmoponent")
-        assert(blue >= 0 && blue <= 255, "Invalid blue cmoponent")
-        
-        self.init(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: 1.0)
-    }
-    
-    convenience init(hex: Int) {
-        self.init(
-            red: (hex >> 16) & 0xFF,
-            green: (hex >> 8) & 0xFF,
-            blue: hex & 0xFF
-        )
-    }
-}
-
-
-
-
-

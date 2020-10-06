@@ -87,30 +87,7 @@ class DetailTableViewController: UITableViewController, UIContextMenuInteraction
         let progress = self.progresses[indexPath.row]
 
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { (contextualAction, view, boolValue) in
-            
-            // check to see if the entry is within the streak and if it is, end the streak
-            if let lastUpdatedDate = progress.goal.lastUpdatedDate {
-                if self.dayVariance(date: lastUpdatedDate, value: -Int(progress.goal.streak)) < progress.date && progress.date < lastUpdatedDate && progress.goal.streak > 0 {
-                    
-                    let ac = UIAlertController(title: "Delete", message: "Deletion of this entry will end the streak it belongs to. Are you sure you want to proceed?", preferredStyle: .alert)
-                    ac.addAction(UIAlertAction(title: "Delete", style: .default, handler: { action in
-                        progress.goal.streak = 0
-                        self.deleteAction(progress: progress, indexPath: indexPath)
-                    }))
-                    ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-                    
-                    if let popoverController = ac.popoverPresentationController {
-                        popoverController.sourceView = self.view
-                        popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-                        popoverController.permittedArrowDirections = []
-                    }
-                    
-                    self.present(ac, animated: true)
-                } else {
-                    self.deleteAction(progress: progress, indexPath: indexPath)
-                }
-            }
-            
+            self.deleteAction(progress: progress, indexPath: indexPath)
         }
         deleteAction.backgroundColor = .red
         

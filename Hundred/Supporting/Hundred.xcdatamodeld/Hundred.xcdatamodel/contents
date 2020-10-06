@@ -3,7 +3,6 @@
     <entity name="Goal" representedClassName="Goal" syncable="YES">
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="detail" optional="YES" attributeType="String"/>
-        <attribute name="lastUpdatedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="longestStreak" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="metrics" optional="YES" attributeType="Transformable" valueTransformerName="" customClassName="[String]"/>
         <attribute name="streak" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -47,7 +46,7 @@
         <attribute name="username" optional="YES" attributeType="String"/>
     </entity>
     <elements>
-        <element name="Goal" positionX="-63" positionY="-18" width="128" height="164"/>
+        <element name="Goal" positionX="-63" positionY="-18" width="128" height="149"/>
         <element name="Metric" positionX="-45" positionY="99" width="128" height="133"/>
         <element name="Profile" positionX="-54" positionY="108" width="128" height="104"/>
         <element name="Progress" positionX="-36" positionY="90" width="128" height="179"/>

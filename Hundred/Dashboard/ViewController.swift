@@ -6,6 +6,15 @@
 //  Copyright © 2020 J. All rights reserved.
 //
 
+/*
+ Abstract:
+ The Dashboard screen that shows a snapshot of the user's overall goals and the progress.
+ It contains the Heatmap (Contribution Calendar) that shows the frequency of the entries,
+ the Composition Pie Chart that shows the number of entries in relations to other goal's entries,
+ and the metric cards that shows the current streak, longest streak, the horizontal bar chart to indicate the 100 days unit of progress,
+ and the details (min, max, average, total) of each of the goal's metrics.
+ */
+
 import UIKit
 import CalendarHeatmap
 import Charts
@@ -111,7 +120,6 @@ class ViewController: UIViewController {
                 for goal in goals {
                     sum += goal.progress.count
                 }
-                
                 if sum == 0 {
                     setupEmptyPieChart()
                 } else {
@@ -198,46 +206,28 @@ class ViewController: UIViewController {
                 singleArrangedSubview.removeFromSuperview()
             }
         }
-        
-        //        struct FakeGoal {
-        //            var title: String!
-        //            var longestStreak: Int16
-        //            var streak: Int16
-        //        }
-        
-        //        let goal1 = FakeGoal(title: "Bike", longestStreak: 100, streak: 3)
-        //        let goal2 = FakeGoal(title: "Boat", longestStreak: 23, streak: 23)
-        //        let goal3 = FakeGoal(title: "Car", longestStreak: 34, streak: 2)
-        //        let goal4 = FakeGoal(title: "Running", longestStreak: 56, streak: 45)
-        //        let goal5 = FakeGoal(title: "Drum", longestStreak: 78, streak: 6)
-        //
-        //        let fakeGoals = [goal1, goal2, goal3, goal4, goal5]
   
         for goal in goals {
             let metricCard = MetricCard()
-            let (containerView, cardHeight) = metricCard.createMetricCard(entryCount: goal.progress.count, goal: goal, metricsDict: nil, fetchedAnalytics: nil, currentStreak: nil, longestStreak: nil)
+            let (containerView, cardHeight) = metricCard.createMetricCard(goal: goal)
             addCard(text: goal.title, subItem: containerView, stackView: stackView, containerHeight: cardHeight, bottomSpacing: 30, tag: 5, isShadowBorder: true)
         }
     }
 }
 
+// MARK: - CalendarHeatmapDelegate
+
 extension ViewController: CalendarHeatmapDelegate {
     func didSelectedAt(dateComponents: DateComponents) {
-        guard let year = dateComponents.year,
-            let month = dateComponents.month,
-            let day = dateComponents.day else { return }
-        
-        if let vc = storyboard?.instantiateViewController(withIdentifier: ViewControllerIdentifiers.calenderDetail) as? CalendarDetailTableViewController {
-            let date = [year, month, day]
-            let startDate = "\(date[0])-\(date[1])-\(date[2]) 00:00"
-            let endDate = "\(date[0])-\(date[1])-\(date[2]) 23:59"
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-            let formattedStartDate = dateFormatter.date(from: startDate)
-            let formattedEndDate = dateFormatter.date(from: endDate)
-            
-            vc.progressPredicate = NSPredicate(format: "(date >= %@) AND (date <= %@)", formattedStartDate! as CVarArg, formattedEndDate! as CVarArg)
-            present(vc, animated: true)
+        if let date = Calendar.current.date(from: dateComponents) {
+            // Fetch all the entries made between the day at 00:00 and 23:59
+            let metricCard = MetricCard()
+            let endOfDay = metricCard.changeDateTime(userDate: date)
+            let startOfDaty = Calendar.current.startOfDay(for: date)
+            if let vc = storyboard?.instantiateViewController(withIdentifier: ViewControllerIdentifiers.calenderDetail) as? CalendarDetailTableViewController {
+                vc.progressPredicate = NSPredicate(format: "(date >= %@) AND (date <= %@)", startOfDaty.toLocalTime() as CVarArg, endOfDay.toLocalTime() as CVarArg)
+                present(vc, animated: true)
+            }
         }
     }
     

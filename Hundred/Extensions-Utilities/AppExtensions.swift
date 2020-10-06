@@ -20,6 +20,7 @@ import AuthenticationServices
 import CoreSpotlight
 import MobileCoreServices
 import CoreData
+import Charts
 
 // MARK: - DateFormatter
 
@@ -247,6 +248,7 @@ extension UIViewController {
         let year = calendar.component(.year, from: date)
         let month = calendar.component(.month, from: date)
         let day = calendar.component(.day, from: date)
+        print("\(year).\(month).\(day)")
         return "\(year).\(month).\(day)"
     }
     
@@ -325,9 +327,7 @@ extension UIViewController {
         return nil
     }
     
-    
     func isICloudContainerAvailable()->Bool {
-        
         CKContainer.default().accountStatus { (accountStatus, error) in
             switch accountStatus {
             case .available:
@@ -350,7 +350,6 @@ extension UIViewController {
                 }
             }
         }
-        
         
         if FileManager.default.ubiquityIdentityToken != nil {
             //print("User logged in")
@@ -881,5 +880,95 @@ extension Sequence where Element: Hashable {
             if set.insert(e).inserted == false { return false }
         }
         return true
+    }
+}
+
+// MARK: - Remove duplicates from an array
+
+extension Array where Element: Hashable {
+    func removingDuplicates() -> [Element] {
+        var addedDict = [Element: Bool]()
+
+        return filter {
+            addedDict.updateValue(true, forKey: $0) == nil
+        }
+    }
+
+    mutating func removeDuplicates() {
+        self = self.removingDuplicates()
+    }
+}
+
+// MARK: - Date
+
+// for calculating streaks in MetricCard.swift
+extension Date {
+    // break the date down to day, month, year
+    func get(_ components: Calendar.Component..., calendar: Calendar = Calendar.current) -> DateComponents {
+        return calendar.dateComponents(Set(components), from: self)
+    }
+
+    func get(_ component: Calendar.Component, calendar: Calendar = Calendar.current) -> Int {
+        return calendar.component(component, from: self)
+    }
+    
+    // adds a day to the date
+    func addDay() -> Date {
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: self)
+        return tomorrow!
+    }
+    
+    // substracts a day from the date
+    func subtractDay() -> Date {
+        let tomorrow = Calendar.current.date(byAdding: .day, value: -1, to: self)
+        return tomorrow!
+    }
+    
+    // Convert local time to UTC (or GMT)
+    func toGlobalTime() -> Date {
+        let timezone = TimeZone.current
+        let seconds = -TimeInterval(timezone.secondsFromGMT(for: self))
+        return Date(timeInterval: seconds, since: self)
+    }
+
+    // Convert UTC (or GMT) to local time
+    func toLocalTime() -> Date {
+        let timezone = TimeZone.current
+        let seconds = TimeInterval(timezone.secondsFromGMT(for: self))
+        return Date(timeInterval: seconds, since: self)
+    }
+}
+
+// MARK: - NSUIColor
+
+// the colors for Charts
+extension NSUIColor {
+    convenience init(red: Int, green: Int, blue: Int) {
+        assert(red >= 0 && red <= 255, "Invalid red cmoponent")
+        assert(green >= 0 && green <= 255, "Invalid green cmoponent")
+        assert(blue >= 0 && blue <= 255, "Invalid blue cmoponent")
+        
+        self.init(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: 1.0)
+    }
+    
+    convenience init(hex: Int) {
+        self.init(
+            red: (hex >> 16) & 0xFF,
+            green: (hex >> 8) & 0xFF,
+            blue: hex & 0xFF
+        )
+    }
+}
+
+// MARK: - String
+
+// slice used in UserDetailViewController to extract a segment of String from an error message
+extension String {
+    func slice(from: String, to: String) -> String? {
+        return (range(of: from)?.upperBound).flatMap { substringFrom in
+            (range(of: to, range: substringFrom..<endIndex)?.lowerBound).map { substringTo in
+                String(self[substringFrom..<substringTo])
+            }
+        }
     }
 }

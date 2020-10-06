@@ -652,6 +652,79 @@
             </objects>
             <point key="canvasLocation" x="2548" y="1844"/>
         </scene>
+        <!--User Profile View Controller-->
+        <scene sceneID="5Rr-rf-BZk">
+            <objects>
+                <viewController storyboardIdentifier="userProfile" id="tGU-Qm-N3n" customClass="UserProfileViewController" customModule="Hundred" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Vkg-xY-VGf">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JuE-hh-QIA">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                                <subviews>
+                                    <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3K3-8k-caq">
+                                        <rect key="frame" x="0.0" y="384" width="414" height="512"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="512" id="Rra-q2-KJn"/>
+                                        </constraints>
+                                    </containerView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="3K3-8k-caq" firstAttribute="top" secondItem="JuE-hh-QIA" secondAttribute="top" constant="384" id="F5C-EG-9bd"/>
+                                    <constraint firstAttribute="trailing" secondItem="3K3-8k-caq" secondAttribute="trailing" id="KCJ-6h-MYu"/>
+                                    <constraint firstItem="3K3-8k-caq" firstAttribute="leading" secondItem="JuE-hh-QIA" secondAttribute="leading" id="SOc-8c-HJ7"/>
+                                    <constraint firstAttribute="bottom" secondItem="3K3-8k-caq" secondAttribute="bottom" id="TlP-h5-VIn"/>
+                                    <constraint firstItem="3K3-8k-caq" firstAttribute="centerX" secondItem="JuE-hh-QIA" secondAttribute="centerX" id="b8t-sR-osC"/>
+                                </constraints>
+                            </scrollView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="BE0-n2-GMn"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="JuE-hh-QIA" firstAttribute="top" secondItem="Vkg-xY-VGf" secondAttribute="top" id="WPF-yE-ULq"/>
+                            <constraint firstItem="JuE-hh-QIA" firstAttribute="trailing" secondItem="BE0-n2-GMn" secondAttribute="trailing" id="fGd-1Y-Es4"/>
+                            <constraint firstItem="JuE-hh-QIA" firstAttribute="leading" secondItem="BE0-n2-GMn" secondAttribute="leading" id="ofZ-zi-Ft3"/>
+                            <constraint firstAttribute="bottom" secondItem="JuE-hh-QIA" secondAttribute="bottom" id="z9t-Mc-jLr"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="containerView" destination="3K3-8k-caq" id="FHT-ts-7l3"/>
+                        <outlet property="scrollView" destination="JuE-hh-QIA" id="ZL5-nD-nAi"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="hHL-o5-PkW" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3302.898550724638" y="1843.5267857142856"/>
+        </scene>
+        <!--History Table View Controller-->
+        <scene sceneID="cVi-wu-NdA">
+            <objects>
+                <tableViewController storyboardIdentifier="history" id="K2Y-eB-wNO" customClass="HistoryTableViewController" customModule="Hundred" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="6bt-Q9-SIs">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="h1s-iT-Bqj">
+                                <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="h1s-iT-Bqj" id="ddF-8e-pKL">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="K2Y-eB-wNO" id="rmu-Q9-K2B"/>
+                            <outlet property="delegate" destination="K2Y-eB-wNO" id="IL9-we-kox"/>
+                        </connections>
+                    </tableView>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="avs-nT-unI" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4048" y="1844"/>
+        </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="MI5-Nd-tuf">
             <objects>

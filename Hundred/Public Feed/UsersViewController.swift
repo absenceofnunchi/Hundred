@@ -78,6 +78,8 @@ class UsersViewController: UITableViewController {
     }
     
     func fetchPublicFeed(userId: String?) {
+        self.users.removeAll()
+        tableView.reloadData()
         let monitor = NWPathMonitor()
         let queue = DispatchQueue(label: "Monitor")
         monitor.start(queue: queue)
@@ -98,7 +100,7 @@ class UsersViewController: UITableViewController {
                 configuration.qualityOfService = .userInitiated
                 
                 let queryOperation = CKQueryOperation(query: query)
-                queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image", "longitude", "latitude", "username", "userId"]
+                queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image", "longitude", "latitude", "username", "userId", "entryCount", "profileImage", "profileDetail"]
                 queryOperation.queuePriority = .veryHigh
                 queryOperation.configuration = configuration
                 queryOperation.resultsLimit = 50
@@ -163,18 +165,17 @@ extension UsersViewController: UIContextMenuInteractionDelegate {
 
         return cell
     }
-    
-//    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-//        if editingStyle == .delete {
-//            let user = users[indexPath.row]
-//            if let index = users.firstIndex(of: user) {
-//                users.remove(at: index)
-//                DispatchQueue.main.async {
-//                    self.tableView.reloadData()
-//                }
-//            }
-//        }
-//    }
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let user = users[indexPath.row]
+            if let index = users.firstIndex(of: user) {
+                users.remove(at: index)
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+            }
+        }
+    }
     
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let user = self.users[indexPath.row]
@@ -262,7 +263,6 @@ extension UsersViewController: UIContextMenuInteractionDelegate {
     }
     
     @objc func refreshFetch() {
-        self.users.removeAll()
         fetchPublicFeed(userId: userId)
         
         let spinner = UIActivityIndicatorView(style: .medium)

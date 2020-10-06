@@ -6,14 +6,23 @@
 //  Copyright © 2020 J. All rights reserved.
 //
 
+/*
+ Abstract:
+ The custom cell for Public Feed.  It displays the information from the public cloud container.
+ Linked to the UserViewController's table view.
+ */
+
 import UIKit
 import CloudKit
 import Charts
 
 class UserCell: UITableViewCell {
+    // MARK: - Properties
+    
     // includes the image and the containerView
     lazy var outerContainerView: UIView = {
         let outerContainerView = UIView()
+        addSubview(outerContainerView)
         BorderStyle.customShadowBorder(for: outerContainerView)
         outerContainerView.addSubview(self.containerView)
         return outerContainerView
@@ -41,20 +50,16 @@ class UserCell: UITableViewCell {
     var streakContainer = UIView()
     var currentStreakLabel = UILabel()
     var longestStreakLabel = UILabel()
-    var barChart: BarChartView = {
-        let metricCard = MetricCard()
-        let barChart = metricCard.setupBarChart(entryCount: 0)
-        return barChart
-    }()
     let metricCard = MetricCard()
     let unitLabelTheme = UILabelTheme(font: UIFont.caption.with(weight: .bold), color: .lightGray, lineBreakMode: .byTruncatingTail)
     lazy var currentStreakTitle = UILabel(theme: unitLabelTheme, text: "")
     lazy var longestStreakTitle = UILabel(theme: unitLabelTheme, text: "")
 
+    // MARK: - Initializers
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        addSubview(outerContainerView)
         configureUI()
         setConstraints()
     }
@@ -62,6 +67,8 @@ class UserCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    // MARK: - configureUI
     
     func configureUI() {
         containerView.addArrangedSubview(titleLabel)
@@ -76,9 +83,9 @@ class UserCell: UITableViewCell {
         streakContainer.addSubview(longestStreakLabel)
         streakContainer.addSubview(currentStreakTitle)
         streakContainer.addSubview(longestStreakTitle)
-        
-        containerView.addArrangedSubview(barChart)
     }
+    
+    // MARK: - setConstraints
     
     func setConstraints() {
         outerContainerView.translatesAutoresizingMaskIntoConstraints = false
@@ -135,17 +142,15 @@ class UserCell: UITableViewCell {
         longestStreakTitle.leadingAnchor.constraint(equalTo: currentStreakTitle.trailingAnchor, constant: 5).isActive = true
         longestStreakTitle.topAnchor.constraint(equalTo: longestStreakLabel.bottomAnchor).isActive = true
         longestStreakTitle.bottomAnchor.constraint(greaterThanOrEqualTo: streakContainer.bottomAnchor, constant: -10).isActive = true
-        
-        barChart.translatesAutoresizingMaskIntoConstraints = false
-        barChart.heightAnchor.constraint(equalToConstant: 100).isActive = true
     }
+    
+    // MARK: - set
     
     func set(user: CKRecord) {
         let title = user.object(forKey: MetricAnalytics.goal.rawValue) as? String
         let date = user.object(forKey: MetricAnalytics.date.rawValue) as? Date
         let username = user.object(forKey: MetricAnalytics.username.rawValue) as? String
         let comment = user.object(forKey: MetricAnalytics.comment.rawValue) as? String
-        let entryCount = user.object(forKey: MetricAnalytics.entryCount.rawValue) as? Int
         // today's metric/value pair, not the analytics
         let currentStreak = user.object(forKey: MetricAnalytics.currentStreak.rawValue) as? Int
         let longestStreak = user.object(forKey: MetricAnalytics.longestStreak.rawValue) as? Int
@@ -191,9 +196,7 @@ class UserCell: UITableViewCell {
         currentStreakLabel.text = String(currentStreak ?? 0)
         longestStreakLabel.text = String(longestStreak ?? 0)
         
-        // bar chart
-        barChart = metricCard.setupBarChart(entryCount: entryCount ?? 0)
-        
+        // main image
         if let imageAsset = user.object(forKey: MetricAnalytics.image.rawValue) as? CKAsset {
             metricCard.loadCoverPhoto(imageAsset: imageAsset) { (image) in
                 if let image = image {
@@ -225,6 +228,8 @@ class UserCell: UITableViewCell {
             NSLayoutConstraint.activate(imageConstraints)
         }
     }
+    
+    // MARK: - prepareForReuse
     
     override func prepareForReuse() {
         super.prepareForReuse()

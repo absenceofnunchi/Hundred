@@ -6,6 +6,11 @@
 //  Copyright © 2020 J. All rights reserved.
 //
 
+/*
+ Abstract:
+ Imports the "heatmap" key from key/val Core Data and processes it into different colours for the Heatmap calendar
+ */
+
 import CalendarHeatmap
 
 struct DataImporter {

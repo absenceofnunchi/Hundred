@@ -388,7 +388,6 @@ class NewViewController: UIViewController {
     }
     
     let appStoreReceiptURL = Bundle.main.appStoreReceiptURL
-    var isReceiptValid: Bool! = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -534,42 +533,53 @@ class NewViewController: UIViewController {
         metricStackView.heightAnchor.constraint(greaterThanOrEqualToConstant: 50).isActive = true
     }
     
-    // a switch for posting on the Public Feed
+    // MARK: - SwitchValueDidChange
+    /// a switch for posting on the Public Feed
     @objc func switchValueDidChange(sender: UISwitch!) {
         // toggle on
         if sender.isOn {
-            getAppReceipt()
-            if isReceiptValid {
-                print("valid receipt")
-            } else {
-                print("not valid")
+            if let profile = self.fetchProfile() {
+                self.profile = profile
+                self.isPublic = true
             }
             
-            //            // check if any purchased products already exists
-            //            if utility.dataSourceForPurchasesUI.count > 0 {
-            //                print("utility.dataSourceForPurchasesUI: \(utility.dataSourceForPurchasesUI)")
-            //                if let profile = fetchProfile() {
-            //                    self.profile = profile
-            //                    isPublic = true
-            //                } else {
-            //                    isPublic = false
-            //                    switchControl.setOn(false, animated: false)
-            //                    alertForUsername()
-            //                }
-            //            } else {
-            //                // if no purchased products exist, navigate to the IAP VC and set the toggle off
-            //                isPublic = false
-            //                switchControl.setOn(false, animated: false)
-            //                if let vc = storyboard?.instantiateViewController(identifier: "parent") as? ParentViewController {
-            //                    navigationController?.pushViewController(vc, animated: true)
-            //                }
-            //            }
-        } else{
+//            if isICloudContainerAvailable() == true {
+//                // check to see if the receipt from App Store exists and, if it does, whether the expiry date has passed
+//                getAppReceipt { (isValid) in
+//                    if isValid {
+//                        // the receipt's expiry date hasn't passed so check for Profile
+//                        if let profile = self.fetchProfile() {
+//                            self.profile = profile
+//                            self.isPublic = true
+//                            print("1")
+//                        } else {
+//                            // Profile doesn't exist so offer to create one
+//                            self.isPublic = false
+//                            DispatchQueue.main.async {
+//                                self.switchControl.setOn(false, animated: false)
+//                                self.alertForUsername()
+//                            }
+//                        }
+//                    } else {
+//                        // the renewable subscription has expired
+//                        self.isPublic = false
+//
+//                        DispatchQueue.main.async {
+//                            if let vc = self.storyboard?.instantiateViewController(identifier: "parent") as? ParentViewController {
+//                                self.switchControl.setOn(false, animated: false)
+//                                self.navigationController?.pushViewController(vc, animated: true)
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+        } else {
             // toggle off
-            isPublic = false
+            self.isPublic = false
         }
     }
     
+    // MARK: - ButtonPressed
     @objc func buttonPressed(sender: UIButton!) {
         switch sender.tag {
         case 1:
@@ -687,12 +697,7 @@ class NewViewController: UIViewController {
             if Array(metricDict.keys).isDistinct() == true {
                 for singleMetricPair in metricDict {
                     let metric = Metric(context: self.context)
-                    
-                    //                    let df = DateFormatter()
-                    //                    df.dateFormat = "yyyy/MM/dd HH:mm"
-                    //                    let someDateTime = df.date(from: "2020/09/02 22:31")
-                    //                    metric.date = someDateTime!
-                    metric.date = Date()
+                    metric.date = Date().toLocalTime()
                     metric.unit = singleMetricPair.key
                     metric.id = UUID()
                     metric.value = UnitConversion.stringToDecimal(string: singleMetricPair.value)
@@ -716,7 +721,7 @@ class NewViewController: UIViewController {
             let progress = Progress(context: self.context)
             progress.image = imagePathString
             progress.comment = commentTextView.text
-            progress.date = Date()
+            progress.date = Date().toLocalTime()
             let progressId = UUID()
             progress.id = progressId
             
@@ -743,7 +748,6 @@ class NewViewController: UIViewController {
             }
             
             var goalFromCoreData: Goal!
-            //            let goalRequest = Goal.createFetchRequest()
             let goalRequest = NSFetchRequest<Goal>(entityName: "Goal")
             
             // create a new goal
@@ -760,7 +764,6 @@ class NewViewController: UIViewController {
                         goal.title = goalText
                         goal.detail = goalDescTextView.text
                         goal.date = Date()
-                        goal.lastUpdatedDate = Date()
                         goal.streak = 0
                         goal.longestStreak = 0
                         
@@ -815,47 +818,22 @@ class NewViewController: UIViewController {
                         // Update existing Core Data
                         goalFromCoreData = fetchedGoal.first
                         
-                        // metrics
+                        // metrics updated
                         for singleEntry in metricArr {
                             progress.metric.insert(singleEntry)
                             goalFromCoreData.goalToMetric.insert(singleEntry)
                         }
-                        
-                        // streak
-                        if let lastUpdatedDate =  goalFromCoreData.lastUpdatedDate {
-                            let deadline = dayVariance(date: lastUpdatedDate, value: 1)
-                            let endOfToday = dayVariance(date: Date(), value: 0)
-                            let endOfYesterday = dayVariance(date: Date(), value: -1)
-                            
-                            // prevent multiple streaks from the same day
-                            if deadline > Date() {
-                                if endOfYesterday < lastUpdatedDate && lastUpdatedDate < endOfToday {
-                                    return
-                                } else {
-                                    goalFromCoreData.streak += 1
-                                    
-                                    if goalFromCoreData.streak > goalFromCoreData.longestStreak {
-                                        goalFromCoreData.longestStreak = goalFromCoreData.streak
-                                    }
-                                }
-                            } else {
-                                goalFromCoreData.streak = 0
-                            }
-                        } else {
-                            goalFromCoreData.streak = 0
-                        }
-                        
-                        goalFromCoreData.lastUpdatedDate = Date()
-                        
+
+                        // progress updated
+                        goalFromCoreData.progress.insert(progress)
+
                         if isPublic {
                             // public cloud database
                             publicCloudSave(goal: goalFromCoreData, progress: progress, comment: commentTextView.text, metricDict: metricDict, isNew: false)
                         } else {
                             // progress
-                            goalFromCoreData.progress.insert(progress)
                             self.saveContext()
                         }
-                        
                     } else {
                         print("goal's in the existing list, but doesn't fetch")
                         return
@@ -921,6 +899,7 @@ class NewViewController: UIViewController {
             
             present(ac, animated: true)
         case 8:
+            // Navigate to EditVC
             if let vc = storyboard?.instantiateViewController(withIdentifier: "EditGoal") as? EditViewController {
                 if let existingGoal = existingGoal {
                     vc.goalDetail = existingGoal
@@ -928,14 +907,15 @@ class NewViewController: UIViewController {
                 }
             }
         case 9:
+            // Navigate to MapVC
             if let vc = storyboard?.instantiateViewController(withIdentifier: "Map") as? MapViewController {
                 vc.fetchPlacemarkDelegate = self
                 navigationController?.pushViewController(vc, animated: true)
             }
         case 10:
+            // Clear the text field of the map address
             location = nil
             locationLabel.text = nil
-            
         default:
             print("default")
         }
@@ -1012,7 +992,7 @@ class NewViewController: UIViewController {
     }
     
     func saveHeatmap() {
-        let dateString = dateForPlist(date: Date())
+        let dateString = dateForPlist(date: Date().toLocalTime())
         let keyValStore = NSUbiquitousKeyValueStore.default
         // if the heatmap key/value already exists
         if var dict = keyValStore.dictionary(forKey: "heatmap") as? [String : [String : Int]] {
@@ -1038,7 +1018,6 @@ class NewViewController: UIViewController {
                 // if this is a brand new goal, create a new key/value dictionary for heatmap
                 if let newGoalTitle = goalTextField.text {
                     dict.updateValue([dateString: 1], forKey: newGoalTitle)
-                    print("new dict: \(dict)")
                     keyValStore.set(dict, forKey: "heatmap")
                     keyValStore.synchronize()
                 } else {
@@ -1132,7 +1111,6 @@ class NewViewController: UIViewController {
 
 extension NewViewController: UITextViewDelegate, UITextFieldDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
-        print("textView: \(textView)")
         contentInset = textView.frame.maxY
         if textView.textColor == UIColor.lightGray {
             textView.text = nil
@@ -1146,12 +1124,6 @@ extension NewViewController: UITextViewDelegate, UITextFieldDelegate {
             textView.textColor = UIColor.lightGray
         }
     }
-    
-    //    func textFieldDidBeginEditing(_ textField: UITextField) {
-    //        contentInset = textField.frame.maxY
-    //        // frame = (30 191.333; 315 50)
-    //    }
-    
 }
 
 // MARK: - UIImagePickerControllerDelegate
@@ -1189,6 +1161,7 @@ extension NewViewController: UIImagePickerControllerDelegate, UINavigationContro
 
 // MARK: - HandleLocation
 
+/// fetches the location information the user has selected from the MapVC
 extension NewViewController: HandleLocation {
     func fetchPlacemark(placemark: MKPlacemark) {
         locationLabel.text = placemark.title
@@ -1204,42 +1177,61 @@ extension NewViewController {
             switchControl.setOn(false, animated: true)
             return
         }
+        guard profile != nil else { return }
         
         // public cloud database
         let progressRecord = CKRecord(recordType: MetricAnalytics.Progress.rawValue)
+        progress.recordName = progressRecord.recordID.recordName
+        goal.progress.insert(progress)
+        self.saveContext()
+        
         progressRecord[MetricAnalytics.goal.rawValue] = goal.title as CKRecordValue
         progressRecord[MetricAnalytics.comment.rawValue] = comment as CKRecordValue
         
         // profile
         progressRecord[MetricAnalytics.username.rawValue] = profile.username
-        progressRecord[MetricAnalytics.detail.rawValue] = profile.detail
         progressRecord[MetricAnalytics.userId.rawValue] = profile.userId
+        if let detail = profile.detail {
+            progressRecord[MetricAnalytics.profileDetail.rawValue] = detail
+        }
+        if let profileImage = profile.image {
+            let profileImagePath = getDocumentsDirectory().appendingPathComponent(profileImage)
+            progressRecord[MetricAnalytics.profileImage.rawValue] = CKAsset(fileURL: profileImagePath)
+        }
         
         // analytics
         progressRecord[MetricAnalytics.longitude.rawValue] = self.location?.longitude
         progressRecord[MetricAnalytics.latitude.rawValue] = self.location?.latitude
         
+        // min, max, avg, total
         try? progressRecord.encode(metricDict, forKey: MetricAnalytics.metrics.rawValue)
         progressRecord[MetricAnalytics.date.rawValue] = Date()
         
+        // image
         if let imagePath = self.imagePath {
             progressRecord[MetricAnalytics.image.rawValue] = CKAsset(fileURL: imagePath)
         }
         
+        // entry count for the horizontal bar chart
         if isNew {
+            // first entry
             progressRecord[MetricAnalytics.entryCount.rawValue] = 1
         } else {
             let entryCount = MetricCard.getEntryCount(progress: goal.progress)
+            print("entryCount from NewVC: \(entryCount)")
             progressRecord[MetricAnalytics.entryCount.rawValue] = entryCount + 1
         }
         
-        progressRecord[MetricAnalytics.longestStreak.rawValue] = goal.longestStreak
-        progressRecord[MetricAnalytics.currentStreak.rawValue] = goal.streak
-        
-        progress.recordName = progressRecord.recordID.recordName
-        goal.progress.insert(progress)
-        self.saveContext()
-        
+        // current streak, longest streak
+        let metricCalc = MetricCard()
+        let streak = metricCalc.calculateStreak(lastDate: Date().toLocalTime(), goal: goal)
+        progressRecord[MetricAnalytics.currentStreak.rawValue] = streak
+        if streak > goal.longestStreak {
+            progressRecord[MetricAnalytics.longestStreak.rawValue] = streak
+        } else {
+            progressRecord[MetricAnalytics.longestStreak.rawValue] = goal.longestStreak
+        }
+
         let publicCloudDatabase = CKContainer.default().publicCloudDatabase
         publicCloudDatabase.save(progressRecord) { (record, error) in
             if let error = error {
@@ -1289,12 +1281,15 @@ extension NewViewController {
     }
 }
 
+// MARK: - SKRequestDelegate
+
+/// fetches App Store receipt and handles the response
 extension NewViewController: SKRequestDelegate {
-    func getAppReceipt() {
+    func getAppReceipt(completion: @escaping (Bool) -> Void) {
         if let appStoreReceiptURL = appStoreReceiptURL, FileManager.default.fileExists(atPath: appStoreReceiptURL.path) {
             do {
                 let receiptData = try! Data(contentsOf: appStoreReceiptURL, options: .alwaysMapped)
-                try validateReceipt(receiptData)
+                try validateReceipt(receiptData, completion: completion)
             } catch ReceiptValidationError.receiptNotFound {
                 // There is no receipt on the device 😱
                 print("There is no receipt on the device")
@@ -1318,7 +1313,7 @@ extension NewViewController: SKRequestDelegate {
         }
     }
     
-    func validateReceipt(_ receiptData: Data) throws {
+    func validateReceipt(_ receiptData: Data, completion: @escaping (Bool) -> Void) throws {
         let base64encodedReceipt = receiptData.base64EncodedString()
         let requestDictionary = ["receipt-data":base64encodedReceipt, "password": "373aadbe71f24b4683da337912748a3c"]
         guard JSONSerialization.isValidJSONObject(requestDictionary) else {  print("requestDictionary is not valid JSON");  return }
@@ -1345,19 +1340,10 @@ extension NewViewController: SKRequestDelegate {
                 
                 if let expiresString = lastReceipt["expires_date"] as? String {
                     if let formattedDate = formatter.date(from: expiresString) {
-                        print("formattedDate: \(formattedDate)")
-                        let soon = formattedDate.addingTimeInterval(10000)
-                        self.isReceiptValid = soon < Date()
-//                        self.isReceiptValid = formattedDate > Date()
-
+                        let isValid = formattedDate > Date().toLocalTime()
+                        completion(isValid)
                     }
                 }
-                
-//                if let expirationDate = self.expirationDate(jsonResponse: jsonResponse, forProductId: ""), expirationDate > Date() {
-//                    self.isReceiptValid = true
-//                } else {
-//                    self.isReceiptValid = false
-//                }
             }
             task.resume()
         } catch let error as NSError {
@@ -1365,46 +1351,26 @@ extension NewViewController: SKRequestDelegate {
         }
     }
     
-    func expirationDate(jsonResponse: [AnyHashable: Any], forProductId productId :String) -> Date? {
-        guard let receiptInfo = (jsonResponse["latest_receipt_info"] as? [[AnyHashable: Any]]) else {
-            return nil
-        }
-        
-        print("receiptInfo: \(receiptInfo)")
-        //        let filteredReceipts = receiptInfo.filter{ return ($0["product_id"] as? String) == productId }
-        //
-        //        guard let lastReceipt = filteredReceipts.last else {
-        //            return nil
-        //        }
-        
-        guard let lastReceipt = receiptInfo.last else {
-            return nil
-        }
-                
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss VV"
-        
-        if let expiresString = lastReceipt["expires_date"] as? String {
-            print("expiresString: \(expiresString)")
-            
-            return formatter.date(from: expiresString)
-        }
-        
-        return nil
-    }
-    
-    func requestDidFinish(_ request: SKRequest) {
-        // a fresh receipt should now be present at the url
-        do {
-            let receiptData = try Data(contentsOf: appStoreReceiptURL!) //force unwrap is safe here, control can't land here if receiptURL is nil
-            try validateReceipt(receiptData)
-        } catch {
-            // still no receipt, possible but unlikely to occur since this is the "success" delegate method
-        }
-    }
+//    func requestDidFinish(_ request: SKRequest) {
+//        // a fresh receipt should now be present at the url
+//        do {
+//            let receiptData = try Data(contentsOf: appStoreReceiptURL!) //force unwrap is safe here, control can't land here if receiptURL is nil
+//            try validateReceipt(receiptData)
+//        } catch {
+//            // still no receipt, possible but unlikely to occur since this is the "success" delegate method
+//        }
+//    }
     
     func request(_ request: SKRequest, didFailWithError error: Error) {
         print("app receipt refresh request did fail with error: \(error)")
         // for some clues see here: https://samritchie.net/2015/01/29/the-operation-couldnt-be-completed-sserrordomain-error-100/
+    }
+}
+
+
+extension Date {
+    func yesterday() -> Date {
+        let tomorrow = Calendar.current.date(byAdding: .day, value: -1, to: self)
+        return tomorrow!
     }
 }

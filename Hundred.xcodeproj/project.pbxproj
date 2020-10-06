@@ -35,6 +35,7 @@
 		4964C90A25237B870093DAE0 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C90925237B870093DAE0 /* BaseViewController.swift */; };
 		4964C90E252388C90093DAE0 /* ParentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4964C90D252388C90093DAE0 /* ParentViewController.swift */; };
 		4969912A2527C31400DC86F7 /* PriceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 496991292527C31400DC86F7 /* PriceCell.swift */; };
+		496D240E252BEA3200D404CB /* HistoryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 496D240D252BEA3200D404CB /* HistoryTableViewController.swift */; };
 		49795B7624DC864000D27111 /* EntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49795B7524DC864000D27111 /* EntryViewController.swift */; };
 		497DC78424EA15A800446178 /* NewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 497DC78324EA15A800446178 /* NewViewController.swift */; };
 		49812F1D2503042900F2BBCB /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49812F1C2503042900F2BBCB /* CloudKit.framework */; };
@@ -80,6 +81,7 @@
 		49ED332825114BBF006FE080 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49ED332725114BBF006FE080 /* ProfileViewController.swift */; };
 		49F1B1EA24FB21B8006D6887 /* CalendarDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F1B1E924FB21B8006D6887 /* CalendarDetailTableViewController.swift */; };
 		49F1B1EC24FB34BA006D6887 /* CalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F1B1EB24FB34BA006D6887 /* CalendarCell.swift */; };
+		49F8B0B9252BD81600C37BCF /* UserProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F8B0B8252BD81600C37BCF /* UserProfileViewController.swift */; };
 		49FD8FFF250EF7B100B60360 /* UserDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49FD8FFE250EF7B100B60360 /* UserDetailViewController.swift */; };
 		959BBA5D7FE2D6CC34668FE7 /* Pods_Hundred.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E151965057E79A8338541A10 /* Pods_Hundred.framework */; };
 /* End PBXBuildFile section */
@@ -113,6 +115,7 @@
 		4964C90925237B870093DAE0 /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
 		4964C90D252388C90093DAE0 /* ParentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentViewController.swift; sourceTree = "<group>"; };
 		496991292527C31400DC86F7 /* PriceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceCell.swift; sourceTree = "<group>"; };
+		496D240D252BEA3200D404CB /* HistoryTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryTableViewController.swift; sourceTree = "<group>"; };
 		49795B7524DC864000D27111 /* EntryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryViewController.swift; sourceTree = "<group>"; };
 		497DC78324EA15A800446178 /* NewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewViewController.swift; sourceTree = "<group>"; };
 		49812F1B2503033700F2BBCB /* Hundred.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Hundred.entitlements; sourceTree = "<group>"; };
@@ -162,6 +165,7 @@
 		49ED332725114BBF006FE080 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		49F1B1E924FB21B8006D6887 /* CalendarDetailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDetailTableViewController.swift; sourceTree = "<group>"; };
 		49F1B1EB24FB34BA006D6887 /* CalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCell.swift; sourceTree = "<group>"; };
+		49F8B0B8252BD81600C37BCF /* UserProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewController.swift; sourceTree = "<group>"; };
 		49FD8FFE250EF7B100B60360 /* UserDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDetailViewController.swift; sourceTree = "<group>"; };
 		A27ACB2AB86EC0276A9D5E1C /* Pods-Hundred.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hundred.debug.xcconfig"; path = "Target Support Files/Pods-Hundred/Pods-Hundred.debug.xcconfig"; sourceTree = "<group>"; };
 		E151965057E79A8338541A10 /* Pods_Hundred.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Hundred.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -324,6 +328,8 @@
 			children = (
 				491A661F2509947300B659CB /* UsersViewController.swift */,
 				49FD8FFE250EF7B100B60360 /* UserDetailViewController.swift */,
+				49F8B0B8252BD81600C37BCF /* UserProfileViewController.swift */,
+				496D240D252BEA3200D404CB /* HistoryTableViewController.swift */,
 			);
 			path = "Public Feed";
 			sourceTree = "<group>";
@@ -517,6 +523,8 @@
 				49795B7624DC864000D27111 /* EntryViewController.swift in Sources */,
 				49854965251C01F80096444D /* Subscription+CoreDataProperties.swift in Sources */,
 				495F907A2526624D007ECBCA /* EditProfile.swift in Sources */,
+				496D240E252BEA3200D404CB /* HistoryTableViewController.swift in Sources */,
+				49F8B0B9252BD81600C37BCF /* UserProfileViewController.swift in Sources */,
 				49E9631224FC8FA10041239B /* SpinnerViewController.swift in Sources */,
 				49854962251C01F80096444D /* Profile+CoreDataClass.swift in Sources */,
 				49C70D732501940D000BC383 /* LocationSearchViewController.swift in Sources */,

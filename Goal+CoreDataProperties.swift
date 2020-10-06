@@ -19,7 +19,6 @@ extension Goal {
 
     @NSManaged public var date: Date
     @NSManaged public var detail: String?
-    @NSManaged public var lastUpdatedDate: Date?
     @NSManaged public var longestStreak: Int16
     @NSManaged public var metrics: [String]?
     @NSManaged public var streak: Int16

@@ -6,6 +6,11 @@
 //  Copyright © 2020 J. All rights reserved.
 //
 
+/*
+ Abstract:
+ Imports the Goal entity from Core Data
+ */
+
 import UIKit
 import CoreData
 
