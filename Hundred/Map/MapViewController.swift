@@ -22,6 +22,7 @@ class MapViewController: UIViewController {
 
         mapView.delegate = self
         
+        configureUI()
         checkLocationServices()
         configureLocationSearch()
         
@@ -37,6 +38,17 @@ class MapViewController: UIViewController {
 //        locationManager.delegate = self
 //        locationManager.desiredAccuracy = kCLLocationAccuracyBest
 //    }
+    
+    func configureUI() {
+        if #available(iOS 13.0, *) {
+            // Always adopt a light interface style.
+            overrideUserInterfaceStyle = .light
+        }
+        
+        navigationController?.navigationBar.barTintColor = UIColor.white
+        navigationController?.navigationBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.black]
+        navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black]
+    }
     
     func configureLocationSearch() {
         // Set up the search results table

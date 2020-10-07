@@ -88,7 +88,7 @@ struct ButtonCreator {
 // 36. app image for subscription notification 
 // 37. the bookmark is determined by wrong subscription - done
 // 38. check the duplicate usernames
-// 39. delete public cloud from detailVC
+// 39. delete public cloud from detailVC - done
 
 //Thread 1: Fatal error: Unresolved error Error Domain=NSCocoaErrorDomain Code=134060 "A Core Data error occurred." UserInfo={NSLocalizedFailureReason=CloudKit integration requires that the value transformers for transformable attributes are available via +[NSValueTransformer valueTransformerForName:], return instances of NSData, and allow reverse transformation:
 //Goal: metrics - Claims to return instances of nil}, ["NSLocalizedFailureReason": CloudKit integration requires that the value transformers for transformable

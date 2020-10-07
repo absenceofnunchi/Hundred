@@ -184,6 +184,7 @@ struct Cells {
     static let FAQCell = "FAQCell"
     static let priceCell = "PriceCell"
     static let purchases = "purchases"
+    static let cell = "Cell"
 }
 
 struct UnitConversion {

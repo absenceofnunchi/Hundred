@@ -148,6 +148,11 @@ extension ProductIdentifiers {
 fileprivate var grayBackground: UIView?
 
 extension UIViewController {
+//    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+//        super.traitCollectionDidChange(previousTraitCollection)
+//        // your implementation here.
+//    }
+//    
     
     func addCard<T: UIView>(text: String, subItem: T, stackView: UIStackView, containerHeight: CGFloat? = 20, bottomSpacing: CGFloat? = 60, insert: Int? = nil, tag: Int? = 1, topInset: CGFloat? = 30, bottomInset: CGFloat? = -30, widthMultiplier: CGFloat? = 0.8, isShadowBorder: Bool? = true) {
         let container = UIView()
@@ -192,7 +197,7 @@ extension UIViewController {
         
         container.addSubview(subItem)
         
-        subItem.backgroundColor = .white
+        subItem.backgroundColor = UIColor.white
         subItem.translatesAutoresizingMaskIntoConstraints = false
         subItem.topAnchor.constraint(equalTo: label.bottomAnchor, constant: topInset ?? 30).isActive = true
         subItem.widthAnchor.constraint(equalTo: container.widthAnchor, multiplier: widthMultiplier ?? 0.8).isActive = true
@@ -640,25 +645,6 @@ extension UIViewController {
             }
         }
         
-//        if let url = self.pListURL() {
-//            if FileManager.default.fileExists(atPath: url.path) {
-//                do {
-//                    let dataContent = try Data(contentsOf: url)
-//                    if var dict = try PropertyListSerialization.propertyList(from: dataContent, format: nil) as? [String: [String: Int]] {
-//                        if var count = dict[progress.goal.title]?[formattedDate] {
-//                            if count > 0 {
-//                                count -= 1
-//                                dict[progress.goal.title]?[formattedDate] = count
-//                                self.write(dictionary: dict)
-//                            }
-//                        }
-//                    }
-//                } catch {
-//                    print("error :\(error.localizedDescription)")
-//                }
-//            }
-//        }
-        
         self.context.delete(progress)
         self.saveContext()
         
@@ -759,6 +745,7 @@ extension UIViewController {
         }
         return result as? Profile
     }
+
 }
 
 // MARK: - UILabelTheme
@@ -937,6 +924,15 @@ extension Date {
         let seconds = TimeInterval(timezone.secondsFromGMT(for: self))
         return Date(timeInterval: seconds, since: self)
     }
+    
+    // initialize with year, month, and day
+    init(_ year:Int, _ month: Int, _ day: Int) {
+        var dateComponents = DateComponents()
+        dateComponents.year = year
+        dateComponents.month = month
+        dateComponents.day = day
+        self.init(timeInterval:0, since: Calendar.current.date(from: dateComponents)!)
+    }
 }
 
 // MARK: - NSUIColor
@@ -970,5 +966,21 @@ extension String {
                 String(self[substringFrom..<substringTo])
             }
         }
+    }
+}
+
+// MARK: - UINavigationController
+
+/// allows you to have an escaping closure after pushing a view controller
+extension UINavigationController {
+    public func pushViewController(_ viewController: UIViewController, animated: Bool, completion: @escaping () -> Void) {
+        pushViewController(viewController, animated: animated)
+
+        guard animated, let coordinator = transitionCoordinator else {
+            DispatchQueue.main.async { completion() }
+            return
+        }
+
+        coordinator.animate(alongsideTransition: nil) { _ in completion() }
     }
 }

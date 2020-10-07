@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import Network
+import CloudKit
 
 class CreateProfile: ProfileBaseViewController {
     @IBOutlet weak var scrollView: UIScrollView!
@@ -131,22 +133,61 @@ class CreateProfile: ProfileBaseViewController {
     @objc func buttonPressed(sender: UIButton!) {
         switch sender.tag {
         case 1:
-            if let usernameText = userTextField.text, !usernameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                let profile = Profile(context: self.context)
-                if let imageName = imageName {
-                    profile.image = imageName
-                }
-                profile.username = userTextField.text
-                if let desc = descTextView.text {
-                    profile.detail = desc
-                }
-                profile.userId = UUID().uuidString
+            // Done button pressed to create the profile
+            if let usernameText = self.userTextField.text, !usernameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                // Ensure the iCloud account and the network availability before checking for the username duplicate
+                guard isICloudContainerAvailable() == true else { return }
+                let monitor = NWPathMonitor()
+                let queue = DispatchQueue(label: "Monitor")
+                monitor.start(queue: queue)
+                monitor.pathUpdateHandler = { path in
+                    if path.status == .satisfied {
+                        let publicDatabase = CKContainer.default().publicCloudDatabase
+                        let predicate: NSPredicate!
+                        predicate = NSPredicate(format: "username == %@", usernameText)
+                        
+                        let query =  CKQuery(recordType: "Progress", predicate: predicate)
+                        
+                        let configuration = CKQueryOperation.Configuration()
+                        configuration.allowsCellularAccess = true
+                        configuration.qualityOfService = .userInitiated
+                        
+                        let queryOperation = CKQueryOperation(query: query)
+                        queryOperation.desiredKeys = ["username"]
+                        queryOperation.queuePriority = .veryHigh
+                        queryOperation.configuration = configuration
+                        queryOperation.resultsLimit = 1
+                        queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
+                            if let record = record {
+                                DispatchQueue.main.async {
+                                    print("record result -----: \(record)")
+                                    
+                                }
+                            }
+                        }
+                        
+                        publicDatabase.add(queryOperation)
+                        monitor.cancel()
+//                        let profile = Profile(context: self.context)
+//                        if let imageName = self.imageName {
+//                            profile.image = imageName
+//                        }
+//                        profile.username = self.userTextField.text
+//                        if let desc = self.descTextView.text {
+//                            profile.detail = desc
+//                        }
+//                        profile.userId = UUID().uuidString
+//
+//                        self.saveContext()
+//                        
+//                        self.delegate?.runFetchProfile()
 
-                self.saveContext()
-                
-                delegate?.runFetchProfile()
-            } else {
-                alert(with: Messages.status, message: Messages.emptyUsername)
+                    } else {
+                        self.alert(with: Messages.networkError, message: Messages.noNetwork)
+                    }
+                }
+            }else {
+                self.alert(with: Messages.status, message: Messages.emptyUsername)
             }
         case 2:
             let ac = UIAlertController(title: "Pick an image", message: nil, preferredStyle: .actionSheet)

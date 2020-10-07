@@ -52,6 +52,14 @@ class FeedbackViewController: UIViewController {
     
     func configureUI() {
         title = "Feedback"
+        if #available(iOS 13.0, *) {
+            // Always adopt a light interface style.
+            overrideUserInterfaceStyle = .light
+        }
+        
+        navigationController?.navigationBar.barTintColor = UIColor.white
+        navigationController?.navigationBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.black]
+        navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black]
         
         view.insertSubview(self.imageView, at: 0)
         imageView.pin(to: self.view)

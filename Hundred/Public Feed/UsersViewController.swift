@@ -6,48 +6,82 @@
 //  Copyright © 2020 J. All rights reserved.
 //
 
+/*
+ Abstract:
+ The table view to display the entries on Public Feed, which is the public cloud container.
+ By default, the query is done without any predicates, but an option is provided to filter your own public entries only.
+ The detail of each cell is linked to UserDetailViewController.
+ */
+
 import UIKit
 import CloudKit
 import CoreData
 import Network
 
 class UsersViewController: UITableViewController {
-    var users = [CKRecord]()
+    @IBOutlet weak var searchBar: UISearchBar!
+    fileprivate var users = [CKRecord]()
     var userId: String?
-    var utility = Utilities()
-
+    fileprivate var utility = Utilities()
+    fileprivate var accessoryDoneButton: UIBarButtonItem!
+    fileprivate let accessoryToolBar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureUI()
         if userId != nil {
-            fetchPublicFeed(userId: userId)
+            fetchPublicFeed(userId: userId, searchWord: nil)
         } else {
-            fetchPublicFeed(userId: nil)
+            fetchPublicFeed(userId: nil, searchWord: nil)
         }
+        
+        searchBar.delegate = self
     }
 
+    // MARK: - Configure UI
+    
     func configureUI() {
         title = "Public Feed"
+        if #available(iOS 13.0, *) {
+            // Always adopt a light interface style.
+            overrideUserInterfaceStyle = .light
+        }
+        
+        navigationController?.navigationBar.barTintColor = UIColor.white
+        navigationController?.navigationBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.black]
+        navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black]
         
         tableView.register(UserCell.self, forCellReuseIdentifier: Cells.userCell)
         tableView.separatorStyle = .none
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 250
         
+        // for peek and pop of each cell
         let inter = UIContextMenuInteraction(delegate: self)
         self.view.addInteraction(inter)
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refreshFetch))
-        if userId == nil {
-            navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), style: .plain, target: self, action: #selector(filterFeed))
-        }
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), style: .plain, target: self, action: #selector(filterFeed))
+
+        // The dismiss button for the keyboard when the search bar is being used
+        accessoryDoneButton = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(closePressed))
+        accessoryToolBar.items = [accessoryDoneButton]
+        searchBar.inputAccessoryView = accessoryToolBar
     }
     
+    // Dismissing the keyboard when using the search bar
+    @objc func closePressed() {
+        view.endEditing(true)
+    }
+    
+    // MARK: - Filter Feed
+    
+    /// filter between all users or my own posting only
     @objc func filterFeed() {
         let ac = UIAlertController(title: "Filter", message: nil, preferredStyle: .actionSheet)
         ac.addAction(UIAlertAction(title: "All", style: .default, handler: { (_) in
-            self.fetchPublicFeed(userId: nil)
+            self.fetchPublicFeed(userId: nil, searchWord: nil)
             DispatchQueue.main.async {
                 self.title = "Public Feed"
             }
@@ -56,7 +90,7 @@ class UsersViewController: UITableViewController {
         
         ac.addAction(UIAlertAction(title: "My Public Entries Only", style: .default, handler: { (_) in
             if let profile = self.fetchProfile() {
-                self.fetchPublicFeed(userId: profile.userId)
+                self.fetchPublicFeed(userId: profile.userId, searchWord: nil)
                 DispatchQueue.main.async {
                     self.title = "My Entries Only"
                 }
@@ -77,7 +111,7 @@ class UsersViewController: UITableViewController {
         })
     }
     
-    func fetchPublicFeed(userId: String?) {
+    func fetchPublicFeed(userId: String?, searchWord: String?) {
         self.users.removeAll()
         tableView.reloadData()
         let monitor = NWPathMonitor()
@@ -89,6 +123,10 @@ class UsersViewController: UITableViewController {
                 let predicate: NSPredicate!
                 if let userId = userId {
                     predicate = NSPredicate(format: "userId == %@", userId)
+                } else if let searchWord = searchWord, !searchWord.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                      predicate = NSPredicate(format: "%K BEGINSWITH %@", "goal", searchWord)
+//                    let usernamePredicate = NSPredicate(format: "username == %@", searchWord.lowercased())
+//                    predicate = NSPredicate(format: "title == %@ OR username == %@", searchWord.lowercased(), searchWord.lowercased())
                 } else {
                     predicate = NSPredicate(value: true)
                 }
@@ -103,10 +141,11 @@ class UsersViewController: UITableViewController {
                 queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image", "longitude", "latitude", "username", "userId", "entryCount", "profileImage", "profileDetail"]
                 queryOperation.queuePriority = .veryHigh
                 queryOperation.configuration = configuration
-                queryOperation.resultsLimit = 50
+                queryOperation.resultsLimit = 30
                 queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
                     if let record = record {
                         DispatchQueue.main.async {
+                            print("record result -----: \(record)")
                             self.users.append(record)
                         }
                     }
@@ -152,19 +191,21 @@ class UsersViewController: UITableViewController {
 }
 
 // MARK: - Table view data source
+
 extension UsersViewController: UIContextMenuInteractionDelegate {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return users.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "UserCell", for: indexPath) as! UserCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: Cells.userCell, for: indexPath) as! UserCell
         let user: CKRecord! = users[indexPath.row]
         cell.set(user: user)
         cell.selectionStyle = .none
 
         return cell
     }
+    
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let user = users[indexPath.row]
@@ -263,7 +304,7 @@ extension UsersViewController: UIContextMenuInteractionDelegate {
     }
     
     @objc func refreshFetch() {
-        fetchPublicFeed(userId: userId)
+        fetchPublicFeed(userId: userId, searchWord: nil)
         
         let spinner = UIActivityIndicatorView(style: .medium)
         spinner.tintColor = UIColor.black
@@ -275,19 +316,15 @@ extension UsersViewController: UIContextMenuInteractionDelegate {
             spinner.stopAnimating()
             self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(self.refreshFetch))
         }
-        
     }
 }
 
-extension UINavigationController {
-    public func pushViewController(_ viewController: UIViewController, animated: Bool, completion: @escaping () -> Void) {
-        pushViewController(viewController, animated: animated)
+// MARK: - UISearchBarDelegate
 
-        guard animated, let coordinator = transitionCoordinator else {
-            DispatchQueue.main.async { completion() }
-            return
+extension UsersViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText.count == 0 || searchText.count > 2 {
+            fetchPublicFeed(userId: nil, searchWord: searchText)
         }
-
-        coordinator.animate(alongsideTransition: nil) { _ in completion() }
     }
 }

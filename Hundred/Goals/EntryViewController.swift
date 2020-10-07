@@ -75,7 +75,6 @@ class EntryViewController: UIViewController, ChartViewDelegate {
     private lazy var calendarHeatMap: CalendarHeatmap = {
         var config = CalendarHeatmapConfig()
         config.backgroundColor = UIColor(ciColor: .white)
-        //        config.backgroundColor = UIColor(red: 252/255, green: 252/255, blue: 252/255, alpha: 1.0)
         // config item
         config.selectedItemBorderColor = .white
         config.allowItemSelection = true
@@ -139,12 +138,19 @@ class EntryViewController: UIViewController, ChartViewDelegate {
         
         configureUI()
         setConstraints()
-        
-        print("progress.recordName: -------------------- \(String(describing: progress.recordName))")
     }
     
     func configureUI() {
         title = progress.goal.title
+        
+        if #available(iOS 13.0, *) {
+            // Always adopt a light interface style.
+            overrideUserInterfaceStyle = .light
+        }
+        
+        navigationController?.navigationBar.barTintColor = UIColor.white
+        navigationController?.navigationBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.black]
+        navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black]
         
         scrollView.addSubview(imageView)
         stackView.addArrangedSubview(dateLabel)
@@ -271,22 +277,7 @@ class EntryViewController: UIViewController, ChartViewDelegate {
         }
         
         NSLayoutConstraint.activate(imageConstraints)
-        
-//        if progress.image != nil {
-//            imageView.translatesAutoresizingMaskIntoConstraints = false
-//            imageView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-//            imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
-//            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, constant: 9/16).isActive = true
-//            stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20).isActive = true
-//            if uiImage.size.width > uiImage.size.height {
-//                imageView.contentMode = .scaleAspectFit
-//            } else {
-//                imageView.contentMode = .scaleAspectFill
-//            }
-//        } else {
-//            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-//        }
-        
+
         stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
         stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
         stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
@@ -384,19 +375,9 @@ class EntryViewController: UIViewController, ChartViewDelegate {
     }
     
 
-    
     func deleteEntry() {
         deleteSingleItem(progress: self.progress)
-        
         self.navigationController?.popToRootViewController(animated: true)
-        
-//                if let indexPathRow = self.indexPathRow {
-//                    if let vc = (tabBarController?.viewControllers?[0] as? UINavigationController)?.topViewController as? DetailTableViewController {
-//                        vc.progresses.remove(at: indexPathRow)
-//                        vc.tableView.deleteRows(at: [self.indexPath], with: .fade)
-//                        _ = self.navigationController?.popViewController(animated: true)
-//                    }
-//                }
     }
 }
 
@@ -453,10 +434,6 @@ extension EntryViewController: MKMapViewDelegate {
     }
 }
 
-protocol CallBackDelegate {
-    func callBack(value: Progress, location: CLLocationCoordinate2D?, locationLabel: String?)
-}
-
 extension EntryViewController: CallBackDelegate {
     func callBack(value: Progress, location: CLLocationCoordinate2D?, locationLabel: String?) {
         progress = value
@@ -472,21 +449,6 @@ extension EntryViewController: CallBackDelegate {
             let region = MKCoordinateRegion(center: location, span: span)
             mapView.setRegion(region, animated: true)
         }
-        
-//        if stackView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive == true {
-//            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = false
-//        } else {
-////            NSLayoutConstraint.deactivate([
-////                imageView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-////                imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-////                imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, constant: 9/16),
-////                stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20)
-////            ])
-//            imageView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = false
-//            imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = false
-//            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, constant: 9/16).isActive = false
-//            stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20).isActive = false
-//        }
 
         NSLayoutConstraint.deactivate(imageConstraints)
         

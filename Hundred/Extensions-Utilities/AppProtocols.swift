@@ -68,3 +68,10 @@ protocol PassProfileProtocol: AnyObject {
 protocol HandleLocation {
     func fetchPlacemark(placemark: MKPlacemark)
 }
+
+// MARK: - CallBackDelegeat
+
+/// for EntryVC
+protocol CallBackDelegate {
+    func callBack(value: Progress, location: CLLocationCoordinate2D?, locationLabel: String?)
+}

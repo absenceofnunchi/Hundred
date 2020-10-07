@@ -28,6 +28,15 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
     }
     
     func configureTableView() {
+        if #available(iOS 13.0, *) {
+            // Always adopt a light interface style.
+            overrideUserInterfaceStyle = .light
+        }
+        
+        navigationController?.navigationBar.barTintColor = UIColor.white
+        navigationController?.navigationBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.black]
+        navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black]
+        
         title = "Goals"
         
         tableView.register(GoalCell.self, forCellReuseIdentifier: Cells.goalCell)
@@ -73,6 +82,7 @@ class GoalsTableViewController: UITableViewController, NSFetchedResultsControlle
 }
 
 // MARK: - Table view data source
+
 extension GoalsTableViewController {
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -220,34 +230,9 @@ extension GoalsTableViewController {
     }
 }
 
-extension UIViewController {
-    func configureNavigationBar(largeTitleColor: UIColor, backgoundColor: UIColor, tintColor: UIColor, title: String, preferredLargeTitle: Bool) {
-        if #available(iOS 13.0, *) {
-            let navBarAppearance = UINavigationBarAppearance()
-            navBarAppearance.configureWithOpaqueBackground()
-            navBarAppearance.largeTitleTextAttributes = [.foregroundColor: largeTitleColor]
-            navBarAppearance.titleTextAttributes = [.foregroundColor: largeTitleColor]
-            navBarAppearance.backgroundColor = backgoundColor
-            
-            navigationController?.navigationBar.standardAppearance = navBarAppearance
-            navigationController?.navigationBar.compactAppearance = navBarAppearance
-            navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
-            
-            navigationController?.navigationBar.prefersLargeTitles = preferredLargeTitle
-            navigationController?.navigationBar.isTranslucent = false
-            navigationController?.navigationBar.tintColor = tintColor
-            navigationItem.title = title
-            
-        } else {
-            // Fallback on earlier versions
-            navigationController?.navigationBar.barTintColor = backgoundColor
-            navigationController?.navigationBar.tintColor = tintColor
-            navigationController?.navigationBar.isTranslucent = false
-            navigationItem.title = title
-        }
-    }
-}
+// MARK: - UIContextMenuInteractionDelegate
 
+/// Editing and deleting interaction with the a swipe
 extension GoalsTableViewController: UIContextMenuInteractionDelegate {
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
         return nil
@@ -255,11 +240,6 @@ extension GoalsTableViewController: UIContextMenuInteractionDelegate {
     
     override func tableView(_ tableView: UITableView,contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         guard let goal = fetchedResultsController?.object(at: indexPath) else { return nil }
-        
-        // Create a UIAction for sharing
-        let share = UIAction(title: "Share", image: UIImage(systemName: "square.and.arrow.up")) { action in
-            // Show system share sheet
-        }
         
         let edit = UIAction(title: "Edit", image: UIImage(systemName: "square.and.pencil")) { action in
             self.editAction(goal: goal)
@@ -281,22 +261,7 @@ extension GoalsTableViewController: UIContextMenuInteractionDelegate {
         }
         
         return UIContextMenuConfiguration(identifier: "DetailPreview" as NSString, previewProvider: { getPreviewVC(indexPath: indexPath) }) { _ in
-            UIMenu(title: "", children: [share, edit, delete])
+            UIMenu(title: "", children: [edit, delete])
         }
     }
 }
-
-
-
-extension Date {
-    init(_ year:Int, _ month: Int, _ day: Int) {
-        var dateComponents = DateComponents()
-        dateComponents.year = year
-        dateComponents.month = month
-        dateComponents.day = day
-        self.init(timeInterval:0, since: Calendar.current.date(from: dateComponents)!)
-    }
-}
-
-
-

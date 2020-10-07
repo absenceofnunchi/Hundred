@@ -50,6 +50,12 @@ class ParentViewController: UIViewController {
         
         // Fetch product information.
         fetchProductInformation()
+        
+        if #available(iOS 13.0, *) {
+            // Always adopt a light interface style.
+            overrideUserInterfaceStyle = .light
+        }
+
     }
     
     // MARK: - Switching Between View Controllers

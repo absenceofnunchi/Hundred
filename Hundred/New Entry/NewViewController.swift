@@ -413,7 +413,14 @@ class NewViewController: UIViewController {
     }
     
     func configureUI() {
-        navigationController?.title = "New Entry"
+        if #available(iOS 13.0, *) {
+            // Always adopt a light interface style.
+            overrideUserInterfaceStyle = .light
+        }
+        
+        navigationController?.navigationBar.barTintColor = UIColor.white
+        navigationController?.navigationBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.black]
+        navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black]
         
         plusButton = createButton(title: nil, image: "plus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 2, selector: #selector(buttonPressed))
         minusButton = createButton(title: nil, image: "minus.square.fill", cornerRadius: 0, color: UIColor(red: 102/255, green: 102/255, blue: 255/255, alpha: 1.0), size: 30, tag: 3, selector: #selector(buttonPressed))
@@ -538,41 +545,36 @@ class NewViewController: UIViewController {
     @objc func switchValueDidChange(sender: UISwitch!) {
         // toggle on
         if sender.isOn {
-            if let profile = self.fetchProfile() {
-                self.profile = profile
-                self.isPublic = true
+            if isICloudContainerAvailable() == true {
+                // check to see if the receipt from App Store exists and, if it does, whether the expiry date has passed
+                getAppReceipt { (isValid) in
+                    if isValid {
+                        // the receipt's expiry date hasn't passed so check for Profile
+                        if let profile = self.fetchProfile() {
+                            self.profile = profile
+                            self.isPublic = true
+                            print("1")
+                        } else {
+                            // Profile doesn't exist so offer to create one
+                            self.isPublic = false
+                            DispatchQueue.main.async {
+                                self.switchControl.setOn(false, animated: false)
+                                self.alertForUsername()
+                            }
+                        }
+                    } else {
+                        // the renewable subscription has expired
+                        self.isPublic = false
+
+                        DispatchQueue.main.async {
+                            if let vc = self.storyboard?.instantiateViewController(identifier: "parent") as? ParentViewController {
+                                self.switchControl.setOn(false, animated: false)
+                                self.navigationController?.pushViewController(vc, animated: true)
+                            }
+                        }
+                    }
+                }
             }
-            
-//            if isICloudContainerAvailable() == true {
-//                // check to see if the receipt from App Store exists and, if it does, whether the expiry date has passed
-//                getAppReceipt { (isValid) in
-//                    if isValid {
-//                        // the receipt's expiry date hasn't passed so check for Profile
-//                        if let profile = self.fetchProfile() {
-//                            self.profile = profile
-//                            self.isPublic = true
-//                            print("1")
-//                        } else {
-//                            // Profile doesn't exist so offer to create one
-//                            self.isPublic = false
-//                            DispatchQueue.main.async {
-//                                self.switchControl.setOn(false, animated: false)
-//                                self.alertForUsername()
-//                            }
-//                        }
-//                    } else {
-//                        // the renewable subscription has expired
-//                        self.isPublic = false
-//
-//                        DispatchQueue.main.async {
-//                            if let vc = self.storyboard?.instantiateViewController(identifier: "parent") as? ParentViewController {
-//                                self.switchControl.setOn(false, animated: false)
-//                                self.navigationController?.pushViewController(vc, animated: true)
-//                            }
-//                        }
-//                    }
-//                }
-//            }
         } else {
             // toggle off
             self.isPublic = false
@@ -1274,7 +1276,6 @@ extension NewViewController {
                         }
                     }
                 }
-                
                 self.modifyRecords(recordsToSave: recordsArr, recordIDsToDelete: nil)
             }
         }
@@ -1368,9 +1369,9 @@ extension NewViewController: SKRequestDelegate {
 }
 
 
-extension Date {
-    func yesterday() -> Date {
-        let tomorrow = Calendar.current.date(byAdding: .day, value: -1, to: self)
-        return tomorrow!
-    }
-}
+//extension Date {
+//    func yesterday() -> Date {
+//        let tomorrow = Calendar.current.date(byAdding: .day, value: -1, to: self)
+//        return tomorrow!
+//    }
+//}

@@ -15,29 +15,41 @@ class SubscriptionViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        configureUI()
+        fetchData()
+    }
+    
+    func configureUI() {
         title = "People I follow"
+        
+        if #available(iOS 13.0, *) {
+            // Always adopt a light interface style.
+            overrideUserInterfaceStyle = .light
+        }
+        
+        navigationController?.navigationBar.barTintColor = UIColor.white
+        navigationController?.navigationBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.black]
+        navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black]
+        
         let inter = UIContextMenuInteraction(delegate: self)
         self.view.addInteraction(inter)
-        
-        fetchData()
     }
     
     func fetchData() {
         let request = NSFetchRequest<Subscription>(entityName: "Subscription")
         do {
             let result = try self.context.fetch(request)
-            print("result: \(result)")
             subscriptionArr = result
             
         } catch {
-            let ac = UIAlertController(title: "Error", message: "There was an error fetching data. Please try again", preferredStyle: .alert)
+            let ac = UIAlertController(title: Messages.status, message: Messages.fetchError, preferredStyle: .alert)
             if let popoverController = ac.popoverPresentationController {
                 popoverController.sourceView = self.view
                 popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
                 popoverController.permittedArrowDirections = []
             }
             
-            ac.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { (_) in
+            ac.addAction(UIAlertAction(title: Messages.okButton, style: .cancel, handler: { (_) in
                 _ = self.navigationController?.popViewController(animated: true)
             }))
             
@@ -56,13 +68,13 @@ class SubscriptionViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: Cells.cell, for: indexPath)
         cell.textLabel?.text = subscriptionArr[indexPath.row].username
         return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if let vc = storyboard?.instantiateViewController(withIdentifier: "Users") as? UsersViewController {
+        if let vc = storyboard?.instantiateViewController(withIdentifier: ViewControllerIdentifiers.history) as? HistoryTableViewController {
             vc.userId = subscriptionArr[indexPath.row].userId
             self.navigationController?.pushViewController(vc, animated: true)
         }

@@ -6,6 +6,12 @@
 //  Copyright © 2020 J. All rights reserved.
 //
 
+/*
+ Abstract:
+ A screen to display the user's profile on Public Feed
+ It consists of the user's profile image, bio, and the history of the user's posts
+ */
+
 import UIKit
 
 class UserProfileViewController: UIViewController {
@@ -15,9 +21,16 @@ class UserProfileViewController: UIViewController {
     var detail: String?
     var userId: String!
     var image: UIImage?
-    var imageView: UIImageView!
-    var detailLabel: UILabel!
-    var detailTextView: UITextView!
+    fileprivate var imageView: UIImageView!
+    fileprivate var detailLabel: UILabel!
+    fileprivate var detailContainer: UIView!
+    fileprivate var detailTextView: UITextView!
+    lazy fileprivate var vc: HistoryTableViewController = {
+        guard let vc = storyboard?.instantiateViewController(identifier: ViewControllerIdentifiers.history) as? HistoryTableViewController
+            else { fatalError("\(Messages.unableToInstantiateProducts)") }
+        vc.userId = userId
+        return vc
+    }()
         
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,7 +40,18 @@ class UserProfileViewController: UIViewController {
         setConstraints()
     }
     
+    // MARK: - Configure UI
+    
     func configureUI() {
+        if #available(iOS 13.0, *) {
+            // Always adopt a light interface style.
+            overrideUserInterfaceStyle = .light
+        }
+        
+        navigationController?.navigationBar.barTintColor = UIColor.white
+        navigationController?.navigationBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.black]
+        navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black]
+        
         // display user's profile image
         if let image = image {
             imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
@@ -51,26 +75,30 @@ class UserProfileViewController: UIViewController {
         // personal bio title label
         detailLabel = UILabel()
         detailLabel.text = "Bio"
-        detailLabel.textAlignment = .left
-        detailLabel.font = UIFont.caption.with(weight: .bold)
+        detailLabel.textAlignment = .center
+        detailLabel.font = UIFont.body.with(weight: .bold)
         detailLabel.textColor = .gray
         scrollView.addSubview(detailLabel)
+        
+        // bio container as in inset + shadow
+        detailContainer = UIView()
+        BorderStyle.customShadowBorder(for: detailContainer)
+        scrollView.addSubview(detailContainer)
         
         // personal bio
         detailTextView = UITextView()
         detailTextView.isEditable = false
         detailTextView.font = UIFont.body
-        BorderStyle.customShadowBorder(for: detailTextView)
-//        detailTextView.layer.borderWidth = 1
-//        detailTextView.layer.cornerRadius = 7
-//        detailTextView.layer.borderColor = UIColor.lightGray.cgColor
+        detailTextView.isScrollEnabled = true
+        detailTextView.clipsToBounds = true
         detailTextView.text = detail ?? "User has no bio"
-        scrollView.addSubview(detailTextView)
+        detailContainer.addSubview(detailTextView)
     }
     
-    func configureTableVC() {        
-        guard let vc = storyboard?.instantiateViewController(identifier: ViewControllerIdentifiers.history) as? HistoryTableViewController
-            else { fatalError("\(Messages.unableToInstantiateProducts)") }
+    // MARK: - Configure Table VC
+    
+    /// Table view in containment to display the user's post history
+    func configureTableVC() {
         addChild(vc)
         vc.view.translatesAutoresizingMaskIntoConstraints = false
         vc.view.frame = containerView.bounds
@@ -82,6 +110,8 @@ class UserProfileViewController: UIViewController {
         vc.didMove(toParent: self)
     }
     
+    // MARK: - Set Constraints
+
     func setConstraints() {
         // image for the profile
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -96,12 +126,18 @@ class UserProfileViewController: UIViewController {
         detailLabel.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 0.80).isActive = true
         detailLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor).isActive = true
         
+        // user detail container for detailTextView
+        detailContainer.translatesAutoresizingMaskIntoConstraints = false
+        detailContainer.topAnchor.constraint(equalTo: detailLabel.bottomAnchor, constant: 20).isActive = true
+        detailContainer.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 0.90).isActive = true
+        detailContainer.bottomAnchor.constraint(equalTo: containerView.topAnchor, constant: -40).isActive = true
+        detailContainer.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor).isActive = true
+
         // user detail
         detailTextView.translatesAutoresizingMaskIntoConstraints = false
-        detailTextView.topAnchor.constraint(equalTo: detailLabel.bottomAnchor, constant: 5).isActive = true
-        detailTextView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 0.80).isActive = true
-        detailTextView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor).isActive = true
-        detailTextView.bottomAnchor.constraint(equalTo: containerView.topAnchor, constant: -40).isActive = true
+        detailTextView.topAnchor.constraint(equalTo: detailContainer.topAnchor, constant: 5).isActive = true
+        detailTextView.widthAnchor.constraint(equalTo: detailContainer.widthAnchor, multiplier: 0.90).isActive = true
+        detailTextView.centerXAnchor.constraint(equalTo: detailContainer.centerXAnchor).isActive = true
+        detailTextView.bottomAnchor.constraint(equalTo: detailContainer.bottomAnchor).isActive = true
     }
-    
 }
