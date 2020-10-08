@@ -97,6 +97,7 @@ class ProfileViewController: UIViewController {
     fileprivate func processFetch() {
         if let profile = fetchProfile() {
             isProfileCreated = true
+            print("profilein process fetch: \(profile)")
             showProfile.profile = profile
         } else {
             isProfileCreated = false

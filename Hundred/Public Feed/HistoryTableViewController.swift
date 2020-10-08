@@ -12,9 +12,15 @@ import Network
 
 class HistoryTableViewController: UITableViewController {
     var users = [CKRecord]()
+    let desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image", "longitude", "latitude", "username", "userId", "entryCount", "profileImage", "profileDetail"]
     var userId: String! {
         didSet {
-            fetchPublicFeed(userId: userId)
+            fetchPublicFeed(userId: userId, searchWord: nil, desiredKeys: desiredKeys) { (record) in
+                self.users.append(record)
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+            }
         }
     }
     
@@ -39,68 +45,6 @@ class HistoryTableViewController: UITableViewController {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 250
     }
-
-    func fetchPublicFeed(userId: String?) {
-        self.users.removeAll()
-        tableView.reloadData()
-        let monitor = NWPathMonitor()
-        let queue = DispatchQueue(label: "Monitor")
-        monitor.start(queue: queue)
-        monitor.pathUpdateHandler = { path in
-            if path.status == .satisfied {
-                let publicDatabase = CKContainer.default().publicCloudDatabase
-                let predicate: NSPredicate!
-                if let userId = userId {
-                    predicate = NSPredicate(format: "userId == %@", userId)
-                } else {
-                    predicate = NSPredicate(value: true)
-                }
-                
-                let query =  CKQuery(recordType: "Progress", predicate: predicate)
-                
-                let configuration = CKQueryOperation.Configuration()
-                configuration.allowsCellularAccess = true
-                configuration.qualityOfService = .userInitiated
-                
-                let queryOperation = CKQueryOperation(query: query)
-                queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image", "longitude", "latitude", "username", "userId", "entryCount", "profileImage", "profileDetail"]
-                queryOperation.queuePriority = .veryHigh
-                queryOperation.configuration = configuration
-                queryOperation.resultsLimit = 20
-                queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
-                    if let record = record {
-                        DispatchQueue.main.async {
-                            print("record: \(record)")
-                            self.users.append(record)
-                        }
-                    }
-                }
-                
-                queryOperation.queryCompletionBlock = { (cursor: CKQueryOperation.Cursor?, error: Error?) -> Void in
-                    if let error = error {
-                        print("queryCompletionBlock error: \(error)")
-                        return
-                    }
-                    
-                    if let cursor = cursor {
-                        print("cursor: \(cursor)")
-                    }
-                                
-                    DispatchQueue.main.async {
-                        self.tableView.reloadData()
-                    }
-                }
-                publicDatabase.add(queryOperation)
-                monitor.cancel()
-            } else {
-                // if the network is absent
-                DispatchQueue.main.async {
-//                    self.alert(with: Messages.networkError, message: Messages.noNetwork)
-                }
-            }
-        }
-    }
-    
 }
 
 // MARK: - Table view data source

@@ -125,19 +125,6 @@ class ParentViewController: UIViewController {
         }
     }
     
-    // MARK: - Display Alert
-    
-    /// Creates and displays an alert.
-    fileprivate func alert(with title: String, message: String) {
-        let alertController = utility.alert(title, message: message)
-        if let popoverController = alertController.popoverPresentationController {
-            popoverController.sourceView = self.view
-            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
-            popoverController.permittedArrowDirections = []
-        }
-        self.navigationController?.present(alertController, animated: true, completion: nil)
-    }
-    
     // MARK: - Restore All Appropriate Purchases
     
     /// Called when tapping the "Restore" button in the UI.

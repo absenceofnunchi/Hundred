@@ -53,8 +53,8 @@ struct ButtonCreator {
 // 1. delete button - done
 // 2. image delete - done
 // 3. custom cell for goals - done
-// 4. icloud kit - needs a developer account
-// 5. keychain
+// 4. icloud kit - needs a developer account - done
+// 5. keychain - done
 // 6. spotlight - appdelegate doesn't work
 // 7. face id
 // 8. substract from plist when deleted - done
@@ -69,25 +69,25 @@ struct ButtonCreator {
 // 17. peek - done
 // 18. only show select plist per entry - done
 // 19. image corner radius
-// 20. cell animation - delays touch
-// 21. landscape pie chart
-// 22. delete the images in ios directory
+// 20. cell animation - delays touch - done
+// 21. landscape pie chart - done
+// 22. delete the images in ios directory - done
 // 23. fix streak
 // 24. make things background
 // 25. modified the goal from no metrics to some metrics. But since no values are added, they won't appear on modifying the entry - done
 // 26. done button when coming back from existing goals - done
-// 27. dark mode
+// 27. dark mode - done
 // 28. multiple photos - done
-// 29. cascade delete for public cloud
-// 30. reset map address
-// 31. comment textview is squished for public feed when empty
+// 29. cascade delete for public cloud - done
+// 30. reset map address - done
+// 31. comment textview is squished for public feed when empty - done
 // 32. FAQ page (signout, after 100, heatmap vs. bar chart unit)
 // 33. fetching more than the batch size
-// 34. reupload icloud when fails
-// 35. section error when deleted from usersvc
+// 34. reupload icloud when fails - done
+// 35. section error when deleted from usersvc - done
 // 36. app image for subscription notification 
 // 37. the bookmark is determined by wrong subscription - done
-// 38. check the duplicate usernames
+// 38. check the duplicate usernames - done
 // 39. delete public cloud from detailVC - done
 
 //Thread 1: Fatal error: Unresolved error Error Domain=NSCocoaErrorDomain Code=134060 "A Core Data error occurred." UserInfo={NSLocalizedFailureReason=CloudKit integration requires that the value transformers for transformable attributes are available via +[NSValueTransformer valueTransformerForName:], return instances of NSData, and allow reverse transformation:

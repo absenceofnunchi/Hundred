@@ -746,6 +746,140 @@ extension UIViewController {
         return result as? Profile
     }
 
+    func checkDuplicateUsername(usernameText: String, completion: @escaping (Bool) -> Void) {
+        var existingUsernames: [CKRecord] = []
+
+        // Ensure the iCloud account and the network availability before checking for the username duplicate
+        guard isICloudContainerAvailable() == true else { return }
+        let monitor = NWPathMonitor()
+        let queue = DispatchQueue(label: "Monitor")
+        monitor.start(queue: queue)
+        monitor.pathUpdateHandler = { path in
+            if path.status == .satisfied {
+                let publicDatabase = CKContainer.default().publicCloudDatabase
+                let predicate: NSPredicate!
+                // predicate that matches the newly input username with the existing username on the public cloud container
+                predicate = NSPredicate(format: "username == %@", usernameText)
+                let query =  CKQuery(recordType: "Progress", predicate: predicate)
+                let configuration = CKQueryOperation.Configuration()
+                configuration.allowsCellularAccess = true
+                configuration.qualityOfService = .userInitiated
+                
+                let queryOperation = CKQueryOperation(query: query)
+                queryOperation.desiredKeys = ["username"]
+                queryOperation.queuePriority = .veryHigh
+                queryOperation.configuration = configuration
+                // only needs to find one that matches the username
+                queryOperation.resultsLimit = 1
+                queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
+                    if let record = record {
+                        existingUsernames.append(record)
+                        completion(false)
+                        // if a matching username exists, show alert
+                        let username = record.object(forKey: MetricAnalytics.username.rawValue) as? String
+                        DispatchQueue.main.async {
+                            self.alert(with: Messages.duplicateUsername, message: "Sorry, \(username ?? "the username") is already taken.")
+                        }
+                    }
+                }
+                
+                queryOperation.queryCompletionBlock = { (cursor: CKQueryOperation.Cursor?, error: Error?) -> Void in
+                    if let error = error {
+                        print("queryCompletionBlock error: \(error)")
+                        self.alert(with: "", message: Messages.networkError)
+                        return
+                    }
+                    
+                    print("completion")
+                    if existingUsernames.count == 0 {
+                        completion(true)
+                        print("completion inside ")
+                    }
+                }
+                
+                publicDatabase.add(queryOperation)
+                monitor.cancel()
+            } else {
+                monitor.cancel()
+                self.alert(with: Messages.networkError, message: Messages.noNetwork)
+            }
+        }
+    }
+    
+    // MARK: - Display Alert
+    
+    /// Creates and displays an alert.
+    func alert(with title: String, message: String) {
+        let utility = Utilities()
+        
+        DispatchQueue.main.async {
+            let alertController = utility.alert(title, message: message)
+            if let popoverController = alertController.popoverPresentationController {
+                popoverController.sourceView = self.view
+                popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                popoverController.permittedArrowDirections = []
+            }
+            self.navigationController?.present(alertController, animated: true, completion: nil)
+        }
+    }
+    
+    // MARK: - Fetch Public Feed
+    
+    /// In UsersVC, HistoryTableVC
+    func fetchPublicFeed(userId: String?, searchWord: String?, desiredKeys: [String], completion: @escaping (CKRecord) -> Void) {
+        let monitor = NWPathMonitor()
+        let queue = DispatchQueue(label: "Monitor")
+        monitor.start(queue: queue)
+        monitor.pathUpdateHandler = { path in
+            if path.status == .satisfied {
+                let publicDatabase = CKContainer.default().publicCloudDatabase
+                let predicate: NSPredicate!
+                if let userId = userId {
+                    predicate = NSPredicate(format: "userId == %@", userId)
+                } else if let searchWord = searchWord, !searchWord.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                      predicate = NSPredicate(format: "%K BEGINSWITH %@", "goal", searchWord)
+//                    let usernamePredicate = NSPredicate(format: "username == %@", searchWord.lowercased())
+//                    predicate = NSPredicate(format: "title == %@ OR username == %@", searchWord.lowercased(), searchWord.lowercased())
+                } else {
+                    predicate = NSPredicate(value: true)
+                }
+                
+                let query =  CKQuery(recordType: "Progress", predicate: predicate)
+                let configuration = CKQueryOperation.Configuration()
+                configuration.allowsCellularAccess = true
+                configuration.qualityOfService = .userInitiated
+                
+                let queryOperation = CKQueryOperation(query: query)
+                queryOperation.desiredKeys = desiredKeys
+                queryOperation.queuePriority = .veryHigh
+                queryOperation.configuration = configuration
+                queryOperation.resultsLimit = 30
+                queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
+                    if let record = record {
+                        completion(record)
+                    }
+                }
+                
+                queryOperation.queryCompletionBlock = { (cursor: CKQueryOperation.Cursor?, error: Error?) -> Void in
+                    if let error = error {
+                        print("queryCompletionBlock error: \(error)")
+                        return
+                    }
+                    
+                    if let cursor = cursor {
+                    }
+                }
+                publicDatabase.add(queryOperation)
+                monitor.cancel()
+            } else {
+                // if the network is absent
+                DispatchQueue.main.async {
+                    self.alert(with: Messages.networkError, message: Messages.noNetwork)
+                }
+                monitor.cancel()
+            }
+        }
+    }
 }
 
 // MARK: - UILabelTheme

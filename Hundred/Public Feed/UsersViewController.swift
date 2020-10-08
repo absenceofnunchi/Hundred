@@ -25,15 +25,19 @@ class UsersViewController: UITableViewController {
     fileprivate var utility = Utilities()
     fileprivate var accessoryDoneButton: UIBarButtonItem!
     fileprivate let accessoryToolBar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
+    fileprivate let desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image", "longitude", "latitude", "username", "userId", "entryCount", "profileImage", "profileDetail"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureUI()
-        if userId != nil {
-            fetchPublicFeed(userId: userId, searchWord: nil)
-        } else {
-            fetchPublicFeed(userId: nil, searchWord: nil)
+
+        self.users.removeAll()
+        fetchPublicFeed(userId: nil, searchWord: nil, desiredKeys: desiredKeys) { (record) in
+            self.users.append(record)
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
         }
         
         searchBar.delegate = self
@@ -81,7 +85,17 @@ class UsersViewController: UITableViewController {
     @objc func filterFeed() {
         let ac = UIAlertController(title: "Filter", message: nil, preferredStyle: .actionSheet)
         ac.addAction(UIAlertAction(title: "All", style: .default, handler: { (_) in
-            self.fetchPublicFeed(userId: nil, searchWord: nil)
+            self.userId = nil
+            self.users.removeAll()
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+            self.fetchPublicFeed(userId: nil, searchWord: nil, desiredKeys: self.desiredKeys) { (record) in
+                self.users.append(record)
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+            }
             DispatchQueue.main.async {
                 self.title = "Public Feed"
             }
@@ -90,10 +104,17 @@ class UsersViewController: UITableViewController {
         
         ac.addAction(UIAlertAction(title: "My Public Entries Only", style: .default, handler: { (_) in
             if let profile = self.fetchProfile() {
-                self.fetchPublicFeed(userId: profile.userId, searchWord: nil)
-                DispatchQueue.main.async {
-                    self.title = "My Entries Only"
+                self.userId = profile.userId
+                self.users.removeAll()
+                self.tableView.reloadData()
+                self.fetchPublicFeed(userId: self.userId, searchWord: nil, desiredKeys: self.desiredKeys) { (record) in
+                    self.users.append(record)
+                    print("self users: \(self.users)")
+                    DispatchQueue.main.async {
+                        self.tableView.reloadData()
+                    }
                 }
+                self.title = "My Entries Only"
             } else {
                 self.alert(with: Messages.status, message: Messages.noProfileCreated)
             }
@@ -111,83 +132,6 @@ class UsersViewController: UITableViewController {
         })
     }
     
-    func fetchPublicFeed(userId: String?, searchWord: String?) {
-        self.users.removeAll()
-        tableView.reloadData()
-        let monitor = NWPathMonitor()
-        let queue = DispatchQueue(label: "Monitor")
-        monitor.start(queue: queue)
-        monitor.pathUpdateHandler = { path in
-            if path.status == .satisfied {
-                let publicDatabase = CKContainer.default().publicCloudDatabase
-                let predicate: NSPredicate!
-                if let userId = userId {
-                    predicate = NSPredicate(format: "userId == %@", userId)
-                } else if let searchWord = searchWord, !searchWord.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                      predicate = NSPredicate(format: "%K BEGINSWITH %@", "goal", searchWord)
-//                    let usernamePredicate = NSPredicate(format: "username == %@", searchWord.lowercased())
-//                    predicate = NSPredicate(format: "title == %@ OR username == %@", searchWord.lowercased(), searchWord.lowercased())
-                } else {
-                    predicate = NSPredicate(value: true)
-                }
-                
-                let query =  CKQuery(recordType: "Progress", predicate: predicate)
-                
-                let configuration = CKQueryOperation.Configuration()
-                configuration.allowsCellularAccess = true
-                configuration.qualityOfService = .userInitiated
-                
-                let queryOperation = CKQueryOperation(query: query)
-                queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image", "longitude", "latitude", "username", "userId", "entryCount", "profileImage", "profileDetail"]
-                queryOperation.queuePriority = .veryHigh
-                queryOperation.configuration = configuration
-                queryOperation.resultsLimit = 30
-                queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
-                    if let record = record {
-                        DispatchQueue.main.async {
-                            print("record result -----: \(record)")
-                            self.users.append(record)
-                        }
-                    }
-                }
-                
-                queryOperation.queryCompletionBlock = { (cursor: CKQueryOperation.Cursor?, error: Error?) -> Void in
-                    if let error = error {
-                        print("queryCompletionBlock error: \(error)")
-                        return
-                    }
-                    
-                    if let cursor = cursor {
-                        print("cursor: \(cursor)")
-                    }
-                                
-                    DispatchQueue.main.async {
-                        self.tableView.reloadData()
-                    }
-                }
-                publicDatabase.add(queryOperation)
-                monitor.cancel()
-            } else {
-                // if the network is absent
-                DispatchQueue.main.async {
-                    self.alert(with: Messages.networkError, message: Messages.noNetwork)
-                }
-            }
-        }
-    }
-    
-    // MARK: - Display Alert
-    
-    /// Creates and displays an alert.
-    fileprivate func alert(with title: String, message: String) {
-        let alertController = utility.alert(title, message: message)
-        if let popoverController = alertController.popoverPresentationController {
-            popoverController.sourceView = self.view
-            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
-            popoverController.permittedArrowDirections = []
-        }
-        self.navigationController?.present(alertController, animated: true, completion: nil)
-    }
 }
 
 // MARK: - Table view data source
@@ -304,8 +248,17 @@ extension UsersViewController: UIContextMenuInteractionDelegate {
     }
     
     @objc func refreshFetch() {
-        fetchPublicFeed(userId: userId, searchWord: nil)
-        
+        self.users.removeAll()
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
+        fetchPublicFeed(userId: userId, searchWord: nil, desiredKeys: desiredKeys) { (record) in
+            self.users.append(record)
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }
+
         let spinner = UIActivityIndicatorView(style: .medium)
         spinner.tintColor = UIColor.black
         spinner.startAnimating()
@@ -324,7 +277,14 @@ extension UsersViewController: UIContextMenuInteractionDelegate {
 extension UsersViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchText.count == 0 || searchText.count > 2 {
-            fetchPublicFeed(userId: nil, searchWord: searchText)
+            self.users.removeAll()
+            tableView.reloadData()
+            fetchPublicFeed(userId: nil, searchWord: searchText, desiredKeys: desiredKeys) { (record) in
+                self.users.append(record)
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+            }
         }
     }
 }

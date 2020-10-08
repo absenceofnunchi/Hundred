@@ -10,10 +10,10 @@ import UIKit
 
 class EditProfile: ProfileBaseViewController {
     @IBOutlet weak var scrollView: UIScrollView!
-    var profile: Profile?
+    var profile: Profile!
     lazy fileprivate var imageButton: UIButton = {
         var button: UIButton!
-        if let image = profile?.image  {
+        if let image = profile.image  {
             imageName = image
             let imagePath = getDocumentsDirectory().appendingPathComponent(image)
             button = UIButton()
@@ -35,14 +35,14 @@ class EditProfile: ProfileBaseViewController {
     lazy fileprivate var userTextField: CustomTextField = {
         let textField = CustomTextField()
         textField.textAlignment = .left
-        textField.text = profile?.username
+        textField.text = profile.username
         textField.autocorrectionType = .no
         BorderStyle.customShadowBorder(for: textField)
         return textField
     }()
     lazy fileprivate var descTextView: UITextView = {
         let textView = UITextView()
-        textView.text = profile?.detail
+        textView.text = profile.detail
         textView.isEditable = true
         textView.isSelectable = true
         textView.isScrollEnabled = true
@@ -66,7 +66,6 @@ class EditProfile: ProfileBaseViewController {
         dButton.addTarget(self, action: #selector(buttonPressed) , for: .touchUpInside)
         return dButton
     }()
-    fileprivate var utility = Utilities()
     var delegate: PassProfileProtocol? = nil
     
     override func viewDidLoad() {
@@ -163,20 +162,21 @@ class EditProfile: ProfileBaseViewController {
         switch sender.tag {
         case 1:
             if let usernameText = userTextField.text, !usernameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                profile?.image = imageName ?? ""
-                profile?.username = userTextField.text
-                if let desc = descTextView.text {
-                    profile?.detail = desc
+                checkDuplicateUsername(usernameText: usernameText) { (isValid) in
+                    if isValid {
+                        DispatchQueue.main.async {
+                            self.profile.image = self.imageName ?? ""
+                            self.profile.username = self.userTextField.text
+                            if let desc = self.descTextView.text {
+                                self.profile?.detail = desc
+                            }
+                            self.saveContext()
+                            
+                            self.delegate?.passProfile(profile: self.profile)
+                            _ = self.navigationController?.popViewController(animated: true)
+                        }
+                    }
                 }
-
-                self.saveContext()
-                
-                if let profile = profile {
-                    delegate?.passProfile(profile: profile)
-                    _ = navigationController?.popViewController(animated: true)
-                }
-                
-                
             } else {
                 alert(with: Messages.status, message: Messages.emptyUsername)
             }
@@ -256,19 +256,6 @@ class EditProfile: ProfileBaseViewController {
         if self.view.frame.origin.y != 0 {
             self.view.frame.origin.y = 0
         }
-    }
-    
-    // MARK: - Display Alert
-    
-    /// Creates and displays an alert.
-    fileprivate func alert(with title: String, message: String) {
-        let alertController = utility.alert(title, message: message)
-        if let popoverController = alertController.popoverPresentationController {
-            popoverController.sourceView = self.view
-            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
-            popoverController.permittedArrowDirections = []
-        }
-        self.navigationController?.present(alertController, animated: true, completion: nil)
     }
 }
 

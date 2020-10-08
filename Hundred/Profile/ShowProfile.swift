@@ -174,7 +174,6 @@ class ShowProfile: ProfileBaseViewController {
         
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
         deleteButton.trailingAnchor.constraint(equalTo: buttonContainer.trailingAnchor).isActive = true
-        
     }
     
     @objc

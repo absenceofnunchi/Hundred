@@ -32,7 +32,7 @@ class CreateProfile: ProfileBaseViewController {
         BorderStyle.customShadowBorder(for: textView)
         return textView
     }()
-    fileprivate var imageName: String!
+    fileprivate var imageName: String?
     fileprivate var firstResponder: UIView? /// To handle textField position when keyboard is visible.
     fileprivate var isKeyboardVisible = false
     fileprivate lazy var doneButton: UIButton = {
@@ -45,7 +45,6 @@ class CreateProfile: ProfileBaseViewController {
         dButton.addTarget(self, action: #selector(buttonPressed) , for: .touchUpInside)
         return dButton
     }()
-    fileprivate var utility = Utilities()
     weak var delegate: CreateProfileProtocol? = nil
     
     override func viewDidLoad() {
@@ -135,55 +134,23 @@ class CreateProfile: ProfileBaseViewController {
         case 1:
             // Done button pressed to create the profile
             if let usernameText = self.userTextField.text, !usernameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                // Ensure the iCloud account and the network availability before checking for the username duplicate
-                guard isICloudContainerAvailable() == true else { return }
-                let monitor = NWPathMonitor()
-                let queue = DispatchQueue(label: "Monitor")
-                monitor.start(queue: queue)
-                monitor.pathUpdateHandler = { path in
-                    if path.status == .satisfied {
-                        let publicDatabase = CKContainer.default().publicCloudDatabase
-                        let predicate: NSPredicate!
-                        predicate = NSPredicate(format: "username == %@", usernameText)
-                        
-                        let query =  CKQuery(recordType: "Progress", predicate: predicate)
-                        
-                        let configuration = CKQueryOperation.Configuration()
-                        configuration.allowsCellularAccess = true
-                        configuration.qualityOfService = .userInitiated
-                        
-                        let queryOperation = CKQueryOperation(query: query)
-                        queryOperation.desiredKeys = ["username"]
-                        queryOperation.queuePriority = .veryHigh
-                        queryOperation.configuration = configuration
-                        queryOperation.resultsLimit = 1
-                        queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
-                            if let record = record {
-                                DispatchQueue.main.async {
-                                    print("record result -----: \(record)")
-                                    
-                                }
+                checkDuplicateUsername(usernameText: usernameText) { (isValid) in
+                    if isValid {
+                        DispatchQueue.main.async {
+                            let profile = Profile(context: self.context)
+                            if let imageName = self.imageName {
+                                profile.image = imageName
                             }
+                            
+                            profile.username = self.userTextField.text
+                            if let desc = self.descTextView.text {
+                                profile.detail = desc
+                            }
+                            profile.userId = UUID().uuidString
+    
+                            self.saveContext()
+                            self.delegate?.runFetchProfile()
                         }
-                        
-                        publicDatabase.add(queryOperation)
-                        monitor.cancel()
-//                        let profile = Profile(context: self.context)
-//                        if let imageName = self.imageName {
-//                            profile.image = imageName
-//                        }
-//                        profile.username = self.userTextField.text
-//                        if let desc = self.descTextView.text {
-//                            profile.detail = desc
-//                        }
-//                        profile.userId = UUID().uuidString
-//
-//                        self.saveContext()
-//                        
-//                        self.delegate?.runFetchProfile()
-
-                    } else {
-                        self.alert(with: Messages.networkError, message: Messages.noNetwork)
                     }
                 }
             }else {
@@ -218,7 +185,7 @@ class CreateProfile: ProfileBaseViewController {
             print("default")
         }
     }
-    
+
     func openPhoto(action: UIAlertAction) {
         let picker = UIImagePickerController()
         if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
@@ -266,19 +233,6 @@ class CreateProfile: ProfileBaseViewController {
             self.view.frame.origin.y = 0
         }
     }
-    
-    // MARK: - Display Alert
-    
-    /// Creates and displays an alert.
-    fileprivate func alert(with title: String, message: String) {
-        let alertController = utility.alert(title, message: message)
-        if let popoverController = alertController.popoverPresentationController {
-            popoverController.sourceView = self.view
-            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
-            popoverController.permittedArrowDirections = []
-        }
-        self.navigationController?.present(alertController, animated: true, completion: nil)
-    }
 }
 
 
@@ -288,7 +242,7 @@ extension CreateProfile: UIImagePickerControllerDelegate, UINavigationController
         guard let image = info[.editedImage] as? UIImage else { return }
         
         imageName = UUID().uuidString
-        let imagePath = getDocumentsDirectory().appendingPathComponent(imageName)
+        let imagePath = getDocumentsDirectory().appendingPathComponent(imageName!)
         if let jpegData = image.jpegData(compressionQuality: 0.8) {
             try? jpegData.write(to: imagePath)
         }

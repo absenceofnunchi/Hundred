@@ -92,6 +92,7 @@ struct Messages {
     static let noCamera = "Camera Not Available"
     static let noPhotoLibrary = "Photo Library Not Available"
     static let subscriptionExpired = "Looks like your renewable subscription has expired. Would you like to renew it?"
+    static let duplicateUsername = "Duplicate Username"
 }
 
 // MARK: - Resource File

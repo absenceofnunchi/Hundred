@@ -18,7 +18,6 @@ class EditEntryViewController: UIViewController {
     fileprivate var imageBinary: UIImage?
     fileprivate var imageName: String!
     var delegate: CallBackDelegate? = nil
-    let utility = Utilities()
     
     lazy fileprivate var stackView: UIStackView = {
         let stackView = UIStackView()
@@ -107,23 +106,7 @@ class EditEntryViewController: UIViewController {
         }
     }
     fileprivate var locationLabel = CustomLabel()
-    
     var location: CLLocationCoordinate2D?
-    //    var location: CLLocationCoordinate2D? {
-    //        didSet {
-    //            if location != nil {
-    //                UIView.animate(withDuration: 0.5, delay: 0.0, options: [.curveEaseOut], animations: {
-    //                    self.locationLabel.alpha = 1
-    //                })
-    //            } else {
-    //                UIView.animate(withDuration: 0.5, delay: 0.0, options: [.curveEaseOut], animations: {
-    //                    self.locationLabel.alpha = 0
-    //                })
-    //            }
-    //
-    //        }
-    //    }
-    
     fileprivate var locationPlusButton: UIButton!
     fileprivate var locationMinusButton: UIButton!
     fileprivate var mapPanel = UIView()
@@ -230,8 +213,6 @@ class EditEntryViewController: UIViewController {
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         
         navigationController?.delegate = self
-        
-        //        locationLabel.text = labelText
     }
     
     func configureView() {
@@ -364,31 +345,33 @@ class EditEntryViewController: UIViewController {
                     monitor.pathUpdateHandler = { path in
                         // check for the internet connection
                         if path.status == .satisfied {
-                            if let profile = self.fetchProfile() {
-                                // profile exists
-                                self.done(profile: profile, isPublic: true)
-                            } else {
-                                // profile doesn't exist
-                                let ac = UIAlertController(title: Messages.noProfileCreated, message: Messages.createProfile, preferredStyle: .alert)
-                                ac.addAction(UIAlertAction(title: Messages.okButton, style: .default, handler: { (_) in
-                                    if let vc = self.storyboard?.instantiateViewController(identifier: ViewControllerIdentifiers.profile) as? ProfileViewController {
-                                        DispatchQueue.main.async {
-                                            self.navigationController?.pushViewController(vc, animated: true)
+                            DispatchQueue.main.async {
+                                if let profile = self.fetchProfile() {
+                                    // profile exists
+                                    self.done(profile: profile, isPublic: true)
+                                } else {
+                                    // profile doesn't exist
+                                    let ac = UIAlertController(title: Messages.noProfileCreated, message: Messages.createProfile, preferredStyle: .alert)
+                                    ac.addAction(UIAlertAction(title: Messages.okButton, style: .default, handler: { (_) in
+                                        if let vc = self.storyboard?.instantiateViewController(identifier: ViewControllerIdentifiers.profile) as? ProfileViewController {
+                                            DispatchQueue.main.async {
+                                                self.navigationController?.pushViewController(vc, animated: true)
+                                            }
                                         }
+                                    }))
+                                    ac.addAction(UIAlertAction(title: Messages.cancelButton, style: .cancel, handler: nil))
+                                    
+                                    if let popoverController = ac.popoverPresentationController {
+                                        popoverController.sourceView = self.view
+                                        popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
+                                        popoverController.permittedArrowDirections = []
                                     }
-                                }))
-                                ac.addAction(UIAlertAction(title: Messages.cancelButton, style: .cancel, handler: nil))
-                                
-                                if let popoverController = ac.popoverPresentationController {
-                                    popoverController.sourceView = self.view
-                                    popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.height, width: 0, height: 0)
-                                    popoverController.permittedArrowDirections = []
+                                    
+                                    self.present(ac, animated: true, completion: {() -> Void in
+                                        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
+                                        ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
+                                    })
                                 }
-                                
-                                self.present(ac, animated: true, completion: {() -> Void in
-                                    let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
-                                    ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
-                                })
                             }
                         } else {
                             // if the network is absent
@@ -400,7 +383,9 @@ class EditEntryViewController: UIViewController {
                 }))
                 // modify only the local entry
                 ac.addAction(UIAlertAction(title: Messages.onlyLocal, style: .default, handler: { (_) in
-                    self.done(profile: nil, isPublic: false)
+                    DispatchQueue.main.async {
+                        self.done(profile: nil, isPublic: false)
+                    }
                 }))
                 // cancel
                 ac.addAction(UIAlertAction(title: Messages.cancelButton, style: .cancel, handler: nil))
@@ -701,19 +686,6 @@ class EditEntryViewController: UIViewController {
             
             present(ac, animated: true)
         }
-    }
-    
-    // MARK: - Display Alert
-    
-    /// Creates and displays an alert.
-    fileprivate func alert(with title: String, message: String) {
-        let alertController = utility.alert(title, message: message)
-        if let popoverController = alertController.popoverPresentationController {
-            popoverController.sourceView = self.view
-            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
-            popoverController.permittedArrowDirections = []
-        }
-        self.navigationController?.present(alertController, animated: true, completion: nil)
     }
 }
 

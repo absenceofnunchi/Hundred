@@ -545,36 +545,42 @@ class NewViewController: UIViewController {
     @objc func switchValueDidChange(sender: UISwitch!) {
         // toggle on
         if sender.isOn {
-            if isICloudContainerAvailable() == true {
-                // check to see if the receipt from App Store exists and, if it does, whether the expiry date has passed
-                getAppReceipt { (isValid) in
-                    if isValid {
-                        // the receipt's expiry date hasn't passed so check for Profile
-                        if let profile = self.fetchProfile() {
-                            self.profile = profile
-                            self.isPublic = true
-                            print("1")
-                        } else {
-                            // Profile doesn't exist so offer to create one
-                            self.isPublic = false
-                            DispatchQueue.main.async {
-                                self.switchControl.setOn(false, animated: false)
-                                self.alertForUsername()
-                            }
-                        }
-                    } else {
-                        // the renewable subscription has expired
-                        self.isPublic = false
-
-                        DispatchQueue.main.async {
-                            if let vc = self.storyboard?.instantiateViewController(identifier: "parent") as? ParentViewController {
-                                self.switchControl.setOn(false, animated: false)
-                                self.navigationController?.pushViewController(vc, animated: true)
-                            }
-                        }
-                    }
-                }
+            if let profile = self.fetchProfile() {
+                self.profile = profile
+                self.isPublic = true
             }
+            
+//            if isICloudContainerAvailable() == true {
+//                // check to see if the receipt from App Store exists and, if it does, whether the expiry date has passed
+//                getAppReceipt { (isValid) in
+//                    if isValid {
+//                        // the receipt's expiry date hasn't passed so check for Profile
+//                        if let profile = self.fetchProfile() {
+//                            self.profile = profile
+//                            self.isPublic = true
+//                        } else {
+//                            // Profile doesn't exist so offer to create one
+//                            self.isPublic = false
+//                            DispatchQueue.main.async {
+//                                self.switchControl.setOn(false, animated: false)
+//                                self.alertForUsername()
+//                            }
+//                        }
+//                    } else {
+//                        // the renewable subscription has expired
+//                        self.isPublic = false
+//                        DispatchQueue.main.async {
+//                            if let vc = self.storyboard?.instantiateViewController(identifier: "parent") as? ParentViewController {
+//                                self.switchControl.setOn(false, animated: false)
+//                                self.navigationController?.pushViewController(vc, animated: true)
+//                            }
+//                        }
+//                    }
+//                }
+//            } else {
+//                self.isPublic = false
+//                self.switchControl.setOn(false, animated: false)
+//            }
         } else {
             // toggle off
             self.isPublic = false
@@ -863,6 +869,7 @@ class NewViewController: UIViewController {
             goalDescTextView.textColor = UIColor.lightGray
             commentTextView.text = "Provide a comment about your first progress"
             commentTextView.textColor = UIColor.lightGray
+            locationLabel.text = nil
             switchControl.setOn(false, animated: true)
             
             if self.metricStackView.arrangedSubviews.count > 0 {
@@ -1180,13 +1187,13 @@ extension NewViewController {
             return
         }
         guard profile != nil else { return }
-        
+
         // public cloud database
         let progressRecord = CKRecord(recordType: MetricAnalytics.Progress.rawValue)
         progress.recordName = progressRecord.recordID.recordName
         goal.progress.insert(progress)
         self.saveContext()
-        
+
         progressRecord[MetricAnalytics.goal.rawValue] = goal.title as CKRecordValue
         progressRecord[MetricAnalytics.comment.rawValue] = comment as CKRecordValue
         
@@ -1196,7 +1203,7 @@ extension NewViewController {
         if let detail = profile.detail {
             progressRecord[MetricAnalytics.profileDetail.rawValue] = detail
         }
-        if let profileImage = profile.image {
+        if let profileImage = profile.image, profileImage != "" {
             let profileImagePath = getDocumentsDirectory().appendingPathComponent(profileImage)
             progressRecord[MetricAnalytics.profileImage.rawValue] = CKAsset(fileURL: profileImagePath)
         }
@@ -1220,7 +1227,6 @@ extension NewViewController {
             progressRecord[MetricAnalytics.entryCount.rawValue] = 1
         } else {
             let entryCount = MetricCard.getEntryCount(progress: goal.progress)
-            print("entryCount from NewVC: \(entryCount)")
             progressRecord[MetricAnalytics.entryCount.rawValue] = entryCount + 1
         }
         
@@ -1243,7 +1249,6 @@ extension NewViewController {
             print("Sucessfully uploaded to Public Cloud DB==================================================== \(String(describing: record))")
             if let record = record {
                 var recordsArr: [CKRecord] = []
-                
                 if isNew {
                     for metricPair in metricDict {
                         let analyticsRecord = CKRecord(recordType: MetricAnalytics.analytics.rawValue)
