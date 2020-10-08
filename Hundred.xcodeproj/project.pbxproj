@@ -10,7 +10,6 @@
 		49026F9224DB423900724369 /* Constraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49026F9124DB423900724369 /* Constraints.swift */; };
 		49026F9B24DB4FBF00724369 /* ProgressCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49026F9A24DB4FBF00724369 /* ProgressCell.swift */; };
 		4906B77524F2FEA700417574 /* EditEntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4906B77424F2FEA700417574 /* EditEntryViewController.swift */; };
-		491165FF24FAE4A000B2963A /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 491165FE24FAE4A000B2963A /* Test.swift */; };
 		491A66202509947300B659CB /* UsersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 491A661F2509947300B659CB /* UsersViewController.swift */; };
 		491A6622250997B200B659CB /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 491A6621250997B200B659CB /* UserCell.swift */; };
 		491F5A7C24E458FA0075EDCD /* DetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 491F5A7B24E458FA0075EDCD /* DetailTableViewController.swift */; };
@@ -75,7 +74,6 @@
 		49C8690524F44D66005D0C4D /* GoalCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C8690424F44D66005D0C4D /* GoalCell.swift */; };
 		49D3B4EB2520196500B714C5 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D3B4EA2520196500B714C5 /* StoreKit.framework */; };
 		49DB486A2520F985004B3747 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DB48692520F985004B3747 /* StoreManager.swift */; };
-		49DB512C24ECAA6500857634 /* ButtonCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DB512B24ECAA6500857634 /* ButtonCreator.swift */; };
 		49DE68A624F71838009C886C /* ChartXAxisFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */; };
 		49E9631224FC8FA10041239B /* SpinnerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E9631124FC8FA10041239B /* SpinnerViewController.swift */; };
 		49ED332825114BBF006FE080 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49ED332725114BBF006FE080 /* ProfileViewController.swift */; };
@@ -90,7 +88,6 @@
 		49026F9124DB423900724369 /* Constraints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constraints.swift; sourceTree = "<group>"; };
 		49026F9A24DB4FBF00724369 /* ProgressCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressCell.swift; sourceTree = "<group>"; };
 		4906B77424F2FEA700417574 /* EditEntryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEntryViewController.swift; sourceTree = "<group>"; };
-		491165FE24FAE4A000B2963A /* Test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
 		491A661F2509947300B659CB /* UsersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersViewController.swift; sourceTree = "<group>"; };
 		491A6621250997B200B659CB /* UserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCell.swift; sourceTree = "<group>"; };
 		491F5A7B24E458FA0075EDCD /* DetailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailTableViewController.swift; sourceTree = "<group>"; };
@@ -159,7 +156,6 @@
 		49C8690424F44D66005D0C4D /* GoalCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalCell.swift; sourceTree = "<group>"; };
 		49D3B4EA2520196500B714C5 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		49DB48692520F985004B3747 /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
-		49DB512B24ECAA6500857634 /* ButtonCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonCreator.swift; sourceTree = "<group>"; };
 		49DE68A524F71838009C886C /* ChartXAxisFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartXAxisFormatter.swift; sourceTree = "<group>"; };
 		49E9631124FC8FA10041239B /* SpinnerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerViewController.swift; sourceTree = "<group>"; };
 		49ED332725114BBF006FE080 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
@@ -211,8 +207,6 @@
 				493FF0EE250AABA10085EB42 /* MetricCard.swift */,
 				49B328FD24E3269F00D9E8D4 /* DataImporter.swift */,
 				4926509024FF25AF001AA5A3 /* MainDataImporter.swift */,
-				49DB512B24ECAA6500857634 /* ButtonCreator.swift */,
-				491165FE24FAE4A000B2963A /* Test.swift */,
 			);
 			path = "Extensions-Utilities";
 			sourceTree = "<group>";
@@ -432,7 +426,7 @@
 		4996BD3924D485C900E301B4 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1150;
+				LastSwiftUpdateCheck = 1220;
 				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = J;
 				TargetAttributes = {
@@ -580,14 +574,12 @@
 				4964C90625237B240093DAE0 /* Utilities.swift in Sources */,
 				4958D0A3252527FE00703A83 /* ProfileBaseViewController.swift in Sources */,
 				494F0C2C24D7246A00C5450C /* ManagedObjectContext.swift in Sources */,
-				491165FF24FAE4A000B2963A /* Test.swift in Sources */,
 				49DE68A624F71838009C886C /* ChartXAxisFormatter.swift in Sources */,
 				4996BD4724D485C900E301B4 /* SceneDelegate.swift in Sources */,
 				4958D09D2525274B00703A83 /* ShowProfile.swift in Sources */,
 				49ED332825114BBF006FE080 /* ProfileViewController.swift in Sources */,
 				49AF207F251EBBF2001EA1DD /* FeedbackViewController.swift in Sources */,
 				4964C8F9252379260093DAE0 /* Purchases.swift in Sources */,
-				49DB512C24ECAA6500857634 /* ButtonCreator.swift in Sources */,
 				4985496D251D9EF70096444D /* MoreCollectionViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

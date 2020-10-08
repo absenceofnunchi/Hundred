@@ -545,42 +545,37 @@ class NewViewController: UIViewController {
     @objc func switchValueDidChange(sender: UISwitch!) {
         // toggle on
         if sender.isOn {
-            if let profile = self.fetchProfile() {
-                self.profile = profile
-                self.isPublic = true
+            if isICloudContainerAvailable() == true {
+                // check to see if the receipt from App Store exists and, if it does, whether the expiry date has passed
+                getAppReceipt { (isValid) in
+                    if isValid {
+                        // the receipt's expiry date hasn't passed so check for Profile
+                        if let profile = self.fetchProfile() {
+                            self.profile = profile
+                            self.isPublic = true
+                        } else {
+                            // Profile doesn't exist so offer to create one
+                            self.isPublic = false
+                            DispatchQueue.main.async {
+                                self.switchControl.setOn(false, animated: false)
+                                self.alertForUsername()
+                            }
+                        }
+                    } else {
+                        // the renewable subscription has expired
+                        self.isPublic = false
+                        DispatchQueue.main.async {
+                            if let vc = self.storyboard?.instantiateViewController(identifier: "parent") as? ParentViewController {
+                                self.switchControl.setOn(false, animated: false)
+                                self.navigationController?.pushViewController(vc, animated: true)
+                            }
+                        }
+                    }
+                }
+            } else {
+                self.isPublic = false
+                self.switchControl.setOn(false, animated: false)
             }
-            
-//            if isICloudContainerAvailable() == true {
-//                // check to see if the receipt from App Store exists and, if it does, whether the expiry date has passed
-//                getAppReceipt { (isValid) in
-//                    if isValid {
-//                        // the receipt's expiry date hasn't passed so check for Profile
-//                        if let profile = self.fetchProfile() {
-//                            self.profile = profile
-//                            self.isPublic = true
-//                        } else {
-//                            // Profile doesn't exist so offer to create one
-//                            self.isPublic = false
-//                            DispatchQueue.main.async {
-//                                self.switchControl.setOn(false, animated: false)
-//                                self.alertForUsername()
-//                            }
-//                        }
-//                    } else {
-//                        // the renewable subscription has expired
-//                        self.isPublic = false
-//                        DispatchQueue.main.async {
-//                            if let vc = self.storyboard?.instantiateViewController(identifier: "parent") as? ParentViewController {
-//                                self.switchControl.setOn(false, animated: false)
-//                                self.navigationController?.pushViewController(vc, animated: true)
-//                            }
-//                        }
-//                    }
-//                }
-//            } else {
-//                self.isPublic = false
-//                self.switchControl.setOn(false, animated: false)
-//            }
         } else {
             // toggle off
             self.isPublic = false
@@ -591,6 +586,7 @@ class NewViewController: UIViewController {
     @objc func buttonPressed(sender: UIButton!) {
         switch sender.tag {
         case 1:
+            // image picker
             let ac = UIAlertController(title: "Pick an image", message: nil, preferredStyle: .actionSheet)
             ac.addAction(UIAlertAction(title: "Photos", style: .default, handler: openPhoto))
             ac.addAction(UIAlertAction(title: "Camera", style: .default, handler: openCamera))
@@ -617,6 +613,7 @@ class NewViewController: UIViewController {
             })
             
         case 2:
+            // add metrics
             let metricView = UIView()
             metricView.alpha = 0
             
@@ -658,6 +655,7 @@ class NewViewController: UIViewController {
             
             metricView.heightAnchor.constraint(equalToConstant: 50).isActive = true
         case 3:
+            // subtract metrics
             if metricStackView.arrangedSubviews.count > 0 {
                 let metricSubview = metricStackView.arrangedSubviews[metricStackView.arrangedSubviews.count - 1]
                 UIView.animate(withDuration: 0.5, delay: 0.1, options: [.curveEaseOut], animations: {
@@ -667,10 +665,8 @@ class NewViewController: UIViewController {
                     metricSubview.removeFromSuperview()
                 })
             }
-            
         case 4:
             // create a new goal or a progress post
-            
             // extract each metric unit/value to metricDict
             var metricDict: [String: String] = [:]
             for metricPair in metricStackView.arrangedSubviews {

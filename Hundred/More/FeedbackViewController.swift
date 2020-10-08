@@ -92,7 +92,7 @@ class FeedbackViewController: UIViewController {
         
         let composer = MFMailComposeViewController()
         composer.mailComposeDelegate = self
-        composer.setToRecipients(["jay.manuscript@gmail.com"])
+        composer.setToRecipients(["thehundredapp@gmail.com"])
         composer.setSubject("Feedback")
          
         present(composer, animated: true)

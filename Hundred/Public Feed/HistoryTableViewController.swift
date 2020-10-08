@@ -74,7 +74,6 @@ extension HistoryTableViewController {
         label.textAlignment = .center
         containerView.addSubview(label)
         label.translatesAutoresizingMaskIntoConstraints = false
-//        label.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.80).isActive = true
         label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
         
         let line = UIView()
