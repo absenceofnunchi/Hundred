@@ -214,6 +214,7 @@ extension UsersViewController: UIContextMenuInteractionDelegate {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // prevent the cell from being clicked on multiple times
         tableView.isUserInteractionEnabled = false
         
         let vc = storyboard?.instantiateViewController(withIdentifier: "UserDetail") as! UserDetailViewController

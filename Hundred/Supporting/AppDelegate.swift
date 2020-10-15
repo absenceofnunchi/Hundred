@@ -10,41 +10,88 @@ import UIKit
 import CoreData
 import UserNotifications
 import StoreKit
+import CloudKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     var window: UIWindow?
-//    lazy var persistentContainer: NSPersistentContainer = {
-//        let container = NSPersistentContainer(name: "Hundred")
-//        container.loadPersistentStores { description, error in
-//            container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-//            if let error = error {
-//                fatalError("Unable to load persistent stores: \(error)")
-//            }
-//        }
-//        return container
-//    }()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if let error = error {
-                print("D'oh: \(error.localizedDescription)")
+                print(error.localizedDescription)
             } else {
                 DispatchQueue.main.async {
                     application.registerForRemoteNotifications()
                 }
             }
         }
-        
-        UNUserNotificationCenter.current().delegate = self
 
         // Attach an observer to the payment queue.
         SKPaymentQueue.default().add(StoreObserver.shared)
         return true
     }
     
+    func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        UNUserNotificationCenter.current().delegate = self
+        return true
+    }
+    
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        
         completionHandler([.alert, .sound, .badge])
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+         print("user clicked on the notification2")
+        let userInfo = response.notification.request.content.userInfo
+        if let ck = userInfo["ck"] as? [String: NSObject], let qry = ck["qry"] as? [String: NSObject], let rid = qry["rid"]  {
+            let publicDatabase = CKContainer.default().publicCloudDatabase
+            let configuration = CKQueryOperation.Configuration()
+            configuration.allowsCellularAccess = true
+            configuration.qualityOfService = .userInitiated
+            let recordId = CKRecord.ID(recordName: rid as! String)
+            let predicate = NSPredicate(format: "recordID == %@", recordId)
+            let query =  CKQuery(recordType: "Progress", predicate: predicate)
+            let queryOperation = CKQueryOperation(query: query)
+            queryOperation.desiredKeys = ["comment", "date", "goal", "metrics", "currentStreak", "longestStreak", "image", "longitude", "latitude", "username", "userId", "entryCount", "profileImage", "profileDetail"]
+            queryOperation.queuePriority = .veryHigh
+            queryOperation.configuration = configuration
+            queryOperation.resultsLimit = 1
+            queryOperation.recordFetchedBlock = { (record: CKRecord?) -> Void in
+                if let record = record {
+                    DispatchQueue.main.async {
+                        // retrieve the root view controller (which is a tab bar controller)
+                        guard let rootViewController = (UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate)?.window?.rootViewController else {
+                            return
+                        }
+                        
+                        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                        if  let UserDetailVC = storyboard.instantiateViewController(withIdentifier: "UserDetail") as? UserDetailViewController,
+                            let tabBarController = rootViewController as? UITabBarController,
+                            let navController = tabBarController.selectedViewController as? UINavigationController {
+                                UserDetailVC.user = record
+                                navController.pushViewController(UserDetailVC, animated: true)
+                        }
+                    }
+                }
+            }
+
+            queryOperation.queryCompletionBlock = { (cursor: CKQueryOperation.Cursor?, error: Error?) -> Void in
+                if let error = error {
+                    print("queryCompletionBlock error: \(error)")
+                    return
+                }
+
+            }
+            publicDatabase.add(queryOperation)
+        }
+        
+        completionHandler()
+    }
+
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        print("userInfo: \(userInfo)")
     }
 
     // MARK: UISceneSession Lifecycle
@@ -118,33 +165,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
         }
     }
-    
-    // MARK: - Core Spotlight
-    
-//    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-//        print("userActivity: \(userActivity)")
-//        if userActivity.activityType == CSSearchableItemActionType {
-//            if let uniqueIdentifier = userActivity.userInfo?[CSSearchableItemActivityIdentifier] as? String {
-//                print("uniqueIdentifier: \(uniqueIdentifier)")
-//                if let navigationController = window?.rootViewController as? UINavigationController {
-//                    print("navigationController: \(navigationController)")
-//                    if let viewController = navigationController.topViewController as? DetailTableViewController {
-//                        print("viewController: \(viewController)")
-//                        let goalRequest = Goal.createFetchRequest()
-//                        goalRequest.predicate = NSPredicate(format: "title == %@", uniqueIdentifier)
-//                        if let fetchedGoal = try? persistentContainer.viewContext.fetch(goalRequest) {
-//                            print("fetchedGoal: \(fetchedGoal)")
-//                            if fetchedGoal.count > 0 {
-//                                viewController.goal = fetchedGoal.first
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        return true
-//    }
-
 }
-

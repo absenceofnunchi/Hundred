@@ -46,7 +46,8 @@ class UserCell: UITableViewCell {
     lazy var usernameLabel = UILabel(theme: usernameLabelTheme, text: "")
     let borderColor = UIColor.gray
     var commentContainer = UIView()
-    var commentLabel = CustomLabel()
+    let commentLabelTheme = UILabelTheme(font: UIFont.body.with(weight: .bold), color: UIColor(red: 50/255, green: 50/255, blue: 50/255, alpha: 1.0), lineBreakMode: .byTruncatingTail, textAlignment: .left)
+    lazy var commentLabel = UILabel(theme: commentLabelTheme, text: "")
     var streakContainer = UIView()
     var currentStreakLabel = UILabel()
     var longestStreakLabel = UILabel()
@@ -113,12 +114,14 @@ class UserCell: UITableViewCell {
         usernameLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
         
         commentContainer.translatesAutoresizingMaskIntoConstraints = false
-        commentContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: 50).isActive = true
+        commentContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: 100).isActive = true
         
         commentLabel.translatesAutoresizingMaskIntoConstraints = false
         commentLabel.widthAnchor.constraint(equalTo: commentContainer.widthAnchor, multiplier: 0.9).isActive = true
         commentLabel.centerXAnchor.constraint(equalTo: commentContainer.centerXAnchor).isActive = true
         commentLabel.centerYAnchor.constraint(equalTo: commentContainer.centerYAnchor).isActive = true
+        commentLabel.topAnchor.constraint(equalTo: commentContainer.topAnchor, constant: 10).isActive = true
+        commentLabel.bottomAnchor.constraint(equalTo: commentContainer.bottomAnchor, constant: -10).isActive = true
         containerView.setCustomSpacing(20, after: commentContainer)
         
         streakContainer.translatesAutoresizingMaskIntoConstraints = false

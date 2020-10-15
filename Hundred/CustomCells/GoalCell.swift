@@ -34,9 +34,6 @@ class GoalCell: UITableViewCell {
     
     func configureUI() {
         self.selectionStyle = .none
-//        containerView.layer.borderWidth = 0.2
-//        containerView.layer.borderColor = UIColor.lightGray.cgColor
-//        containerView.layer.cornerRadius = 13
         let borderColor = UIColor.gray
         containerView.layer.borderWidth = 1
         containerView.layer.masksToBounds = false
@@ -49,7 +46,6 @@ class GoalCell: UITableViewCell {
         containerView.layer.backgroundColor = UIColor.white.cgColor
         
         titleLabel.font = UIFont.preferredFont(forTextStyle: .headline)
-//        titleLabel.numberOfLines = 0
         titleLabel.adjustsFontSizeToFitWidth = false
         titleLabel.lineBreakMode = .byTruncatingTail
         titleLabel.textAlignment = .left
@@ -101,7 +97,19 @@ class GoalCell: UITableViewCell {
     func set(goal: Goal) {
         titleLabel.text = goal.title
 
-        countLabel.text = "\(String(goal.progress.count))/100"
+        // the progress count out of 100
+        var dateSet = Set<Date>()
+        for singleEntry in goal.progress {
+            // convert each date to the end of its day so that the date can be counted as one
+            if let nextDate = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: singleEntry.date)),
+               let convertedDate = Calendar.current.date(byAdding: .second, value: -1, to: Calendar.current.startOfDay(for: nextDate)) {
+                dateSet.insert(convertedDate.toLocalTime())
+            }
+        }
+        // incrementally increase by 100 depending on the number of entries
+        let denominator = Int((floor(Double(dateSet.count) / Double(100)) + 1) * 100)
+        countLabel.text = "\(String(dateSet.count))/\(denominator)"
+        
         if let detail = goal.detail {
             detailLabel.text = detail
         }

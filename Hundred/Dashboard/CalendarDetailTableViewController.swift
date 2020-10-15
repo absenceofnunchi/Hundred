@@ -6,6 +6,12 @@
 //  Copyright © 2020 J. All rights reserved.
 //
 
+/*
+ Abstract:
+ A modal that is presented when a user presses on a calendar from ViewController.swift.
+ It displays all the related entries from that particular date in a table view.
+ */
+
 import UIKit
 import CoreData
 

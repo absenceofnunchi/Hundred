@@ -6,6 +6,16 @@
 //  Copyright © 2020 J. All rights reserved.
 //
 
+/*
+ Abstract:
+ Displays the complete list of the user's goals in a table view.
+ It's one of the main view controller's from the tab bar along with Dashboard, New Entry, Public Feed, and More.
+ It navigates the user to DetailTableViewController by tapping on a cell.
+ It navigates the user to EditViewController.swift, which allows the user to edit the details of the goal, with a trailing swipe action.
+ It allows the user to delete a goal with a trailing swipe action.
+ It prompts the peek and pop feature with a long press on a cell.
+ */
+
 import UIKit
 import CoreData
 import CoreSpotlight

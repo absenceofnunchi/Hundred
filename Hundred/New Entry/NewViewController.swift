@@ -382,13 +382,7 @@ class NewViewController: UIViewController {
     var contentInset: CGFloat?
     var profile: Profile!
     let utility = Utilities()
-    struct Endpoint {
-        static let sandbox = "https://sandbox.itunes.apple.com/verifyReceipt"
-        static let itunes = "https://buy.itunes.apple.com/verifyReceipt"
-    }
-    
-    let appStoreReceiptURL = Bundle.main.appStoreReceiptURL
-    
+        
     override func viewDidLoad() {
         super.viewDidLoad()
         commentTextView.delegate = self
@@ -562,7 +556,7 @@ class NewViewController: UIViewController {
                             }
                         }
                     } else {
-                        // the renewable subscription has expired
+                        // the renewable subscription has expired or was never purchased
                         self.isPublic = false
                         DispatchQueue.main.async {
                             if let vc = self.storyboard?.instantiateViewController(identifier: "parent") as? ParentViewController {
@@ -573,6 +567,7 @@ class NewViewController: UIViewController {
                     }
                 }
             } else {
+                // iCloud not accessible
                 self.isPublic = false
                 self.switchControl.setOn(false, animated: false)
             }
@@ -858,6 +853,7 @@ class NewViewController: UIViewController {
             saveHeatmap()
             
             imagePathString = nil
+            imagePath = nil
             goalFromCoreData = nil
             existingGoal = nil
             goalTextField.text = nil
@@ -866,7 +862,9 @@ class NewViewController: UIViewController {
             commentTextView.text = "Provide a comment about your first progress"
             commentTextView.textColor = UIColor.lightGray
             locationLabel.text = nil
+            location = nil
             switchControl.setOn(false, animated: true)
+            isPublic = false
             
             if self.metricStackView.arrangedSubviews.count > 0 {
                 for subView in self.metricStackView.arrangedSubviews {
@@ -1186,6 +1184,7 @@ extension NewViewController {
 
         // public cloud database
         let progressRecord = CKRecord(recordType: MetricAnalytics.Progress.rawValue)
+        // public entry's unique id gets linked to the Progress entity
         progress.recordName = progressRecord.recordID.recordName
         goal.progress.insert(progress)
         self.saveContext()
@@ -1239,10 +1238,8 @@ extension NewViewController {
         let publicCloudDatabase = CKContainer.default().publicCloudDatabase
         publicCloudDatabase.save(progressRecord) { (record, error) in
             if let error = error {
-                print("public cloud database error======================================================: \(error)")
                 return
             }
-            print("Sucessfully uploaded to Public Cloud DB==================================================== \(String(describing: record))")
             if let record = record {
                 var recordsArr: [CKRecord] = []
                 if isNew {
@@ -1283,96 +1280,4 @@ extension NewViewController {
     }
 }
 
-// MARK: - SKRequestDelegate
 
-/// fetches App Store receipt and handles the response
-extension NewViewController: SKRequestDelegate {
-    func getAppReceipt(completion: @escaping (Bool) -> Void) {
-        if let appStoreReceiptURL = appStoreReceiptURL, FileManager.default.fileExists(atPath: appStoreReceiptURL.path) {
-            do {
-                let receiptData = try! Data(contentsOf: appStoreReceiptURL, options: .alwaysMapped)
-                try validateReceipt(receiptData, completion: completion)
-            } catch ReceiptValidationError.receiptNotFound {
-                // There is no receipt on the device 😱
-                print("There is no receipt on the device")
-                let appReceiptRefreshRequest = SKReceiptRefreshRequest(receiptProperties: nil)
-                appReceiptRefreshRequest.delegate = self
-                appReceiptRefreshRequest.start()
-                // If all goes well control will land in the requestDidFinish() delegate method.
-                // If something bad happens control will land in didFailWithError.
-            } catch ReceiptValidationError.jsonResponseIsNotValid(let description) {
-                // unable to parse the json 🤯
-                print("unable to parse the json \(description)")
-            } catch ReceiptValidationError.notBought {
-                // the subscription hasn't being purchased 😒
-                print("the subscription hasn't being purchased")
-            } catch ReceiptValidationError.expired {
-                // the subscription is expired 😵
-                print("the subscription is expired")
-            } catch {
-                print("Unexpected error: \(error).")
-            }
-        }
-    }
-    
-    func validateReceipt(_ receiptData: Data, completion: @escaping (Bool) -> Void) throws {
-        let base64encodedReceipt = receiptData.base64EncodedString()
-        let requestDictionary = ["receipt-data":base64encodedReceipt, "password": "373aadbe71f24b4683da337912748a3c"]
-        guard JSONSerialization.isValidJSONObject(requestDictionary) else {  print("requestDictionary is not valid JSON");  return }
-        do {
-            let requestData = try JSONSerialization.data(withJSONObject: requestDictionary)
-            #if DEBUG
-            let validationURLString = Endpoint.sandbox
-            #else
-            let validationURLString = Endpoint.itunes
-            #endif
-            guard let validationURL = URL(string: validationURLString) else { print("the validation url could not be created, unlikely error"); return }
-            let session = URLSession(configuration: URLSessionConfiguration.default)
-            var request = URLRequest(url: validationURL)
-            request.httpMethod = "POST"
-            request.cachePolicy = URLRequest.CachePolicy.reloadIgnoringCacheData
-            let task = session.uploadTask(with: request, from: requestData) { (data, response, error) in
-                guard let data = data, let httpResponse = response as? HTTPURLResponse, error == nil, httpResponse.statusCode == 200 else { return }
-                guard let jsonResponse = (try? JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.mutableContainers)) as? [AnyHashable: Any] else { return }
-                guard let receiptInfo = (jsonResponse["latest_receipt_info"] as? [[AnyHashable: Any]]) else { return }
-                guard let lastReceipt = receiptInfo.last else { return }
-                        
-                let formatter = DateFormatter()
-                formatter.dateFormat = "yyyy-MM-dd HH:mm:ss VV"
-                
-                if let expiresString = lastReceipt["expires_date"] as? String {
-                    if let formattedDate = formatter.date(from: expiresString) {
-                        let isValid = formattedDate > Date().toLocalTime()
-                        completion(isValid)
-                    }
-                }
-            }
-            task.resume()
-        } catch let error as NSError {
-            print("json serialization failed with error: \(error)")
-        }
-    }
-    
-//    func requestDidFinish(_ request: SKRequest) {
-//        // a fresh receipt should now be present at the url
-//        do {
-//            let receiptData = try Data(contentsOf: appStoreReceiptURL!) //force unwrap is safe here, control can't land here if receiptURL is nil
-//            try validateReceipt(receiptData)
-//        } catch {
-//            // still no receipt, possible but unlikely to occur since this is the "success" delegate method
-//        }
-//    }
-    
-    func request(_ request: SKRequest, didFailWithError error: Error) {
-        print("app receipt refresh request did fail with error: \(error)")
-        // for some clues see here: https://samritchie.net/2015/01/29/the-operation-couldnt-be-completed-sserrordomain-error-100/
-    }
-}
-
-
-//extension Date {
-//    func yesterday() -> Date {
-//        let tomorrow = Calendar.current.date(byAdding: .day, value: -1, to: self)
-//        return tomorrow!
-//    }
-//}

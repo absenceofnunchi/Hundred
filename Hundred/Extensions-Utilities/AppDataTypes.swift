@@ -93,6 +93,10 @@ struct Messages {
     static let noPhotoLibrary = "Photo Library Not Available"
     static let subscriptionExpired = "Looks like your renewable subscription has expired. Would you like to renew it?"
     static let duplicateUsername = "Duplicate Username"
+    static let unabletoParseJson = "Unable to parse the json"
+    static let subscriptonNotPurchased = "The subscription hasn't been purchased"
+    static let expiredSubscription = "The subscription is expired"
+    static let unknownError = "Unknown error"
 }
 
 // MARK: - Resource File
@@ -264,4 +268,11 @@ enum MetricAnalytics: String {
     case metricTitle
     case username, detail, userId
     case profileImage, profileDetail
+}
+
+// MARK: - Endpoints
+
+struct Endpoint {
+    static let sandbox = "https://sandbox.itunes.apple.com/verifyReceipt"
+    static let itunes = "https://buy.itunes.apple.com/verifyReceipt"
 }

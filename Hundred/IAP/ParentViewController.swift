@@ -141,7 +141,6 @@ class ParentViewController: UIViewController {
             else { fatalError("\(Messages.unknownSelectedSegmentIndex)\(sender.selectedSegmentIndex)).") }
         
         switchToViewController(segment: segment)
-        print("utility.dataSourceForPurchasesUI: \(utility.dataSourceForPurchasesUI)")
         switch segment {
         case .products: fetchProductInformation()
         case .purchases: purchases.reload(with: utility.dataSourceForPurchasesUI)

@@ -293,14 +293,6 @@ class EditEntryViewController: UIViewController {
             scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom, right: 0)
             doneButton.frame = CGRect(x: 0, y: view.frame.size.height - keyboardViewEndFrame.height - 50, width: view.frame.size.width, height: 50)
         }
-        
-        //        if notification.name == UIResponder.keyboardWillHideNotification {
-        //            scrollView.contentInset = .zero
-        //            doneButton.frame = CGRect(x: 0, y: view.frame.size.height - 50, width: view.frame.size.width, height: 50)
-        //        } else {
-        //            scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom, right: 0)
-        //            doneButton.frame = CGRect(x: 0, y: view.frame.size.height - keyboardViewEndFrame.height - 50, width: view.frame.size.width, height: 50)
-        //        }
         scrollView.scrollIndicatorInsets = scrollView.contentInset
     }
     
@@ -348,7 +340,18 @@ class EditEntryViewController: UIViewController {
                             DispatchQueue.main.async {
                                 if let profile = self.fetchProfile() {
                                     // profile exists
-                                    self.done(profile: profile, isPublic: true)
+                                    self.getAppReceipt { (isValid) in
+                                        if isValid {
+                                            self.done(profile: profile, isPublic: true)
+                                        } else {
+                                            // the renewable subscription has expired or needs to be purchased
+                                            DispatchQueue.main.async {
+                                                if let vc = self.storyboard?.instantiateViewController(identifier: "parent") as? ParentViewController {
+                                                    self.navigationController?.pushViewController(vc, animated: true)
+                                                }
+                                            }
+                                        }
+                                    }
                                 } else {
                                     // profile doesn't exist
                                     let ac = UIAlertController(title: Messages.noProfileCreated, message: Messages.createProfile, preferredStyle: .alert)
@@ -400,6 +403,9 @@ class EditEntryViewController: UIViewController {
                     let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.alertClose))
                     ac.view.superview?.subviews[0].addGestureRecognizer(tapGesture)
                 })
+            } else {
+                // if no public post exists, only local
+                done(profile: nil, isPublic: false)
             }
         case 3:
             if let vc = storyboard?.instantiateViewController(withIdentifier: ViewControllerIdentifiers.map) as? MapViewController {
@@ -450,10 +456,10 @@ class EditEntryViewController: UIViewController {
                 } else if imagePathString == nil && progress.image != nil {
                     let imagePath = getDocumentsDirectory().appendingPathComponent(progress.image!)
                     do {
-                        print("image deleted: \(imagePath)")
                         try FileManager.default.removeItem(at: imagePath)
                     } catch {
                         print("The image could not be deleted from the directory: \(error.localizedDescription)")
+                        alert(with: Messages.status, message: Messages.unknownError)
                     }
                     
                     progress.image = nil
@@ -595,11 +601,9 @@ class EditEntryViewController: UIViewController {
             }
             
             operation.perRecordCompletionBlock = {(record, error) in
-                if let error = error {
-                    print("public cloud database error======================================================: \(error)")
+                if let _ = error {
                     return
                 }
-                print("Sucessfully uploaded to Public Cloud DB==================================================== \(record)")
                 var recordsArr: [CKRecord] = []
                 
                 if self.progress.goal.progress.count == 1 {
@@ -683,7 +687,6 @@ class EditEntryViewController: UIViewController {
                 popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
                 popoverController.permittedArrowDirections = []
             }
-            
             present(ac, animated: true)
         }
     }
@@ -720,7 +723,6 @@ extension EditEntryViewController: UIImagePickerControllerDelegate, UINavigation
 
 extension EditEntryViewController: HandleLocation {
     func fetchPlacemark(placemark: MKPlacemark) {
-        print("placemark \(placemark)")
         locationText = placemark.title
         location = placemark.coordinate
     }

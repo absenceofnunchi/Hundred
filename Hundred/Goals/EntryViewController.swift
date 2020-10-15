@@ -38,6 +38,11 @@ class EntryViewController: UIViewController, ChartViewDelegate {
                 if let data = try? Data(contentsOf: imagePath) {
                     uiImage = UIImage(data: data)
                     imageView.image = uiImage
+                    if uiImage.size.width > uiImage.size.height {
+                        imageView.contentMode = .scaleAspectFit
+                    } else {
+                        imageView.contentMode = .scaleAspectFill
+                    }
                 }
             } else {
                 imageView.image = nil
@@ -464,34 +469,5 @@ extension EntryViewController: CallBackDelegate {
         }
         
         NSLayoutConstraint.activate(imageConstraints)
-//        if value.image != nil {
-//            imageView.translatesAutoresizingMaskIntoConstraints = false
-//            imageView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-//            imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
-//            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, constant: 9/16).isActive = true
-//            stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20).isActive = true
-//            if uiImage.size.width > uiImage.size.height {
-//                imageView.contentMode = .scaleAspectFit
-//            } else {
-//                imageView.contentMode = .scaleAspectFill
-//            }
-//        } else {
-//            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-//        }
-//
-//        scrollView.layoutIfNeeded()
-//        stackView.layoutIfNeeded()
-        
     }
 }
-
-//self.context.delete(self.progress)
-//self.saveContext()
-//_ = self.navigationController?.popViewController(animated: true)
-//if let indexPathRow = self.indexPathRow {
-//    self.detailTableVCDelegate?.progresses.remove(at: indexPathRow)
-//    DispatchQueue.main.async {
-//        self.detailTableVCDelegate?.tableView.deleteRows(at: [self.indexPath], with: .fade)
-//        _ = self.navigationController?.popViewController(animated: true)
-//    }
-//}

@@ -882,6 +882,93 @@ extension UIViewController {
     }
 }
 
+// MARK: - SKRequestDelegate
+
+/// fetches App Store receipt and handles the response
+extension UIViewController: SKRequestDelegate {
+    func getAppReceipt(completion: @escaping (Bool) -> Void) {
+        if let appStoreReceiptURL = Bundle.main.appStoreReceiptURL, FileManager.default.fileExists(atPath: appStoreReceiptURL.path) {
+            do {
+                let receiptData = try! Data(contentsOf: appStoreReceiptURL, options: .alwaysMapped)
+                try validateReceipt(receiptData, completion: completion)
+            } catch ReceiptValidationError.receiptNotFound {
+                // There is no receipt on the device 😱
+                print("There is no receipt on the device")
+                alert(with: Messages.status, message: Messages.subscriptonNotPurchased)
+                let appReceiptRefreshRequest = SKReceiptRefreshRequest(receiptProperties: nil)
+                appReceiptRefreshRequest.delegate = self
+                appReceiptRefreshRequest.start()
+                // If all goes well control will land in the requestDidFinish() delegate method.
+                // If something bad happens control will land in didFailWithError.
+            } catch ReceiptValidationError.jsonResponseIsNotValid(let description) {
+                // unable to parse the json 🤯
+                alert(with: Messages.unabletoParseJson, message: description)
+            } catch ReceiptValidationError.notBought {
+                // the subscription hasn't being purchased 😒
+                alert(with: Messages.status, message: Messages.subscriptonNotPurchased)
+            } catch ReceiptValidationError.expired {
+                // the subscription is expired 😵
+                alert(with: Messages.status, message: Messages.expiredSubscription)
+            } catch {
+                print("Unexpected error: \(error).")
+                alert(with: Messages.error, message: error.localizedDescription)
+            }
+        }
+    }
+    
+    func validateReceipt(_ receiptData: Data, completion: @escaping (Bool) -> Void) throws {
+        let base64encodedReceipt = receiptData.base64EncodedString()
+        let requestDictionary = ["receipt-data":base64encodedReceipt, "password": "373aadbe71f24b4683da337912748a3c"]
+        guard JSONSerialization.isValidJSONObject(requestDictionary) else {  print("requestDictionary is not valid JSON");  return }
+        do {
+            let requestData = try JSONSerialization.data(withJSONObject: requestDictionary)
+            #if DEBUG
+            let validationURLString = Endpoint.sandbox
+            #else
+            let validationURLString = Endpoint.itunes
+            #endif
+            guard let validationURL = URL(string: validationURLString) else { print("the validation url could not be created, unlikely error"); return }
+            let session = URLSession(configuration: URLSessionConfiguration.default)
+            var request = URLRequest(url: validationURL)
+            request.httpMethod = "POST"
+            request.cachePolicy = URLRequest.CachePolicy.reloadIgnoringCacheData
+            let task = session.uploadTask(with: request, from: requestData) { (data, response, error) in
+                guard let data = data, let httpResponse = response as? HTTPURLResponse, error == nil, httpResponse.statusCode == 200 else { return }
+                guard let jsonResponse = (try? JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.mutableContainers)) as? [AnyHashable: Any] else { return }
+                guard let receiptInfo = (jsonResponse["latest_receipt_info"] as? [[AnyHashable: Any]]) else { return }
+                guard let lastReceipt = receiptInfo.last else { return }
+                        
+                let formatter = DateFormatter()
+                formatter.dateFormat = "yyyy-MM-dd HH:mm:ss VV"
+                
+                if let expiresString = lastReceipt["expires_date"] as? String {
+                    if let formattedDate = formatter.date(from: expiresString) {
+                        let isValid = formattedDate > Date().toLocalTime()
+                        completion(isValid)
+                    }
+                }
+            }
+            task.resume()
+        } catch let error as NSError {
+            print("json serialization failed with error: \(error)")
+        }
+    }
+    
+//    func requestDidFinish(_ request: SKRequest) {
+//        // a fresh receipt should now be present at the url
+//        do {
+//            let receiptData = try Data(contentsOf: appStoreReceiptURL!) //force unwrap is safe here, control can't land here if receiptURL is nil
+//            try validateReceipt(receiptData)
+//        } catch {
+//            // still no receipt, possible but unlikely to occur since this is the "success" delegate method
+//        }
+//    }
+    
+    public func request(_ request: SKRequest, didFailWithError error: Error) {
+        print("app receipt refresh request did fail with error: \(error)")
+    }
+}
+
 // MARK: - UILabelTheme
 
 struct UILabelTheme {
@@ -1074,9 +1161,9 @@ extension Date {
 // the colors for Charts
 extension NSUIColor {
     convenience init(red: Int, green: Int, blue: Int) {
-        assert(red >= 0 && red <= 255, "Invalid red cmoponent")
-        assert(green >= 0 && green <= 255, "Invalid green cmoponent")
-        assert(blue >= 0 && blue <= 255, "Invalid blue cmoponent")
+        assert(red >= 0 && red <= 255, "Invalid red component")
+        assert(green >= 0 && green <= 255, "Invalid green component")
+        assert(blue >= 0 && blue <= 255, "Invalid blue component")
         
         self.init(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: 1.0)
     }

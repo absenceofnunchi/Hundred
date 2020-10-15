@@ -66,6 +66,8 @@ class UserDetailViewController: UIViewController {
         
         configureUI()
         setConstraints()
+        
+        print("user:-------------------- \(user)")
     }
     
     // MARK: - Configure UI
@@ -462,8 +464,7 @@ class UserDetailViewController: UIViewController {
                                 } else {
                                     // second attempt to save after deleting the duplicate
                                     database.save(subscription) { (result, error) in
-                                        if let error = error {
-                                            print("error from a second attempt to save:  \(error.localizedDescription)")
+                                        if let _ = error {
                                             self.showAlert(title: "Error", message: "Sorry, there was an error subscribing to this user. Please try again", action: nil)
                                         } else if let result = result {
                                             DispatchQueue.main.async {
@@ -478,8 +479,6 @@ class UserDetailViewController: UIViewController {
                                                         newSubscription.username = self.username ?? ""
                                                         newSubscription.subscriptionId = result.subscriptionID
                                                         self.saveContext()
-                                                        print("newSubscription1: \(newSubscription)")
-
                                                     } else {
                                                         for fetchedSubscription in fetchedSubscriptions {
                                                             self.context.delete(fetchedSubscription)
@@ -489,8 +488,6 @@ class UserDetailViewController: UIViewController {
                                                         newSubscription.username = self.username ?? ""
                                                         newSubscription.subscriptionId = result.subscriptionID
                                                         self.saveContext()
-                                                        print("newSubscription2: \(newSubscription)")
-
                                                     }
                                                 }
                                                 
@@ -519,6 +516,7 @@ class UserDetailViewController: UIViewController {
                                         newNotification.title = "The Hundred App"
                                         newNotification.alertBody = "\(fetchedSubscription.username) made a new post"
                                         newNotification.soundName = "default"
+                                        newNotification.shouldBadge = true
                                         subscription.notificationInfo = newNotification
                                         
                                         subscriptionArr.append(newSubscription)
@@ -572,8 +570,6 @@ class UserDetailViewController: UIViewController {
                                 newSubscription.username = self.username ?? ""
                                 newSubscription.subscriptionId = result.subscriptionID
                                 self.saveContext()
-                                print("newSubscription3: \(newSubscription)")
-
                             } else {
                                 for fetchedSubscription in fetchedSubscriptions {
                                     self.context.delete(fetchedSubscription)

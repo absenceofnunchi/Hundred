@@ -6,6 +6,8 @@
 //  Copyright © 2020 J. All rights reserved.
 //
 
+
+
 import UIKit
 import CoreSpotlight
 import MobileCoreServices
@@ -79,7 +81,6 @@ class DetailTableViewController: UITableViewController, UIContextMenuInteraction
         let cell = tableView.dequeueReusableCell(withIdentifier: Cells.progressCell, for: indexPath) as! ProgressCell
         let progress = progresses[indexPath.row]
         cell.set(progress: progress)
-
         return cell
     }
     
@@ -174,7 +175,6 @@ extension DetailTableViewController {
         func getPreviewVC(indexPath: IndexPath) -> UIViewController? {
             if let destinationVC = storyboard?.instantiateViewController(identifier: "Entry") as? EntryViewController {
                 destinationVC.progress = progresses[indexPath.row]
-//                destinationVC.metrics = goal.metrics
                 destinationVC.indexPathRow = indexPath.row
                 destinationVC.indexPath = indexPath
                 
